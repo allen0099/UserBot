@@ -1,5 +1,6 @@
 import html
 import logging
+import re
 from typing import List, Union
 
 import pyrogram
@@ -18,7 +19,8 @@ def request(cli: Client, msg: Message) -> None:
                        "Request the group or a user's information\n"
                        " - NAME: int for UID, str for @username\n")
     elif len(msg.command) == 2:
-        cmd: str = msg.command[1]
+        username_re = re.compile(r"(?<=t\.me/)\w{5,}$|(?<=@)\w{5,}$|\w{5,}$|^[+-]?\d+$|me$|self$")
+        cmd: str = re.search(username_re, msg.command[1])[0]
         try:
             peer: Union[
                 types.InputPeerChannel,
