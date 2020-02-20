@@ -175,7 +175,7 @@ def string_admins(admins: List[pyrogram.ChatMember]) -> str:
 
     admins_string = f"\nAdministrators:\n" \
                     f"Creator: " \
-                    f"<code>[{creator.title}]</code>" \
+                    f"<code>[{creator.title if creator.title is not None else ''}]</code>" \
                     f"<a href='tg://user?id={creator.user.id}'>" \
                     f"{creator.user.first_name} " \
                     f"{creator.user.last_name if creator.user.last_name is not None else ''}</a>\n"
@@ -187,12 +187,12 @@ def string_admins(admins: List[pyrogram.ChatMember]) -> str:
 
     # append admins
     for admin in admins:
-        admins_string += f"<code>[{admin.title}]</code>" \
+        admins_string += f"<code>[{admin.title if admin.title is not None else ''}]</code>" \
                          f"<a href='tg://user?id={admin.user.id}'>" \
                          f"{admin.user.first_name} " \
                          f"{admin.user.last_name if admin.user.last_name is not None else ''}</a>\n"
     for bot in bots:
-        admins_string += f"<code>[{bot.title}]</code>" \
+        admins_string += f"<code>[{bot.title if bot.title is not None else ''}]</code>" \
                          f"<a href='tg://user?id={bot.user.id}'>" \
                          f"{bot.user.first_name} " \
                          f"{bot.user.last_name if bot.user.last_name is not None else ''}</a> (🤖)\n"
