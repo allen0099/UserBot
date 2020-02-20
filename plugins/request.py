@@ -63,7 +63,15 @@ def _parse(cli: Client,
         return _parse_channel(cli, channel, channel_full)
     elif isinstance(peer, types.InputPeerChat):
         """Normal chat"""
-        return _parse_chat()
+        api_chat: types.messages.ChatFull = cli.send(
+            functions.messages.GetFullChat(
+                chat_id=peer.chat_id
+            )
+        )
+        chat: types.Chat = api_chat.chats[0]
+        chat_full: types.ChatFull = api_chat.full_chat
+        users: List[types.User] = api_chat.users
+        return _parse_chat(chat, chat_full, users)
     else:
         log.warning(f"Peer undefined, peer type is {peer.QUALNAME}")
 
@@ -88,6 +96,7 @@ def _parse_user(api_user: types.UserFull, user: types.User) -> str:
 
 
 def _parse_channel(cli: Client, channel: types.Channel, channel_full: types.ChannelFull) -> str:
+    # noinspection PyTypeChecker
     _s: str = f"Chat ID: <code>{-1000000000000 - channel.id}</code>\n" \
               f"Chat type: <code>{'Supergroup' if channel.megagroup else 'Channel'}</code>\n" \
               f"Chat title: {html.escape(channel.title)}\n" \
@@ -118,6 +127,7 @@ def _parse_channel(cli: Client, channel: types.Channel, channel_full: types.Chan
 
         _s += string_permission(permission)
 
+        # noinspection PyTypeChecker
         # Listing all admins
         admins: List[pyrogram.ChatMember] = cli.get_chat_members(-1000000000000 - channel.id,
                                                                  filter="administrators")
@@ -127,8 +137,20 @@ def _parse_channel(cli: Client, channel: types.Channel, channel_full: types.Chan
     return _s
 
 
-def _parse_chat() -> str:
-    return ""
+def _parse_chat(chat: types.Chat, chat_full: types.ChatFull, users: List[types.User]) -> str:
+    _s: str = f"Chat ID: <code>-{chat.id}</code>\n" \
+              f"Chat type: <code>Chat(Normal Group)</code>\n" \
+              f"Chat title: {html.escape(chat.title)}\n" \
+              f"Description:\n" \
+              f"<code>{html.escape(chat_full.about)}</code>\n" \
+              f"Members: {chat.participants_count}\n"
+    if chat_full.pinned_msg_id is not None:
+        _s += f"<a href='https://t.me/c/{chat.id}/{chat_full.pinned_msg_id}'>Pinned message</a>\n"
+
+    permission: types.ChatBannedRights = chat.default_banned_rights
+    _s += string_permission(permission)
+
+    return _s
 
 
 def string_permission(permission: types.ChatBannedRights) -> str:
