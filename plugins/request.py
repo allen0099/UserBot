@@ -8,7 +8,7 @@ from pyrogram import Client, Filters, Message
 from pyrogram.api import types, functions
 from pyrogram.errors import PeerIdInvalid, UsernameInvalid
 
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.command("req", prefixes="$"))

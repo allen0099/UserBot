@@ -2,7 +2,7 @@ import logging
 
 from pyrogram import Client, Message, Filters
 
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.dan & Filters.me)

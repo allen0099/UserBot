@@ -2,7 +2,7 @@ import logging
 
 from pyrogram import Client, Filters, Message
 
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.command("getchat", prefixes="$"))

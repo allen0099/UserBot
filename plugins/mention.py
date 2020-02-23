@@ -2,9 +2,10 @@ import logging
 
 from pyrogram import Client, Message, Filters
 
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 
 
+# TODO: rewrite this
 @Client.on_message(Filters.command("everyone", prefixes="@") & Filters.group & Filters.me)
 def mention_everyone(cli: Client, msg: Message) -> None:
     cli.delete_messages(msg.chat.id, [msg.message_id])

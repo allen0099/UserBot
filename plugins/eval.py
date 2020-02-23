@@ -7,11 +7,12 @@ from io import StringIO
 
 from pyrogram import Client, Filters, Message
 
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.command("eval", prefixes=".") & Filters.me)
 def api(cli: Client, msg: Message) -> None:
+    # TODO: rewrite the structure
     sys.stdout = out = StringIO()
     sys.stderr = err = StringIO()
     init_str = f"<b>Expression</b>:\n"
