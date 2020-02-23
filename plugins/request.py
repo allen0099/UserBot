@@ -105,7 +105,7 @@ def _parse_channel(cli: Client, channel: types.Channel, channel_full: types.Chan
               f"Chat username: @{getattr(channel, 'username', None)}\n" \
               f"Description:\n" \
               f"<code>{html.escape(channel_full.about)}</code>\n" \
-              f"Administrators: {channel_full.admins_count}\n" \
+              f"Administrators: {len(cli.get_chat_members(-1000000000000 - channel.id, filter='administrators')) if channel.megagroup else None}\n" \
               f"Members: {channel_full.participants_count}\n" \
               f"Verified: {'✅' if channel.verified else '❎'}\n" \
               f"Scam: {'✅' if channel.scam else '❎'}\n" \
