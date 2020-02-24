@@ -10,20 +10,15 @@ log: logging.Logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.command("getu", prefixes="$") & Filters.reply)
 def get_you(cli: Client, msg: Message) -> None:
-    try:
-        api_user: types.UserFull = cli.send(
-            functions.users.GetFullUser(
-                id=cli.resolve_peer(msg.reply_to_message.forward_from.id)
-            )
+    user_id = getattr(msg.reply_to_message.forward_from, 'id', None) or \
+              getattr(msg.reply_to_message.from_user, 'id', None) or \
+              getattr(msg.from_user, 'id', None)
+    api_user: types.UserFull = cli.send(
+        functions.users.GetFullUser(
+            id=cli.resolve_peer(user_id)
         )
-        pyro_user: pyrogram.User = cli.get_users(msg.reply_to_message.forward_from.id)
-    except AttributeError:
-        api_user: types.UserFull = cli.send(
-            functions.users.GetFullUser(
-                id=cli.resolve_peer(msg.reply_to_message.from_user.id)
-            )
-        )
-        pyro_user: pyrogram.User = cli.get_users(msg.reply_to_message.from_user.id)
+    )
+    pyro_user: pyrogram.User = cli.get_users(user_id)
 
     msg.reply_text(f"User ID: <code>{pyro_user.id}</code>\n"
                    f"User datacenter: <code>{pyro_user.dc_id}</code>\n"
