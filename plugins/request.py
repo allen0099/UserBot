@@ -1,7 +1,7 @@
 import html
 import logging
 import re
-from typing import List, Union
+from typing import List, Union, Tuple
 
 import pyrogram
 from pyrogram import Client, Filters, Message
@@ -21,6 +21,8 @@ def request(cli: Client, msg: Message) -> None:
     elif len(msg.command) == 2:
         username_re = re.compile(r"(?<=t\.me/)\w{5,}$|(?<=@)\w{5,}$|\w{5,}$|^[+-]?\d+$|me$|self$")
         cmd: str = re.search(username_re, msg.command[1])[0]
+
+        photo, file_ref = _parse_photo(cli, cmd)
         try:
             peer: Union[
                 types.InputPeerChannel,
@@ -32,8 +34,16 @@ def request(cli: Client, msg: Message) -> None:
         except UsernameInvalid as e:
             string: str = str(e.CODE) + " " + e.ID
         else:
-            string: str = _parse(cli, peer)
-        msg.reply_text(string, parse_mode="HTML")
+            string: str
+            string = _parse(cli, peer)
+        if photo is not None:
+            if len(string) < 1024:
+                msg.reply_photo(photo, file_ref=file_ref, caption=string)
+            else:
+                msg.reply_photo(photo, file_ref=file_ref)
+                msg.reply_text(string, parse_mode="HTML")
+        else:
+            msg.reply_text(string, parse_mode="HTML")
 
 
 def _parse(cli: Client,
@@ -76,6 +86,15 @@ def _parse(cli: Client,
         return _parse_chat(chat, chat_full, users)
     else:
         log.warning(f"Peer undefined, peer type is {peer.QUALNAME}")
+
+
+def _parse_photo(cli: Client, cmd: str) -> Union[Tuple[None, None], Tuple[str, str]]:
+    photos: List[pyrogram.Photo] = cli.get_profile_photos(cmd)
+    if not photos:
+        return None, None
+    else:
+        latest_photo = photos[0]
+        return latest_photo.file_id, latest_photo.file_ref
 
 
 def _parse_user(api_user: types.UserFull, user: types.User) -> str:
