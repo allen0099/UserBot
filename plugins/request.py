@@ -100,7 +100,7 @@ def _parse_photo(cli: Client, cmd: str) -> Union[Tuple[None, None], Tuple[str, s
 def _parse_user(api_user: types.UserFull, user: types.User) -> str:
     _s: str = f"UID: <code>{user.id}</code>\n" \
               f"User data center: <code>{getattr(user.photo, 'dc_id', None)}</code>\n" \
-              f"First Name: <a href='tg://user?id={user.id}'>{html.escape(user.first_name)}</a>\n" \
+              f"First Name: <a href='tg://user?id={user.id}'>{html.escape(str(user.first_name))}</a>\n" \
               f"Last Name: {html.escape(str(user.last_name))}\n" \
               f"Username: @{user.username}\n" \
               f"Bio: \n" \
