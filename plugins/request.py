@@ -21,14 +21,15 @@ def request(cli: Client, msg: Message) -> None:
     elif len(msg.command) == 2:
         username_re = re.compile(r"(?<=t\.me/)\w{5,}$|(?<=@)\w{5,}$|\w{5,}$|^[+-]?\d+$|me$|self$")
         cmd: str = re.search(username_re, msg.command[1])[0]
-
-        photo, file_ref = _parse_photo(cli, cmd)
+        photo: Union[str, None] = None
+        file_ref: Union[str, None] = None
         try:
             peer: Union[
                 types.InputPeerChannel,
                 types.InputPeerChat,
                 types.InputPeerSelf,
                 types.InputPeerUser] = cli.resolve_peer(cmd)
+            photo, file_ref = _parse_photo(cli, cmd)
         except PeerIdInvalid as e:
             string: str = str(e.CODE) + " " + e.ID
         except UsernameInvalid as e:
