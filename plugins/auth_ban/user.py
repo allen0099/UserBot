@@ -1,8 +1,9 @@
 import json
-import sys
-from os import path
+import logging
+import os
 
-FILE_PATH = path.dirname(sys.modules['__main__'].__file__) + "/auth_user.json"
+log: logging.Logger = logging.getLogger(__name__)
+FILE_PATH = os.getcwd() + "/auth_user.json"
 
 
 def add_auth(uid: int) -> None:
