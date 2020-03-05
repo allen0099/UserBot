@@ -36,14 +36,17 @@ def ban(cli: Client, msg: Message) -> None:
             """Service means user join"""
             string: str = f"===Joined Message===\n" \
                           f"From chat: <code>{html.escape(chat.title)}({chat.id})</code>\n" \
-                          f"User join: <a href='tg://user?id={ban_user.id}'>{html.escape(str(ban_user.first_name))}</a>"
+                          f"User join: <a href='tg://user?id={ban_user.id}'>{html.escape(str(ban_user.first_name))}</a>" \
+                          f"({ban_user.id})"
             cli.send_message(LOG_CHANNEL, string)
 
         string: str = f"+++Banned Info+++\n" \
                       f"From chat: <code>{html.escape(chat.title)}({chat.id})</code>\n" \
-                      f"Execute user: <a href='tg://user?id={execute_user.id}'>{html.escape(str(execute_user.first_name))}</a>\n" \
+                      f"Execute user: <a href='tg://user?id={execute_user.id}'>{html.escape(str(execute_user.first_name))}</a>" \
+                      f"({execute_user.id})\n" \
                       f"Execute time: {time.asctime()}\n" \
-                      f"Banned user: <a href='tg://user?id={ban_user.id}'>{html.escape(str(ban_user.first_name))}</a>"
+                      f"Banned user: <a href='tg://user?id={ban_user.id}'>{html.escape(str(ban_user.first_name))}</a>" \
+                      f"({ban_user.id})"
         cli.send_message(LOG_CHANNEL, string)
     # delete all message first
     cli.send(
