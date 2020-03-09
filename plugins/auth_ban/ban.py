@@ -13,7 +13,7 @@ log: logging.Logger = logging.getLogger(__name__)
 LOG_CHANNEL: int = -1001216861093
 
 
-@Client.on_message(Filters.command("bang", prefixes=["$", "/"]) &
+@Client.on_message(Filters.command("bang", prefixes=["$", "/", "@"]) &
                    Filters.group &
                    Filters.reply &
                    Filters.user(get_auth()))
