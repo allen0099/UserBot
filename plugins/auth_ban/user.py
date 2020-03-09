@@ -14,7 +14,7 @@ def add_auth(uid: int) -> None:
 
     if uid not in users:
         users.append(uid)
-        file['auth'] = users
+        file['auth'] = sorted(users)
 
     string: str = json.dumps(file)
 
