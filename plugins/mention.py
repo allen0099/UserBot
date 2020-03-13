@@ -15,7 +15,7 @@ def mention_admins(cli: Client, msg: Message) -> None:
         cli.get_chat_members(msg.chat.id,
                              filter="administrators")
 
-    string: str = "@admin "
+    string: str = "admins"
     for admin in admins:
         string += f"<a href='tg://user?id={admin.user.id}'>" + "\u2060" + "</a>"
     cli.send_message(msg.chat.id,
