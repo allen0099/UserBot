@@ -10,10 +10,12 @@ logging.basicConfig(level=logging.DEBUG,
 
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
+# TODO enable whitelist
 if __name__ == '__main__':
+    version: str = "0.0.1"
     app: Client = Client(
         "bot",
-        app_version="Elegant 0.0.0.0",
+        app_version=f"allen0099's userbot {version}",
         device_model=platform.node(),
         system_version=platform.system() + " " + platform.release()
     )

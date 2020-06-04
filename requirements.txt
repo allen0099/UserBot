@@ -1,5 +1,4 @@
-coverage==5.0.3
 pyaes==1.6.1
-Pyrogram==0.17.0.dev0
-PySocks==1.7.0
-TgCrypto==1.2.0
+Pyrogram==0.17.1
+PySocks==1.7.1
+TgCrypto==1.2.1
