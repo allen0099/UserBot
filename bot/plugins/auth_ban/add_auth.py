@@ -6,7 +6,7 @@ from pyrogram import Client, Message, Filters
 from pyrogram.api import types, functions
 from pyrogram.errors import PeerIdInvalid, UsernameInvalid
 
-from plugins.auth_ban import user
+from bot.plugins.auth_ban import user
 
 log: logging.Logger = logging.getLogger(__name__)
 USERNAME_RE: Pattern[str] = re.compile(r"(?<=t\.me/)\w{5,}$|(?<=@)\w{5,}$|\w{5,}$|^[+-]?\d+$|me$|self$")

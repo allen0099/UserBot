@@ -6,7 +6,7 @@ import pyrogram
 from pyrogram import Client, Message, Filters
 from pyrogram.api.functions import channels
 
-from plugins.auth_ban.user import get_auth
+from bot.plugins.auth_ban.user import get_auth
 
 log: logging.Logger = logging.getLogger(__name__)
 
