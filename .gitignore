@@ -1,6 +1,8 @@
 # User define
 *.session
 *.session-journal
+config.ini
+settings.db
 .idea/sonarlint/*
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider

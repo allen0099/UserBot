@@ -2,15 +2,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 # https://stackoverflow.com/a/45613994
 
-engine: Engine = create_engine("sqlite:///:memory:", echo=True)
+engine: Engine = create_engine("sqlite:///settings.db", echo=True,
+                               connect_args=dict(check_same_thread=False))
 
 Base: DeclarativeMeta = declarative_base()
 
-DBSession: sessionmaker = sessionmaker(bind=engine)
-session: sessionmaker = DBSession()
+_session: sessionmaker = sessionmaker(bind=engine)
+session: Session = _session()
 
 from .Users import Users

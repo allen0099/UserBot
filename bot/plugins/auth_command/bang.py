@@ -6,25 +6,24 @@ import pyrogram
 from pyrogram import Client, Message, Filters
 from pyrogram.api.functions import channels
 
-from bot.plugins.auth_ban.user import get_auth
+from bot.plugins.auth_command import LOG_CHANNEL
+from models import Users
 
 log: logging.Logger = logging.getLogger(__name__)
 
-LOG_CHANNEL: int = -1001216861093
 
-
-@Client.on_message(Filters.command("bang", prefixes=["$", "/", "@"]) &
+@Client.on_message(Filters.user(Users.get()) &
+                   Filters.command("bang", prefixes=["$", "/", "@", "!"]) &
                    Filters.group &
-                   Filters.reply &
-                   Filters.user(get_auth()))
-def ban(cli: Client, msg: Message) -> None:
+                   Filters.reply)
+def bang(cli: Client, msg: Message) -> None:
     chat: pyrogram.Chat = msg.chat
     execute_user: pyrogram.User = msg.from_user
 
     reply_message: pyrogram.Message = msg.reply_to_message
     ban_user: pyrogram.User = msg.reply_to_message.from_user
 
-    permission: pyrogram.ChatMember = cli.get_chat_member(msg.chat.id, 184805205)
+    permission: pyrogram.ChatMember = cli.get_chat_member(msg.chat.id, cli.get_me().id)
 
     if permission.status == "administrator" and \
             permission.can_delete_messages is True and \

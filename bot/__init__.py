@@ -21,7 +21,7 @@ class Bot:
         self.db.metadata.create_all(self.db_engine)
 
     def run(self):
-        app: Client = Client(
+        self.app: Client = Client(
             "bot",
             app_version=f"allen0099's User Bot {self.version}",
             device_model=platform.node(),
@@ -30,14 +30,15 @@ class Bot:
 
         # Disable notice
         Session.notice_displayed = True
-        app.start()
+        self.app.start()
 
         try:
-            me = app.get_me()
+            me = self.app.get_me()
             log.info(f"[Loaded] {me.first_name} (@{me.username})")
         except Exception as e:
             log.critical(f"{e}")
 
         log.debug("Client started successfully")
-        app.idle()
-        app.stop()
+
+    def stop(self):
+        self.app.stop()
