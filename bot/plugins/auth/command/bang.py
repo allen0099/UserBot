@@ -7,7 +7,7 @@ from pyrogram import Client, Message, Filters
 from pyrogram.api.functions import channels
 
 from bot.plugins import COMMAND_PREFIX
-from bot.plugins.auth_command import LOG_CHANNEL
+from bot.plugins.auth.command import LOG_CHANNEL
 from models import Users
 
 log: logging.Logger = logging.getLogger(__name__)

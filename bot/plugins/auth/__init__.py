@@ -1,5 +1,4 @@
-# 該 package 可以新增、刪除、列出在資料庫裡面的使用者 UID
-# 只有 me 允許操作
+# 授權使用者的增加、刪除、列出，只有 me 能用
 import logging
 import re
 from typing import Pattern

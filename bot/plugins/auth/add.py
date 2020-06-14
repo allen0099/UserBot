@@ -7,7 +7,7 @@ from pyrogram.api import types
 
 from bot.functions import get_full_user
 from bot.plugins import COMMAND_PREFIX
-from bot.plugins.auth_user import USERNAME_RE
+from bot.plugins.auth import USERNAME_RE
 from models import Users
 
 log: logging.Logger = logging.getLogger(__name__)

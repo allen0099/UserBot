@@ -5,11 +5,16 @@ import pyrogram
 from pyrogram import Client, Filters, Message
 from pyrogram.api import functions, types
 
+from bot.plugins import COMMAND_PREFIX
+from models import Users
+
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.command("getu", prefixes="$") & Filters.reply)
-def get_you(cli: Client, msg: Message) -> None:
+@Client.on_message(Filters.user(Users.get()) &
+                   Filters.command("getu", prefixes=COMMAND_PREFIX) &
+                   Filters.reply)
+def getu(cli: Client, msg: Message) -> None:
     user_id = getattr(msg.reply_to_message.forward_from, 'id', None) or \
               getattr(msg.reply_to_message.from_user, 'id', None) or \
               getattr(msg.from_user, 'id', None)
