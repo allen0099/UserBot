@@ -15,7 +15,12 @@ log: logging.Logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.command("user_add", prefixes=COMMAND_PREFIX) & Filters.me)
 def user_add(cli: Client, msg: Message) -> None:
-    cmd: str = re.search(USERNAME_RE, msg.command[1])[0]
+    if len(msg.command) != 2:
+        msg.reply_text("Usage:\n"
+                       "<code>user_add [UID, username, t.me link]</code>")
+        return
+    else:
+        cmd: str = re.search(USERNAME_RE, msg.command[1])[0]
 
     full_user: Union[str, types.UserFull] = get_full_user(cli, cmd)
 

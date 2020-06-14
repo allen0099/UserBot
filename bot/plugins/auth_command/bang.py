@@ -6,6 +6,7 @@ import pyrogram
 from pyrogram import Client, Message, Filters
 from pyrogram.api.functions import channels
 
+from bot.plugins import COMMAND_PREFIX
 from bot.plugins.auth_command import LOG_CHANNEL
 from models import Users
 
@@ -13,7 +14,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.user(Users.get()) &
-                   Filters.command("bang", prefixes=["$", "/", "@", "!"]) &
+                   Filters.command("bang", prefixes=COMMAND_PREFIX) &
                    Filters.group &
                    Filters.reply)
 def bang(cli: Client, msg: Message) -> None:
