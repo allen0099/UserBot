@@ -14,4 +14,5 @@ Base: DeclarativeMeta = declarative_base()
 _session: sessionmaker = sessionmaker(bind=engine)
 session: Session = _session()
 
+from . import check
 from .Users import Users
