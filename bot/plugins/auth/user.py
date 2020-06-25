@@ -13,6 +13,34 @@ from models import Users
 log: logging.Logger = logging.getLogger(__name__)
 
 
+@Client.on_message(Filters.command("user_get", prefixes=COMMAND_PREFIX) & Filters.me)
+def user_get(cli: Client, msg: Message) -> None:
+    msg.reply_text(f"Users: <code>{Users.get()}</code>")
+
+
+@Client.on_message(Filters.command("user_add", prefixes=COMMAND_PREFIX) & Filters.me)
+def user_add(cli: Client, msg: Message) -> None:
+    if len(msg.command) != 2:
+        msg.reply_text("Usage:\n"
+                       "<code>user_add [UID, username, t.me link]</code>")
+        return
+    else:
+        cmd: str = re.search(USERNAME_RE, msg.command[1])[0]
+
+    full_user: Union[str, types.UserFull] = get_full_user(cli, cmd)
+
+    if isinstance(full_user, types.UserFull):
+        _user: types.User = full_user.user
+        uid: int = int(repr(_user.id))
+        if Users.add(uid):
+            string: str = f"Added <code>{uid}</code> successfully"
+        else:
+            string: str = f"Not add <code>{uid}</code>, because its already in list"
+    else:
+        string: str = full_user
+    msg.reply_text(string)
+
+
 @Client.on_message(Filters.command("user_remove", prefixes=COMMAND_PREFIX) & Filters.me)
 def user_remove(cli: Client, msg: Message) -> None:
     if len(msg.command) != 2:
