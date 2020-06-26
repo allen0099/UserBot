@@ -6,7 +6,7 @@ from pyrogram import Client, Message, Filters
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.command("random", prefixes="$"))
+@Client.on_message(Filters.command("random", prefixes="$") & Filters.me)
 def roll_dice(cli: Client, msg: Message) -> None:
     if len(msg.command) > 2:
         tmp: list = []

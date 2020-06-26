@@ -11,7 +11,7 @@ from pyrogram.errors import PeerIdInvalid, UsernameInvalid
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.command("req", prefixes="$"))
+@Client.on_message(Filters.command("req", prefixes="$") & Filters.me)
 def request(cli: Client, msg: Message) -> None:
     if len(msg.command) == 1 or len(msg.command) >= 3:
         msg.reply_text("Usage: <code>$req [NAME]</code>\n"
