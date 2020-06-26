@@ -1,8 +1,7 @@
 #!/bin/bash
 
 if [ ! -d "./venv" ]; then
-  python3 -m venv venv
-  source venv/bin/activate
+  ./package_install.sh
 fi
-
+source venv/bin/activate
 python3 main.py
