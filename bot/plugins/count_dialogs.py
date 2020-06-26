@@ -1,5 +1,7 @@
 import logging
+from typing import Generator
 
+import pyrogram
 from pyrogram import Client, Filters, Message
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -7,37 +9,38 @@ log: logging.Logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.command("countmsg", prefixes="$") & Filters.me)
 def count_dialogs(cli: Client, msg: Message) -> None:
-    # TODO: make this more quickly
     cli.delete_messages(msg.chat.id, [msg.message_id])
 
-    r = cli.iter_dialogs()
-    total = 0
-    group = 0
-    super_group = 0
-    channel = 0
-    private = 0
-    bot = 0
-    sent = cli.send_message(msg.chat.id, "計算中，將會花費一點時間，請稍等")
+    r: Generator["pyrogram.Dialog"] = cli.iter_dialogs()
+
+    count: dict = {
+        "total": 0,
+        "group": 0,
+        "supergroup": 0,
+        "channel": 0,
+        "private": 0,
+        "bot": 0
+    }
+
+    sent: Message = cli.send_message(msg.chat.id, "計算中，將會花費一點時間，請稍等")
     for _ in r:
-        _dialog_type = _.chat.type
-        total += 1
+        count["total"] += 1
+        _dialog_type: str = _.chat.type
         if _dialog_type == "supergroup":
-            super_group += 1
+            count["supergroup"] += 1
         elif _dialog_type == "group":
-            group += 1
+            if _.top_message.migrate_to_chat_id is not None:
+                count["group"] += 1
         elif _dialog_type == "channel":
-            channel += 1
+            count["channel"] += 1
         elif _dialog_type == "private":
-            private += 1
+            count["private"] += 1
         elif _dialog_type == "bot":
-            bot += 1
-        else:
-            """TODO"""
-            pass
-    string = f"Total: {total}\n" \
-             f"Groups: {group}\n" \
-             f"Super groups: {super_group}\n" \
-             f"Channel: {channel}\n" \
-             f"Private: {private}\n" \
-             f"Bot: {bot}\n"
-    cli.edit_message_text(sent.chat.id, sent.message_id, string)
+            count["bot"] += 1
+    result: str = f"Total: {count['total']}\n" \
+                  f"Groups: {count['group']}\n" \
+                  f"Super groups: {count['supergroup']}\n" \
+                  f"Channel: {count['channel']}\n" \
+                  f"Private: {count['private']}\n" \
+                  f"Bot: {count['bot']}\n"
+    cli.edit_message_text(sent.chat.id, sent.message_id, result)
