@@ -31,6 +31,8 @@ def count_dialogs(cli: Client, msg: Message) -> None:
         elif _dialog_type == "group":
             if _.top_message.migrate_to_chat_id is not None:
                 count["group"] += 1
+            else:
+                count["total"] -= 1
         elif _dialog_type == "channel":
             count["channel"] += 1
         elif _dialog_type == "private":
