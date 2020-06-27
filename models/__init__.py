@@ -15,4 +15,5 @@ _session: sessionmaker = sessionmaker(bind=engine)
 session: Session = _session()
 
 from . import check
+from .PermissionChats import PermissionChats
 from .Users import Users
