@@ -32,8 +32,8 @@ class Name(Base):
         return False
 
     @staticmethod
-    def remove(rule: str) -> bool:
-        _check: Name = session.query(Name).filter_by(rule=rule).first()
+    def remove(id: str) -> bool:
+        _check: Name = session.query(Name).filter_by(id=id).first()
         if _check is not None:
             session.delete(_check)
             session.commit()
@@ -41,6 +41,11 @@ class Name(Base):
         return False
 
     @staticmethod
-    def get() -> List[str]:
+    def get_id(rule: str) -> int:
+        _check: Name = session.query(Name).filter_by(rule=rule).first()
+        return _check.id
+
+    @staticmethod
+    def get_rules() -> List[str]:
         _rules: List[Name] = session.query(Name).all()
         return [r.rule for r in _rules]
