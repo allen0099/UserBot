@@ -1,6 +1,5 @@
 import logging
 import re
-from re import Match
 from typing import List
 
 from pyrogram import Client, Message, Filters
@@ -20,7 +19,7 @@ def name_check(cli: Client, msg: Message) -> None:
     reply: str = f"Full Name: {full_name}\n"
 
     for rule in rules:
-        result: Match = re.search(rule, full_name)
+        result: re.Match = re.search(rule, full_name)
         log.debug(f"Checking rule: {rule}")
         if result is not None:
             match = result.group()
