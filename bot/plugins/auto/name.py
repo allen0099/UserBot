@@ -5,7 +5,7 @@ from typing import List
 
 from pyrogram import Client, Message, Filters
 
-from bot.plugins.auto import LOG_CHANNEL
+from bot.plugins import LOG_CHANNEL
 from models import PermissionChats
 from models.check.Name import Name
 
