@@ -153,7 +153,7 @@ def _parse_channel(cli: Client, channel: types.Channel, channel_full: types.Chan
         # Listing all admins
         admins: List[pyrogram.ChatMember] = cli.get_chat_members(-1000000000000 - channel.id,
                                                                  filter="administrators")
-        admins.sort(key=lambda x: x.user_bot.id)
+        admins.sort(key=lambda x: x.user.id)
 
         _s += string_admins(admins)
     return _s
