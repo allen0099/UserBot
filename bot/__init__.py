@@ -4,7 +4,7 @@ import platform
 from pyrogram import Client
 from pyrogram.session import Session
 
-from bot.functions import refresh_permission_chats
+from bot.functions import recheck_permission_chats
 from models import Base, engine, session
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -35,11 +35,11 @@ class Bot:
 
         try:
             me = self.app.get_me()
-            log.info(f"[Loaded] {me.first_name} (@{me.username})")
+            log.info(f"[Loaded] {me.first_name} (@{me.username}) ID: {me.id}")
         except Exception as e:
             log.critical(f"{e}")
 
-        refresh_permission_chats(self.app)
+        recheck_permission_chats(self.app)
 
         log.info("Client started successfully")
 

@@ -31,13 +31,11 @@ def restart(cli: Client):
     Thread(target=cli.restart).start()
 
 
-def refresh_permission_chats(cli: Client):
+def recheck_permission_chats(cli: Client):
     r: Generator["pyrogram.Dialog"] = cli.iter_dialogs()
 
-    PermissionChats.clear()
-
     for _ in r:
-        if _.chat.type == "supergroup":
+        if _.chat.type == "supergroup" and not PermissionChats.is_saved(_.chat.id):
             permission: pyrogram.ChatMember = cli.get_chat_member(_.chat.id, cli.get_me().id)
 
             log.debug(f"{_.chat.id} {permission.status}")

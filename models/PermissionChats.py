@@ -32,6 +32,13 @@ class PermissionChats(Base):
         return False
 
     @staticmethod
+    def is_saved(_id: int):
+        _check: PermissionChats = session.query(PermissionChats).filter_by(cid=_id).first()
+        if _check is None:
+            return False
+        return True
+
+    @staticmethod
     def get() -> List[int]:
         chats: List[PermissionChats] = session.query(PermissionChats).all()
         return [c.cid for c in chats]
