@@ -22,9 +22,13 @@ def name_check(cli: Client, msg: Message) -> None:
                  f"Group: {html.escape(msg.chat.title)}" \
                  f" [<code>{msg.chat.id}</code>]\n"
 
+    log.debug(f"Full Name: {full_name}")
+
     for rule in rules:
         result: re.Match = re.search(rule, full_name)
+
         log.debug(f"Checking rule: {rule}")
+
         if result is not None:
             match = result.group()
             reply += f"<code>===MATCH===</code>" \
