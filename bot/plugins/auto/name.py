@@ -31,7 +31,7 @@ def name_check(cli: Client, msg: Message) -> None:
 
         if result is not None:
             match = result.group()
-            reply += f"<code>===MATCH===</code>" \
+            reply += f"<code>===MATCH===</code>\n" \
                      f"Rule: <code>{rule}</code>\n" \
                      f"Match: <code>{match}</code>\n"
             break
