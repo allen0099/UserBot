@@ -14,6 +14,6 @@ Base: DeclarativeMeta = declarative_base()
 _session: sessionmaker = sessionmaker(bind=engine)
 session: Session = _session()
 
+from . import chats
 from . import check
-from .PermissionChats import PermissionChats
 from .Users import Users
