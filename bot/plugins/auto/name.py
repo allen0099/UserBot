@@ -17,11 +17,10 @@ def name_check(cli: Client, msg: Message) -> None:
     full_name: str = f"{msg.from_user.first_name} {msg.from_user.last_name}"
 
     rules: List[str] = Name.get_rules()
-    reply: str = f"Full Name: <a href='tg://user?id={msg.from_user.id}'>{html.escape(full_name)}</a>\n" \
-                 f"ID: <code>{msg.from_user.id}</code>" \
-                 f"==Chat==\n" \
-                 f"ID: <code>{msg.chat.id}\n</code>\n" \
-                 f"Title: <code>{html.escape(msg.chat.title)}</code>\n"
+    reply: str = f"User: <a href='tg://user?id={msg.from_user.id}'>{html.escape(full_name)}</a>" \
+                 f" [<code>{msg.from_user.id}</code>]\n" \
+                 f"Group: {html.escape(msg.chat.title)}" \
+                 f" [<code>{msg.chat.id}</code>]\n"
 
     for rule in rules:
         result: re.Match = re.search(rule, full_name)
@@ -29,8 +28,8 @@ def name_check(cli: Client, msg: Message) -> None:
         if result is not None:
             match = result.group()
             reply += f"<code>===MATCH===</code>" \
-                     f"Rule: {rule}\n" \
-                     f"Match: {match}\n"
+                     f"Rule: <code>{rule}</code>\n" \
+                     f"Match: <code>{match}</code>\n"
             break
 
     cli.send_message(LOG_CHANNEL, reply)
