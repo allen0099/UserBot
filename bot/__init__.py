@@ -4,7 +4,7 @@ import platform
 from pyrogram import Client
 from pyrogram.session import Session
 
-from bot.functions import recheck_permission_chats
+from bot.functions import sort_chats
 from models import Base, engine, session
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class Bot:
         except Exception as e:
             log.critical(f"{e}")
 
-        recheck_permission_chats(self.app)
+        sort_chats(self.app)
 
         log.info("Client started successfully")
 

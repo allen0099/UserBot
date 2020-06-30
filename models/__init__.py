@@ -1,8 +1,11 @@
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.orm import sessionmaker, Session
+
+log: logging.Logger = logging.getLogger(__name__)
 
 # https://stackoverflow.com/a/45613994
 
