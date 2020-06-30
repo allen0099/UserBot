@@ -32,8 +32,8 @@ class NameRules(Base):
         return False
 
     @staticmethod
-    def remove(id: str) -> bool:
-        _check: NameRules = session.query(NameRules).filter_by(id=id).first()
+    def remove(_id: str) -> bool:
+        _check: NameRules = session.query(NameRules).filter_by(id=_id).first()
         if _check is not None:
             session.delete(_check)
             session.commit()
@@ -45,12 +45,12 @@ class NameRules(Base):
         return session.query(NameRules).all()
 
     @staticmethod
-    def find_by_id(id: int) -> "NameRules":
-        return session.query(NameRules).filter_by(id=id).first()
+    def find_by_id(_id: int) -> "NameRules":
+        return session.query(NameRules).filter_by(id=_id).first()
 
     @staticmethod
-    def edit(id: int, new_rule: str) -> bool:
-        _check: NameRules = session.query(NameRules).filter_by(id=id).first()
+    def edit(_id: int, new_rule: str) -> bool:
+        _check: NameRules = session.query(NameRules).filter_by(id=_id).first()
         if _check is not None:
             _check.rule = new_rule
             session.commit()
@@ -58,8 +58,8 @@ class NameRules(Base):
         return False
 
     @staticmethod
-    def is_exist(id: int) -> bool:
-        rule: NameRules = session.query(NameRules).filter_by(id=id).first()
+    def is_exist(_id: int) -> bool:
+        rule: NameRules = session.query(NameRules).filter_by(id=_id).first()
         if rule is None:
             return False
         return True
