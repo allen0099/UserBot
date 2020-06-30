@@ -5,7 +5,7 @@ from sqlalchemy import *
 from models import Base, session
 
 
-class Name(Base):
+class NameRules(Base):
     __tablename__: str = "name"
 
     id: int = Column(
@@ -24,16 +24,16 @@ class Name(Base):
 
     @staticmethod
     def add(rule: str) -> bool:
-        _check: Name = session.query(Name).filter_by(rule=rule).first()
+        _check: NameRules = session.query(NameRules).filter_by(rule=rule).first()
         if _check is None:
-            session.add(Name(rule))
+            session.add(NameRules(rule))
             session.commit()
             return True
         return False
 
     @staticmethod
     def remove(id: str) -> bool:
-        _check: Name = session.query(Name).filter_by(id=id).first()
+        _check: NameRules = session.query(NameRules).filter_by(id=id).first()
         if _check is not None:
             session.delete(_check)
             session.commit()
@@ -42,10 +42,10 @@ class Name(Base):
 
     @staticmethod
     def get_id(rule: str) -> int:
-        _check: Name = session.query(Name).filter_by(rule=rule).first()
+        _check: NameRules = session.query(NameRules).filter_by(rule=rule).first()
         return _check.id
 
     @staticmethod
     def get_rules() -> List[str]:
-        _rules: List[Name] = session.query(Name).all()
+        _rules: List[NameRules] = session.query(NameRules).all()
         return [r.rule for r in _rules]

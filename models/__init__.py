@@ -18,5 +18,5 @@ _session: sessionmaker = sessionmaker(bind=engine)
 session: Session = _session()
 
 from . import chats
-from . import check
+from . import rules
 from .Users import Users
