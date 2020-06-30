@@ -6,13 +6,13 @@ from typing import List
 from pyrogram import Client, Message, Filters
 
 from bot.plugins import LOG_CHANNEL
-from models.chats import WithPermission
+from models.chats import CreatorChats, AdminChats
 from models.check.Name import Name
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.chat(WithPermission.get()) & Filters.new_chat_members)
+@Client.on_message(Filters.chat(CreatorChats.list_all() + AdminChats.list_all()) & Filters.new_chat_members)
 def name_check(cli: Client, msg: Message) -> None:
     full_name: str = f"{msg.from_user.first_name} {msg.from_user.last_name}"
 

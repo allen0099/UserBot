@@ -6,7 +6,7 @@ from pyrogram import Client
 from pyrogram.api import types, functions
 from pyrogram.errors import PeerIdInvalid, UsernameInvalid
 
-from models.chats import WithPermission, WithoutPermission, NoPermission
+from models.chats import CreatorChats, MemberChats, RestrictedChats, AdminChats
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -36,9 +36,10 @@ def recheck_permission_chats(cli: Client) -> None:
 
     for _ in r:
         if _.chat.type == "supergroup" and \
-                not WithPermission.is_saved(_.chat.id) and \
-                not WithoutPermission.is_saved(_.chat.id) and \
-                not NoPermission.is_saved(_.chat.id):
+                not CreatorChats.is_exist(_.chat.id) and \
+                not AdminChats.is_exist(_.chat.id) and \
+                not MemberChats.is_exist(_.chat.id) and \
+                not RestrictedChats.is_exist(_.chat.id):
             permission: pyrogram.ChatMember = cli.get_chat_member(_.chat.id, cli.get_me().id)
 
             log.debug(f"{_.chat.id} {permission.status}")
@@ -48,17 +49,17 @@ def recheck_permission_chats(cli: Client) -> None:
 
 def _sort_chats(permission: pyrogram.ChatMember, cid: int) -> None:
     if permission.status == "creator":
-        WithPermission.add(cid)
+        CreatorChats.add(cid)
 
     if permission.status == "administrator" and \
             permission.can_delete_messages is True and \
             permission.can_restrict_members is True:
-        WithPermission.add(cid)
+        AdminChats.add(cid)
     else:
-        NoPermission.add(cid)
+        RestrictedChats.add(cid)
 
     if permission.status == "member":
-        WithoutPermission.add(cid)
+        MemberChats.add(cid)
 
     if permission.status == "restricted":
-        NoPermission.add(cid)
+        RestrictedChats.add(cid)
