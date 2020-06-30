@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List
 
 from sqlalchemy import *
@@ -41,11 +43,25 @@ class NameRules(Base):
         return False
 
     @staticmethod
-    def get_id(rule: str) -> int:
-        _check: NameRules = session.query(NameRules).filter_by(rule=rule).first()
-        return _check.id
+    def get_all() -> List[NameRules]:
+        return session.query(NameRules).all()
 
     @staticmethod
-    def get_rules() -> List[str]:
-        _rules: List[NameRules] = session.query(NameRules).all()
-        return [r.rule for r in _rules]
+    def find_by_id(id: int) -> NameRules:
+        return session.query(NameRules).filter_by(id=id).first()
+
+    @staticmethod
+    def edit(id: int, new_rule: str) -> bool:
+        _check: NameRules = session.query(NameRules).filter_by(id=id).first()
+        if _check is not None:
+            _check.rule = new_rule
+            session.commit()
+            return True
+        return False
+
+    @staticmethod
+    def is_exist(id: int) -> bool:
+        rule: NameRules = session.query(NameRules).filter_by(id=id).first()
+        if rule is None:
+            return False
+        return True
