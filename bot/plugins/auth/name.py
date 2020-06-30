@@ -1,3 +1,4 @@
+import html
 import logging
 import re
 from typing import List
@@ -15,9 +16,9 @@ log: logging.Logger = logging.getLogger(__name__)
 def name_add(cli: Client, msg: Message) -> None:
     cmd: str = re.search(CMD_RE, msg.text)[0]
     if NameRules.add(cmd):
-        reply: str = f"Added <code>{cmd}</code> successfully"
+        reply: str = f"Added <code>{html.escape(cmd)}</code> successfully"
     else:
-        reply: str = f"Not add <code>{cmd}</code>, because its already in list"
+        reply: str = f"Not add <code>{html.escape(cmd)}</code>, because its already in list"
     msg.reply_text(reply)
 
 
@@ -36,7 +37,7 @@ def name_get(cli: Client, msg: Message) -> None:
     reply: str = f"<code> ID | RULE</code>\n" \
                  f"<code>==========</code>\n"
     for rule in NameRules.get_all():
-        reply += f"<code>{rule.id:^4}| {rule.rule}</code>\n"
+        reply += f"<code>{rule.id:^4}| {html.escape(rule.rule)}</code>\n"
     msg.reply_text(reply)
 
 
@@ -50,8 +51,8 @@ def name_edit(cli: Client, msg: Message) -> None:
         _id: int = int(_id)
 
         reply: str = f"Edit <code>{_id}</code> " \
-                     f"from <code>{NameRules.find_by_id(_id).rule}</code> " \
-                     f"to <code>{new_rule}</code>"
+                     f"from <code>{html.escape(NameRules.find_by_id(_id).rule)}</code> " \
+                     f"to <code>{html.escape(new_rule)}</code>"
 
         if NameRules.edit(_id, new_rule):
             msg.reply_text(reply)
