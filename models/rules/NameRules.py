@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import List
 
 from sqlalchemy import *
@@ -43,11 +41,11 @@ class NameRules(Base):
         return False
 
     @staticmethod
-    def get_all() -> List[NameRules]:
+    def get_all() -> List["NameRules"]:
         return session.query(NameRules).all()
 
     @staticmethod
-    def find_by_id(id: int) -> NameRules:
+    def find_by_id(id: int) -> "NameRules":
         return session.query(NameRules).filter_by(id=id).first()
 
     @staticmethod
