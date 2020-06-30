@@ -7,7 +7,7 @@ from bot.functions import log
 from models.chats import CreatorChats, AdminChats, MemberChats, RestrictedChats
 
 
-def sort_chats(cli: Client) -> None:
+def iter_supergroups(cli: Client) -> None:
     r: Generator["pyrogram.Dialog"] = cli.iter_dialogs()
 
     for _ in r:
@@ -20,10 +20,10 @@ def sort_chats(cli: Client) -> None:
 
             log.debug(f"{_.chat.id} {permission.status}")
 
-            _sort_chats(permission, _.chat.id)
+            _filter(permission, _.chat.id)
 
 
-def _sort_chats(permission: pyrogram.ChatMember, cid: int) -> None:
+def _filter(permission: pyrogram.ChatMember, cid: int) -> None:
     if permission.status == "creator":
         CreatorChats.add(cid)
 
