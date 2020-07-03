@@ -1,10 +1,10 @@
 import html
 import logging
-import re
 from typing import List
 
 from pyrogram import Client, Message, Filters
 
+from bot.functions import check_rules
 from bot.plugins import LOG_CHANNEL
 from models.chats import CreatorChats, AdminChats
 from models.rules.NameRules import NameRules
@@ -24,16 +24,6 @@ def name_check(cli: Client, msg: Message) -> None:
 
     log.debug(f"Full Name: {full_name}")
 
-    for rule in rules:
-        result: re.Match = re.search(rule, full_name)
-
-        log.debug(f"Checking rule: {rule}")
-
-        if result is not None:
-            match = result.group()
-            reply += f"<code>===MATCH===</code>\n" \
-                     f"Rule: <code>{rule}</code>\n" \
-                     f"Match: <code>{match}</code>\n"
-            break
+    reply += check_rules(full_name, rules)
 
     cli.send_message(LOG_CHANNEL, reply)
