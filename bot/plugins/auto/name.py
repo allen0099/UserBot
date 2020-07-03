@@ -4,7 +4,7 @@ from typing import List
 
 from pyrogram import Client, Message, Filters
 
-from bot.functions import check_rules
+from bot.functions import CheckRules
 from bot.plugins import LOG_CHANNEL
 from models.chats import CreatorChats, AdminChats
 from models.rules.NameRules import NameRules
@@ -24,6 +24,9 @@ def name_check(cli: Client, msg: Message) -> None:
 
     log.debug(f"Full Name: {full_name}")
 
-    reply += check_rules(full_name, rules)
+    check: CheckRules = CheckRules(full_name, rules)
+    if check:
+        reply += check
+        # ban later
 
     cli.send_message(LOG_CHANNEL, reply)
