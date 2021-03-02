@@ -1,25 +1,22 @@
 import logging
 import platform
+import sys
 
 from pyrogram import Client
+from pyrogram.errors import ApiIdInvalid
 from pyrogram.session import Session
 
-from bot.functions import iter_supergroups
-from models import Base, engine, session
+from _models_old import Base, engine, session
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
 class Bot:
-    # Hexlightning style
     def __init__(self):
-        self.db: Base = Base
-        self.db_engine: engine = engine
-        self.session: session = session
-        self.version: str = "0.0.2"
+        self.version: str = "0.1.0"
 
     def init(self):
-        self.db.metadata.create_all(self.db_engine)
+        return
 
     def run(self):
         self.app: Client = Client(
@@ -35,13 +32,15 @@ class Bot:
 
         try:
             me = self.app.get_me()
-            log.info(f"[Loaded] {me.first_name} (@{me.username}) ID: {me.id}")
+            log.info(f"[Loaded] {me.first_name} (@{me.username if me.username is not None else ''}) ID: {me.id}")
+        except ApiIdInvalid:
+            log.critical('Api ID is invalid')
+            sys.exit(1)
         except Exception as e:
-            log.critical(f"{e}")
-
-        iter_supergroups(self.app)
+            log.exception(e)
+            sys.exit(1)
 
         log.info("Client started successfully")
 
-    def stop(self):
         self.app.stop()
+        self.app.run()
