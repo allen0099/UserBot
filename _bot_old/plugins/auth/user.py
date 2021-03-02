@@ -5,10 +5,10 @@ from typing import Union
 from pyrogram import Client, Message, Filters
 from pyrogram.api import types
 
-from bot.functions import get_full_user
-from bot.plugins import COMMAND_PREFIX
-from bot.plugins.auth import USERNAME_RE
-from models import Users
+from _bot_old.functions import get_full_user
+from _bot_old.plugins import COMMAND_PREFIX
+from _bot_old.plugins import USERNAME_RE
+from _models_old import Users
 
 log: logging.Logger = logging.getLogger(__name__)
 

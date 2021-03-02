@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy import *
 
-from models import Base, session
+from _models_old import Base, session
 
 
 class Users(Base):

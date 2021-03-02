@@ -5,9 +5,9 @@ import time
 import pyrogram
 from pyrogram import Client, Message, Filters
 
-from bot.functions import have_permission, delete_all_msg
-from bot.plugins import COMMAND_PREFIX, LOG_CHANNEL
-from models import Users
+from _bot_old.functions import have_permission, delete_all_msg
+from _bot_old.plugins import COMMAND_PREFIX, LOG_CHANNEL
+from _models_old import Users
 
 log: logging.Logger = logging.getLogger(__name__)
 

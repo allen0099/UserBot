@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy import Column, Integer
 
-from models import Base
+from _models_old import Base
 
 
 class ChatMixin(Base):

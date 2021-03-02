@@ -1,32 +1,32 @@
 from typing import List
 
-from models import session
-from models.chats.ChatMixin import ChatMixin
+from _models_old import session
+from _models_old.chats.ChatMixin import ChatMixin
 
 
-class AdminChats(ChatMixin):
-    __tablename__: str = "AdminChats"
+class MemberChats(ChatMixin):
+    __tablename__: str = "MemberChats"
 
     def __init__(self, chat_id: int) -> None:
         super().__init__(chat_id)
 
     @staticmethod
     def add(chat_id: int) -> bool:
-        chat: AdminChats = session.query(AdminChats).filter_by(chat_id=chat_id).first()
+        chat: MemberChats = session.query(MemberChats).filter_by(chat_id=chat_id).first()
         if chat is None:
-            session.add(AdminChats(chat_id))
+            session.add(MemberChats(chat_id))
             session.commit()
             return True
         return False
 
     @staticmethod
     def is_exist(chat_id: int) -> bool:
-        chat: AdminChats = session.query(AdminChats).filter_by(chat_id=chat_id).first()
+        chat: MemberChats = session.query(MemberChats).filter_by(chat_id=chat_id).first()
         if chat is None:
             return False
         return True
 
     @staticmethod
     def list_all() -> List[int]:
-        chats: List[AdminChats] = session.query(AdminChats).all()
+        chats: List[MemberChats] = session.query(MemberChats).all()
         return [chat.chat_id for chat in chats]

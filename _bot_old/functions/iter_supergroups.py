@@ -3,8 +3,8 @@ from typing import Generator
 import pyrogram
 from pyrogram import Client
 
-from bot.functions import log
-from models.chats import CreatorChats, AdminChats, MemberChats, RestrictedChats
+from _bot_old.functions import log
+from _models_old.chats import CreatorChats, AdminChats, MemberChats, RestrictedChats
 
 
 def iter_supergroups(cli: Client) -> None:

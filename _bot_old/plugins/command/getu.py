@@ -5,8 +5,8 @@ import pyrogram
 from pyrogram import Client, Filters, Message
 from pyrogram.api import functions, types
 
-from bot.plugins import COMMAND_PREFIX
-from models import Users
+from _bot_old.plugins import COMMAND_PREFIX
+from _models_old import Users
 
 log: logging.Logger = logging.getLogger(__name__)
 

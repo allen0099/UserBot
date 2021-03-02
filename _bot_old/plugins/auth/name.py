@@ -5,9 +5,9 @@ from typing import List
 
 from pyrogram import Client, Message, Filters
 
-from bot.plugins import COMMAND_PREFIX
-from bot.plugins.auth import CMD_RE
-from models.rules import NameRules
+from _bot_old.plugins import COMMAND_PREFIX
+from _bot_old.plugins import CMD_RE
+from _models_old.rules import NameRules
 
 log: logging.Logger = logging.getLogger(__name__)
 

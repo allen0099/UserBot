@@ -2,7 +2,7 @@ import logging
 
 from pyrogram import Client, Message, Filters
 
-from bot.functions import restart
+from _bot_old.functions import restart
 
 log: logging.Logger = logging.getLogger(__name__)
 

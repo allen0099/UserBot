@@ -2,7 +2,7 @@ import logging
 
 from pyrogram import Client, Filters, Message
 
-from bot.plugins import COMMAND_PREFIX
+from _bot_old.plugins import COMMAND_PREFIX
 
 log: logging.Logger = logging.getLogger(__name__)
 

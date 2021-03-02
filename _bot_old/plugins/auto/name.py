@@ -4,10 +4,10 @@ from typing import List
 
 from pyrogram import Client, Message, Filters
 
-from bot.functions import CheckRules, have_permission
-from bot.plugins import LOG_CHANNEL
-from models.chats import CreatorChats, AdminChats
-from models.rules.NameRules import NameRules
+from _bot_old.functions import CheckRules, have_permission
+from _bot_old.plugins import LOG_CHANNEL
+from _models_old.chats import CreatorChats, AdminChats
+from _models_old.rules.NameRules import NameRules
 
 log: logging.Logger = logging.getLogger(__name__)
 
