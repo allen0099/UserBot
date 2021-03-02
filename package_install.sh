@@ -9,6 +9,4 @@ else
   echo "Virtual environment exist!"
 fi
 
-pip3 install -U https://github.com/pyrogram/pyrogram/archive/develop.zip
-pip3 install -U tgcrypto
-pip3 install -r requirements.txt
+pip3 install -U pyrogram tgcrypto
