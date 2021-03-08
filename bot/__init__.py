@@ -5,36 +5,46 @@ import sys
 from pyrogram import Client
 from pyrogram.errors import ApiIdInvalid
 from pyrogram.session import Session
-
-from _models_old import Base, engine, session
+from pyrogram.types import User
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
 class Bot:
     def __init__(self):
-        self.version: str = "0.1.0"
+        self.app_version: str = "0.1.0"
+        self.device_model: str = f"PC {platform.architecture()[0]}"
+        self.system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
 
-    def init(self):
-        return
-
-    def run(self):
         self.app: Client = Client(
             "bot",
-            app_version=f"allen0099's User Bot {self.version}",
-            device_model=platform.node(),
-            system_version=platform.system() + " " + platform.release()
+            app_version=self.app_version,
+            device_model=self.device_model,
+            system_version=self.system_version
         )
 
+    def run(self):
+        self.app.run(self.run_once())
+        self.app.run()
+
+    async def run_once(self):
         # Disable notice
         Session.notice_displayed = True
-        self.app.start()
+        logging.getLogger("pyrogram.client").disabled = True
+        await self.app.start()
+        logging.getLogger("pyrogram.client").disabled = False
 
         try:
-            me = self.app.get_me()
-            log.info(f"[Loaded] {me.first_name} (@{me.username if me.username is not None else ''}) ID: {me.id}")
+            me: User = await self.app.get_me()
+
+            info_str: str = f"[Loaded] {me.first_name}"
+            info_str += f" {me.last_name}" if me.last_name is not None else ""
+            info_str += f" (@{me.username})" if me.username is not None else ""
+            info_str += f" ID: {me.id}"
+
+            log.info(info_str)
         except ApiIdInvalid:
-            log.critical('Api ID is invalid')
+            log.critical("Api ID is invalid")
             sys.exit(1)
         except Exception as e:
             log.exception(e)
@@ -42,5 +52,4 @@ class Bot:
 
         log.info("Client started successfully")
 
-        self.app.stop()
-        self.app.run()
+        await self.app.stop()

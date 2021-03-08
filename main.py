@@ -10,5 +10,4 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
 if __name__ == '__main__':
     user_bot: Bot = Bot()
-    user_bot.init()
     user_bot.run()
