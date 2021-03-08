@@ -1,0 +1,45 @@
+version: '3'
+services:
+    userbot:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        image: userbot:${VERSION}
+        networks:
+            - python
+        depends_on:
+            - mysql
+    mysql:
+        image: 'mysql:8.0'
+        ports:
+            - '${DB_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        volumes:
+            - 'userbot_mysql:/var/lib/mysql'
+        networks:
+            - python
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping" ]
+    phpmyadmin:
+        image: phpmyadmin
+        ports:
+            - '${SQL_PANEL_PORT:-8081}:80'
+        environment:
+            PMA_HOST: mysql
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+        depends_on:
+            - mysql
+        networks:
+            - python
+networks:
+    python:
+        driver: bridge
+volumes:
+    userbot_mysql:
+        driver: local
