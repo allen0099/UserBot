@@ -2,10 +2,10 @@ import datetime
 
 from sqlalchemy import BigInteger, Column, Integer, String, TIMESTAMP
 
-from bot import Bot
+from main import db
 
 
-class User(Bot.base):
+class User(db.base):
     __tablename__ = 'users'
 
     id = Column(BigInteger, primary_key=True)
