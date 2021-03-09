@@ -7,11 +7,14 @@ from pyrogram.errors import ApiIdInvalid
 from pyrogram.session import Session
 from pyrogram.types import User
 
+from database import Database
+
 log: logging.Logger = logging.getLogger(__name__)
 
 
-class Bot:
+class Bot(Database):
     def __init__(self):
+        super().__init__()
         self.app_version: str = "0.1.0"
         self.device_model: str = f"PC {platform.architecture()[0]}"
         self.system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
