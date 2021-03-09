@@ -19,4 +19,4 @@ class User(Bot.base):
     common_chats_count = Column(Integer)
 
     expires_at = Column(TIMESTAMP,
-                        default=datetime.datetime.utcnow().timestamp() + datetime.timedelta(hours=6).total_seconds())
+                        default=datetime.datetime.utcnow() + datetime.timedelta(hours=6))
