@@ -35,7 +35,7 @@ async def refresh_user(cli: Client, uid: Union[int, str]) -> User:
 
     log.debug(f"Refreshing {uid}")
 
-    if isinstance(peer, InputPeerUser) or isinstance(peer, InputUser):
+    if isinstance(peer, (InputPeerUser, InputUser)):
         full_user: UserFull = await cli.send(functions.users.GetFullUser(id=peer))
 
         cache_user: User = session.query(User).filter_by(uid=full_user.user.id).first()
