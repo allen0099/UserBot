@@ -23,14 +23,21 @@ class Database:
 
         self.base.metadata.bind: Engine = self.engine
 
+        # could not reuse session, implement session each needed
         self._session: sessionmaker = sessionmaker()
         self._session.configure(bind=self.engine)
-        self.session: Session = self._session()
 
         from . import models
 
-    def drop_all(self):
+    def get_session(self) -> Session:
+        return self._session()
+
+    def drop_all(self) -> None:
         self.base.metadata.drop_all()
 
-    def create_all(self):
+    def create_all(self) -> None:
         self.base.metadata.create_all()
+
+    def rebuild(self) -> None:
+        self.drop_all()
+        self.create_all()
