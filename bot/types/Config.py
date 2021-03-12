@@ -1,4 +1,7 @@
+import logging
 from dataclasses import dataclass
+
+log: logging.Logger = logging.getLogger(__name__)
 
 
 @dataclass

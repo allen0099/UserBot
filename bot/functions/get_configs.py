@@ -1,8 +1,11 @@
+import logging
 import sys
 from configparser import ConfigParser
 from pathlib import Path
 
 from bot.types.Config import Config
+
+log: logging = logging.getLogger(__name__)
 
 
 def get_configs() -> Config:

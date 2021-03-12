@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from pyrogram import Client, filters
@@ -6,6 +7,8 @@ from pyrogram.types import Chat, Message, User
 
 from bot.functions import get_configs
 from bot.types.Config import Config
+
+log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(filters.new_chat_members)
