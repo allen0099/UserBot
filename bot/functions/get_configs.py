@@ -3,7 +3,7 @@ import sys
 from configparser import ConfigParser
 from pathlib import Path
 
-from bot.types.Config import Config
+from bot.types import Config
 
 log: logging = logging.getLogger(__name__)
 

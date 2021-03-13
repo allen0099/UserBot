@@ -6,7 +6,7 @@ from pyrogram.raw import functions
 from pyrogram.types import Chat, Message, User
 
 from bot.functions import get_configs
-from bot.types.Config import Config
+from bot.types import Config
 
 log: logging.Logger = logging.getLogger(__name__)
 
