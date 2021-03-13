@@ -1,6 +1,6 @@
 import logging
 
 from .get_configs import get_configs
-from .get_user_full import get_full, get_user_full
+from .get_full import get_full
 
 log: logging.Logger = logging.getLogger(__name__)
