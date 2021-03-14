@@ -1,18 +1,14 @@
-import datetime
 import logging
 
-from sqlalchemy import BigInteger, Boolean, Column, Integer, String, TIMESTAMP, text
+from sqlalchemy import BigInteger, Boolean, Column, Integer, String
 
+from database.mixin import BaseMixin, TimestampMixin
 from main import db
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-class User(db.base):
-    __tablename__ = 'users'
-
-    id = Column(BigInteger, primary_key=True)
-
+class User(db.base, BaseMixin, TimestampMixin):
     uid = Column(BigInteger)
     deleted = Column(Boolean, nullable=True)
     bot = Column(Boolean, nullable=True)
@@ -28,10 +24,6 @@ class User(db.base):
     lang_code = Column(String(10))
 
     common_chats_count = Column(Integer)
-
-    updated_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
-    expired_at = Column(TIMESTAMP,
-                        default=datetime.datetime.utcnow() + datetime.timedelta(hours=6))
 
     def __init__(
             self,

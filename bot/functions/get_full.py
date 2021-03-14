@@ -2,12 +2,12 @@ import datetime
 import logging
 from typing import Optional, Union
 
-from pyrogram import Client
+from pyrogram import Client, types
 from pyrogram.errors import PeerIdInvalid
 from pyrogram.raw import functions
 from pyrogram.raw.base import InputPeer
 from pyrogram.raw.types import InputChannel, InputPeerChannel, InputPeerChannelFromMessage, InputPeerChat, \
-    InputPeerSelf, InputPeerUser, InputPeerUserFromMessage, InputUser, UserFull
+    InputPeerUser, InputPeerUserFromMessage, InputUser, UserFull
 from sqlalchemy.orm import Session
 
 from bot.util import resolve_peer
@@ -17,17 +17,22 @@ from main import db
 log: logging.Logger = logging.getLogger(__name__)
 
 
-async def get_full(cli: Client, telegram_id: str) -> Union[User]:
+async def get_full(cli: Client, telegram_id: str) -> Optional[User]:
+    self: types.User = await cli.get_me()
+
+    if telegram_id in ("self", "me"):
+        telegram_id: str = str(self.id)
+
     peer: InputPeer = await resolve_peer(cli, telegram_id)
     log.debug(f"Peer: {peer}")
 
     if isinstance(peer, (InputPeerUser, InputPeerUserFromMessage, InputUser)):
         return await get_user_full(cli, peer)
     elif isinstance(peer, InputPeerChat):
+        # full_chat: ChatFull = await cli.send(functions.messages.GetFullChat(chat_id=-int(telegram_id)))
         raise NotImplementedError
     elif isinstance(peer, (InputPeerChannel, InputPeerChannelFromMessage, InputChannel)):
-        raise NotImplementedError
-    elif isinstance(peer, InputPeerSelf):
+        # full_channel: ChatFull = await cli.send(functions.channels.GetFullChannel(channel=peer))
         raise NotImplementedError
     else:
         raise PeerIdInvalid
