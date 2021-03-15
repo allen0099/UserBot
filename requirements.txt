@@ -1,6 +1,9 @@
 async-lru==1.0.2
+cffi==1.14.5
+cryptography==3.4.6
 greenlet==1.0.0
 pyaes==1.6.1
+pycparser==2.20
 PyMySQL==1.0.2
 Pyrogram==1.1.13
 PySocks==1.7.1

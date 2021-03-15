@@ -6,6 +6,7 @@ from pyrogram import Client
 from pyrogram.errors import ApiIdInvalid
 from pyrogram.session import Session
 from pyrogram.types import User
+from sqlalchemy import select, text
 from sqlalchemy.exc import OperationalError
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -54,7 +55,8 @@ class Bot:
         try:
             from main import db
 
-            db.engine.execute("SELECT now()")
+            with db.engine.connect() as conn:
+                conn.execute(select(text('now()')))
 
             log.info("[Database] Successfully connect!")
         except OperationalError:
