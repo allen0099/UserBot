@@ -6,7 +6,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 from bot.functions import get_full
-from database.models import User
+from database.models import Channel, User
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -26,5 +26,7 @@ async def request(cli: Client, msg: Message) -> None:
         data: Union[User] = await get_full(cli, peer_id)
         if isinstance(data, User):
             await cli.send_message("me", str(data.first_name))
+        elif isinstance(data, Channel):
+            await cli.send_message("me", str(data.title))
         else:
             await cli.send_message("me", "Not yet support")

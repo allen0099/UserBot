@@ -6,18 +6,20 @@ from pyrogram import Client, types
 from pyrogram.errors import PeerIdInvalid
 from pyrogram.raw import functions
 from pyrogram.raw.base import InputPeer
-from pyrogram.raw.types import InputChannel, InputPeerChannel, InputPeerChannelFromMessage, InputPeerChat, \
-    InputPeerUser, InputPeerUserFromMessage, InputUser, UserFull
+from pyrogram.raw.types import Channel, ChannelFull, ChatBannedRights, InputChannel, InputPeerChannel, \
+    InputPeerChannelFromMessage, \
+    InputPeerChat, InputPeerUser, InputPeerUserFromMessage, InputUser, UserFull
+from pyrogram.raw.types.messages import ChatFull
 from sqlalchemy.orm import Session
 
 from bot.util import resolve_peer
-from database.models import User
+from database.models import Channel as DB_Channel, ChatBannedRights as Rights, User as DB_User
 from main import db
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-async def get_full(cli: Client, telegram_id: str) -> Optional[User]:
+async def get_full(cli: Client, telegram_id: str) -> Union[DB_User, DB_Channel]:
     self: types.User = await cli.get_me()
 
     if telegram_id in ("self", "me"):
@@ -33,15 +35,15 @@ async def get_full(cli: Client, telegram_id: str) -> Optional[User]:
         raise NotImplementedError
     elif isinstance(peer, (InputPeerChannel, InputPeerChannelFromMessage, InputChannel)):
         # full_channel: ChatFull = await cli.send(functions.channels.GetFullChannel(channel=peer))
-        raise NotImplementedError
+        return await get_channel_full(cli, peer)
     else:
         raise PeerIdInvalid
 
 
-async def get_user_full(cli: Client, peer: Union[InputPeerUser, InputPeerUserFromMessage, InputUser]) -> User:
+async def get_user_full(cli: Client, peer: Union[InputPeerUser, InputPeerUserFromMessage, InputUser]) -> DB_User:
     uid: int = peer.user_id
     session: Session = db.get_session()
-    cache_user: Optional[User] = session.query(User).filter_by(uid=uid).first()
+    cache_user: Optional[DB_User] = session.query(DB_User).filter_by(uid=uid).first()
 
     if cache_user is None:
         log.debug(f"{uid} not cached")
@@ -54,21 +56,21 @@ async def get_user_full(cli: Client, peer: Union[InputPeerUser, InputPeerUserFro
     return await refresh_user(cli, peer)
 
 
-async def refresh_user(cli: Client, peer: Union[InputPeerUser, InputPeerUserFromMessage, InputUser]) -> User:
+async def refresh_user(cli: Client, peer: Union[InputPeerUser, InputPeerUserFromMessage, InputUser]) -> DB_User:
     session: Session = db.get_session()
 
     log.debug(f"Refreshing {peer.user_id}")
 
     full_user: UserFull = await cli.send(functions.users.GetFullUser(id=peer))
-    cache_user: User = session.query(User).filter_by(uid=full_user.user.id).first()
+    cache_user: DB_User = session.query(DB_User).filter_by(uid=full_user.user.id).first()
 
     if cache_user is None:
-        cache_user: User = User(full_user.user.id)
+        cache_user: DB_User = DB_User(full_user.user.id)
 
     cache_user.dc_id = full_user.profile_photo.dc_id if full_user.profile_photo is not None else None
     cache_user.first_name = full_user.user.first_name
-    cache_user.last_name = full_user.user.last_name if full_user.user.last_name is not None else None
-    cache_user.username = full_user.user.username if full_user.user.username is not None else None
+    cache_user.last_name = full_user.user.last_name
+    cache_user.username = full_user.user.username
     cache_user.about = full_user.about
     cache_user.bot = full_user.user.bot
     cache_user.deleted = full_user.user.deleted
@@ -89,3 +91,92 @@ async def refresh_user(cli: Client, peer: Union[InputPeerUser, InputPeerUserFrom
         session.commit()
 
     return cache_user
+
+
+async def get_channel_full(cli: Client,
+                           peer: Union[InputPeerChannel, InputPeerChannelFromMessage, InputChannel]) -> DB_Channel:
+    cid: int = peer.channel_id
+    session: Session = db.get_session()
+    cache_channel: DB_Channel = session.query(DB_Channel).filter_by(cid=cid).first()
+
+    if cache_channel is None:
+        log.debug(f"{cid} not cached")
+        return await refresh_channel(cli, peer)
+
+    if datetime.datetime.utcnow() < cache_channel.expired_at:
+        log.debug(f"{cid} cached")
+        return cache_channel
+    log.debug(f"{cid} expired at {cache_channel.expired_at}, now is {datetime.datetime.utcnow()}")
+    return await refresh_channel(cli, peer)
+
+
+async def refresh_channel(cli: Client,
+                          peer: Union[InputPeerChannel, InputPeerChannelFromMessage, InputChannel]) -> DB_Channel:
+    session: Session = db.get_session()
+
+    log.debug(f"Refreshing {peer.channel_id}")
+
+    chat_full: ChatFull = await cli.send(functions.channels.GetFullChannel(channel=peer))
+    channel_full: ChannelFull = chat_full.full_chat
+    channel: Channel = chat_full.chats[0]
+
+    cache_channel: DB_Channel = session.query(DB_Channel).filter_by(cid=channel_full.id).first()
+
+    if cache_channel is None:
+        cache_channel = DB_Channel(channel_full.id)
+
+    cache_channel.title = channel.title
+    cache_channel.username = channel.username
+    cache_channel.about = channel_full.about
+    cache_channel.broadcast = channel.broadcast
+
+    log.debug("Not fragment code")
+
+    cache_channel.pinned_msg_id = channel_full.pinned_msg_id
+    cache_channel.linked_chat_id = channel_full.linked_chat_id
+    cache_channel.verified = channel.verified
+    cache_channel.scam = channel.scam
+    cache_channel.signatures = channel.signatures
+    cache_channel.restricted = channel.restricted
+    cache_channel.restriction_reason = str(channel.restriction_reason)
+    cache_channel.sticker_link = str(channel_full.stickerset)
+    cache_channel.slowmode_enabled = channel.slowmode_enabled
+    cache_channel.slowmode_seconds = channel_full.slowmode_seconds
+    cache_channel.admins_count = channel_full.admins_count
+    cache_channel.kicked_count = channel_full.kicked_count
+    cache_channel.banned_count = channel_full.banned_count
+    cache_channel.participants_count = channel_full.participants_count
+
+    rights: ChatBannedRights = channel.default_banned_rights
+
+    if rights is not None:
+        cache_right = cache_channel.default_banned_rights
+
+        if cache_right is None:
+            cache_right = Rights()
+
+        cache_right.until_date = rights.until_date
+        cache_right.send_messages = rights.send_messages
+        cache_right.send_media = rights.send_media
+        cache_right.send_stickers = rights.send_stickers
+        cache_right.send_gifs = rights.send_gifs
+        cache_right.send_games = rights.send_games
+        cache_right.send_inline = rights.send_inline
+        cache_right.embed_links = rights.embed_links
+        cache_right.send_polls = rights.send_polls
+        cache_right.change_info = rights.change_info
+        cache_right.invite_users = rights.invite_users
+        cache_right.pin_messages = rights.pin_messages
+
+        session.add(cache_right)
+        session.commit()
+
+        cache_channel.default_banned_rights_id = cache_right.id
+
+    if cache_channel in session.dirty:
+        cache_channel.expired_at = datetime.datetime.utcnow() + datetime.timedelta(hours=6)
+        session.commit()
+    else:
+        session.add(cache_channel)
+        session.commit()
+    return cache_channel
