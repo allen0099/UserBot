@@ -138,8 +138,12 @@ async def refresh_channel(cli: Client,
     cache_channel.scam = channel.scam
     cache_channel.signatures = channel.signatures
     cache_channel.restricted = channel.restricted
-    cache_channel.restriction_reason = str(channel.restriction_reason)
-    cache_channel.sticker_link = str(channel_full.stickerset)
+    cache_channel.restriction_reason = repr(channel.restriction_reason)
+
+    if channel_full.stickerset:
+        channel_full.stickerset.thumbs = None  # pyrogram bug, set None to prevent eval fail
+
+    cache_channel.sticker_link = repr(channel_full.stickerset)
     cache_channel.slowmode_enabled = channel.slowmode_enabled
     cache_channel.slowmode_seconds = channel_full.slowmode_seconds
     cache_channel.admins_count = channel_full.admins_count
