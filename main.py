@@ -19,5 +19,11 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 db: Database = Database()
 
 if __name__ == '__main__':
-    user_bot: Bot = Bot()
-    user_bot.run()
+    try:
+        cmd: str = sys.argv[1]
+        if cmd == 'rebuild':
+            db.rebuild()
+
+    except IndexError:
+        user_bot: Bot = Bot()
+        user_bot.run()
