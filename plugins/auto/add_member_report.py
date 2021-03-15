@@ -13,6 +13,9 @@ log: logging.Logger = logging.getLogger(__name__)
 
 @Client.on_message(filters.new_chat_members)
 async def add_member_report(cli: Client, msg: Message) -> Optional[Message]:
+    # todo: check again
+    log.debug(f"{msg}")
+    return
     me: User = await cli.get_me()
     if msg.from_user.id == me.id:
         return
