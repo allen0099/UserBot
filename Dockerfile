@@ -11,4 +11,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' .env
+
 CMD [ "python", "./main.py" ]

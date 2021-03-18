@@ -23,6 +23,6 @@ if __name__ == '__main__':
         cmd: str = sys.argv[1]
         if cmd == 'rebuild':
             db.rebuild()
-
-    user_bot: Bot = Bot()
-    user_bot.run()
+    else:
+        user_bot: Bot = Bot()
+        user_bot.run()
