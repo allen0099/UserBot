@@ -6,10 +6,10 @@ from datetime import datetime
 
 import psutil
 from pyrogram import Client
-from pyrogram.errors import ApiIdInvalid
+from pyrogram.errors import ApiIdInvalid, AuthKeyUnregistered
 from pyrogram.session import Session
 from pyrogram.types import User
-from sqlalchemy import select, text
+from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -39,15 +39,21 @@ class Bot:
         # Disable notice
         Session.notice_displayed = True
         logging.getLogger("pyrogram.client").disabled = True
-        await self.app.start()
+        try:
+            await self.app.start()
+        except AuthKeyUnregistered:
+            log.critical("[Oops!] Session expired!")
+            log.critical("        Removed old session and exit...!")
+            await self.app.storage.delete()
+            exit(1)
         logging.getLogger("pyrogram.client").disabled = False
 
         try:
             me: User = await self.app.get_me()
 
             info_str: str = f"[Bot] {me.first_name}"
-            info_str += f" {me.last_name}" if me.last_name is not None else ""
-            info_str += f" (@{me.username})" if me.username is not None else ""
+            info_str += f" {me.last_name}" if me.last_name else ""
+            info_str += f" (@{me.username})" if me.username else ""
             info_str += f" ID: {me.id}"
 
             log.info(info_str)

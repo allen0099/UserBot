@@ -12,7 +12,7 @@ services:
                 - DB_PASSWORD=${DB_PASSWORD}
         image: userbot:${VERSION}
         volumes:
-            - './bot.session:/usr/src/app/bot.session'
+            - 'userbot:/usr/src/app'
         networks:
             - python
         depends_on:
@@ -49,5 +49,7 @@ networks:
     python:
         driver: bridge
 volumes:
+    userbot:
+        driver: local
     userbot_mysql:
         driver: local

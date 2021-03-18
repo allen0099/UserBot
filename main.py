@@ -22,7 +22,8 @@ user_bot: Bot = Bot()
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
         cmd: str = sys.argv[1]
-        if cmd == 'rebuild':
+        if cmd == "rebuild":
             db.rebuild()
+            log.info(f"[Success] Database rebuilt!")
     else:
         user_bot.run()
