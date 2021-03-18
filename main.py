@@ -17,6 +17,7 @@ logging.basicConfig(level=eval(f"logging.{os.getenv('LOG_LEVEL')}"),
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
 db: Database = Database()
+user_bot: Bot = Bot()
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
@@ -24,5 +25,4 @@ if __name__ == '__main__':
         if cmd == 'rebuild':
             db.rebuild()
     else:
-        user_bot: Bot = Bot()
         user_bot.run()

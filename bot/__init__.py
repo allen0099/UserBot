@@ -1,7 +1,10 @@
 import logging
+import os
 import platform
 import sys
+from datetime import datetime
 
+import psutil
 from pyrogram import Client
 from pyrogram.errors import ApiIdInvalid
 from pyrogram.session import Session
@@ -24,6 +27,9 @@ class Bot:
             device_model=self.device_model,
             system_version=self.system_version
         )
+
+        self.start_time: datetime = datetime.utcnow()
+        self.process = psutil.Process(os.getpid())
 
     def run(self):
         self.app.run(self.run_once())
