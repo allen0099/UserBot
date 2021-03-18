@@ -62,7 +62,7 @@ class Bot:
             from main import db
 
             with db.engine.connect() as conn:
-                conn.execute(select(text('now()')))
+                conn.execute(text('SELECT now()'))
 
             log.info("[Database] Successfully connect!")
         except OperationalError:

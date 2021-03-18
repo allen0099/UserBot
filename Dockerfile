@@ -32,4 +32,6 @@ RUN sed -i 's/DB_DATABASE=.*/DB_DATABASE='${DB_DATABASE}'/g' .env
 RUN sed -i 's/DB_USERNAME=.*/DB_USERNAME='${DB_USERNAME}'/g' .env
 RUN sed -i 's/DB_PASSWORD=.*/DB_PASSWORD='${DB_PASSWORD}'/g' .env
 
+RUN cp empty.session bot.session
+
 CMD [ "python", "./main.py" ]
