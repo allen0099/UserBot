@@ -4,6 +4,7 @@
 config.ini
 settings.db
 .idea/
+_example/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
