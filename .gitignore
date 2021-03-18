@@ -2,7 +2,6 @@
 *.session
 *.session-journal
 config.ini
-settings.db
 .idea/
 _example/
 

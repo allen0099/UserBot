@@ -5,6 +5,3 @@ lang_code = zh-hant
 
 [plugins]
 root = plugins
-
-[custom]
-log_channel = -1001184069667

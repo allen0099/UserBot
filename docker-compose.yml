@@ -4,7 +4,15 @@ services:
         build:
             context: ./
             dockerfile: Dockerfile
+            args:
+                - API_ID=${API_ID}
+                - API_HASH=${API_HASH}
+                - DB_DATABASE=${DB_DATABASE}
+                - DB_USERNAME=${DB_USERNAME}
+                - DB_PASSWORD=${DB_PASSWORD}
         image: userbot:${VERSION}
+        volumes:
+            - './bot.session:/usr/src/app/bot.session'
         networks:
             - python
         depends_on:
