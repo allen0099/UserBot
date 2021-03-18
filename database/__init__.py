@@ -23,7 +23,7 @@ class Database:
         self.registry: registry = registry()
         self.base: declarative_base = self.registry.generate_base()
 
-        self.metadata: MetaData = self.base.metadata
+        self.metadata: MetaData = self.registry.metadata
         self.metadata.bind = self.engine
 
         # could not reuse session, implement session each needed

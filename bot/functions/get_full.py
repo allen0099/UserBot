@@ -90,7 +90,8 @@ async def refresh_user(cli: Client, peer: Union[InputPeerUser, InputPeerUserFrom
         session.add(cache_user)
         session.commit()
 
-    return cache_user
+    ret: DB_User = session.query(DB_User).filter_by(uid=full_user.user.id).first()
+    return ret
 
 
 async def get_channel_full(cli: Client,
@@ -183,4 +184,5 @@ async def refresh_channel(cli: Client,
     else:
         session.add(cache_channel)
         session.commit()
-    return cache_channel
+    ret: DB_Channel = session.query(DB_Channel).filter_by(cid=channel_full.id).first()
+    return ret
