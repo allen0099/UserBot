@@ -11,10 +11,10 @@ log: logging.Logger = logging.getLogger(__name__)
 class User(db.base, BaseMixin, TimestampMixin):
     uid: int = Column(BigInteger, nullable=False)
     dc_id: int = Column(Integer)
-    first_name: str = Column(String(64), nullable=False)
+    first_name: str = Column(String(64))
     last_name: str = Column(String(64))
     username: str = Column(String(64))
-    about: str = Column(String(128), nullable=False)
+    about: str = Column(String(128))
 
     bot: bool = Column(Boolean, nullable=False)
     deleted: bool = Column(Boolean, nullable=False)

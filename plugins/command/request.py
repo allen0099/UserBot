@@ -44,11 +44,11 @@ async def request(cli: Client, msg: Message) -> None:
 async def parse_user(user: User) -> str:
     message: str = f"<b>UID</b>: <code>{user.uid}</code>\n" \
                    f"<b>User data center</b>: <code>{user.dc_id}</code>\n" \
-                   f"<b>First Name</b>: <a href='tg://user?id={user.id}'>{html.escape(user.first_name)}</a>\n" \
+                   f"<b>First Name</b>: <a href='tg://user?id={user.id}'>{html.escape(user.first_name) if user.first_name else ''}</a>\n" \
                    f"<b>Last Name</b>: {html.escape(user.last_name if user.last_name else EMOJI.empty)}\n" \
                    f"<b>Username</b>: @{user.username}\n" \
                    f"<b>Bio</b>: \n" \
-                   f"<code>{html.escape(user.about)}</code>\n" \
+                   f"<code>{html.escape(user.about) if user.about else ''}</code>\n" \
                    f"<b>Bot</b>: {EMOJI.true if user.bot else EMOJI.false}\n" \
                    f"<b>Deleted</b>: {EMOJI.true if user.deleted else EMOJI.false}\n" \
                    f"<b>Verified</b>: {EMOJI.true if user.verified else EMOJI.false}\n" \
@@ -107,17 +107,17 @@ async def parse_channel(cli: Client, channel: Channel) -> str:
 
 async def parse_permission(rights: ChatBannedRights) -> str:
     message: str = f"\n<u><b>Chat Permission</b></u>:\n" \
-                   f"<b>Send message</b>: {EMOJI.false if rights.send_messages else EMOJI.true}\n" \
-                   f"<b>Send media</b>: {EMOJI.false if rights.send_media else EMOJI.true}\n" \
-                   f"<b>Send stickers</b>: {EMOJI.false if rights.send_stickers else EMOJI.true}\n" \
-                   f"<b>Send gifs</b>: {EMOJI.false if rights.send_gifs else EMOJI.true}\n" \
-                   f"<b>Send games</b>: {EMOJI.false if rights.send_games else EMOJI.true}\n" \
-                   f"<b>Send inline</b>: {EMOJI.false if rights.send_inline else EMOJI.true}\n" \
-                   f"<b>Embed links</b>: {EMOJI.false if rights.embed_links else EMOJI.true}\n" \
-                   f"<b>Send polls</b>: {EMOJI.false if rights.send_polls else EMOJI.true}\n" \
-                   f"<b>Change info</b>: {EMOJI.false if rights.change_info else EMOJI.true}\n" \
-                   f"<b>Invite users</b>: {EMOJI.false if rights.invite_users else EMOJI.true}\n" \
-                   f"<b>Pin messages</b>: {EMOJI.false if rights.pin_messages else EMOJI.true}\n"
+                   f"{EMOJI.false if rights.send_messages else EMOJI.true} <b>send message</b>\n" \
+                   f"{EMOJI.false if rights.send_media else EMOJI.true} <b>send media</b>\n" \
+                   f"{EMOJI.false if rights.send_stickers else EMOJI.true} <b>send stickers</b>\n" \
+                   f"{EMOJI.false if rights.send_gifs else EMOJI.true} <b>send gifs</b>\n" \
+                   f"{EMOJI.false if rights.send_games else EMOJI.true} <b>send games</b>\n" \
+                   f"{EMOJI.false if rights.send_inline else EMOJI.true} <b>send inline</b>\n" \
+                   f"{EMOJI.false if rights.embed_links else EMOJI.true} <b>embed links</b>\n" \
+                   f"{EMOJI.false if rights.send_polls else EMOJI.true} <b>send polls</b>\n" \
+                   f"{EMOJI.false if rights.change_info else EMOJI.true} <b>change info</b>\n" \
+                   f"{EMOJI.false if rights.invite_users else EMOJI.true} <b>invite users</b>\n" \
+                   f"{EMOJI.false if rights.pin_messages else EMOJI.true} <b>pin messages</b>\n"
     return message
 
 
