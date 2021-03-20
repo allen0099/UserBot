@@ -83,6 +83,14 @@ async def refresh_user(cli: Client, peer: Union[InputPeerUser, InputPeerUserFrom
     cache_user.video_calls_available = full_user.video_calls_available
     cache_user.common_chats_count = full_user.common_chats_count
 
+    if full_user.user.bot:
+        cache_user.bot_info_version = full_user.user.bot_info_version
+        cache_user.bot_chat_history = full_user.user.bot_chat_history
+        cache_user.bot_nochats = full_user.user.bot_nochats
+        cache_user.bot_inline_geo = full_user.user.bot_inline_geo
+        cache_user.bot_inline_placeholder = full_user.user.bot_inline_placeholder
+        cache_user.bot_description = full_user.bot_info.description if full_user.bot_info else None
+
     if cache_user in session.dirty:
         cache_user.expired_at = datetime.datetime.utcnow() + datetime.timedelta(hours=6)
         session.commit()

@@ -44,7 +44,8 @@ async def request(cli: Client, msg: Message) -> None:
 async def parse_user(user: User) -> str:
     message: str = f"<b>UID</b>: <code>{user.uid}</code>\n" \
                    f"<b>User data center</b>: <code>{user.dc_id}</code>\n" \
-                   f"<b>First Name</b>: <a href='tg://user?id={user.id}'>{html.escape(user.first_name) if user.first_name else ''}</a>\n" \
+                   f"<b>First Name</b>: " \
+                   f"<a href='tg://user?id={user.id}'>{html.escape(user.first_name) if user.first_name else ''}</a>\n" \
                    f"<b>Last Name</b>: {html.escape(user.last_name if user.last_name else EMOJI.empty)}\n" \
                    f"<b>Username</b>: @{user.username}\n" \
                    f"<b>Bio</b>: \n" \
@@ -60,6 +61,21 @@ async def parse_user(user: User) -> str:
                    f"{EMOJI.true if user.phone_calls_private else EMOJI.false}\n" \
                    f"<b>Video call</b>: {EMOJI.true if user.video_calls_available else EMOJI.false}\n" \
                    f"<b>Groups in common</b>: {user.common_chats_count}\n"
+
+    if user.bot:
+        message += parse_bot(user)
+    return message
+
+
+def parse_bot(user: User) -> str:
+    message: str = f"\n<b><u>Bot</u></b>:\n" \
+                   f"{EMOJI.true if user.bot_chat_history else EMOJI.false} read message\n" \
+                   f"{EMOJI.false if user.bot_nochats else EMOJI.true} add to group\n" \
+                   f"{EMOJI.true if user.bot_inline_geo else EMOJI.false} request geo in inline mode\n" \
+                   f"Bot inline placeholder: " \
+                   f"<code>{user.bot_inline_placeholder if user.bot_inline_placeholder else ''}</code>\n" \
+                   f"Bot info version: <code>{user.bot_info_version}</code>\n" \
+                   f"Bot description: <code>{user.bot_description}</code>\n"
     return message
 
 

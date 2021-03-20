@@ -27,6 +27,13 @@ class User(db.base, BaseMixin, TimestampMixin):
     phone_calls_private: bool = Column(Boolean, nullable=False)
     video_calls_available: bool = Column(Boolean, nullable=False)
 
+    bot_chat_history: bool = Column(Boolean)
+    bot_nochats: bool = Column(Boolean)
+    bot_inline_geo: bool = Column(Boolean)
+    bot_inline_placeholder: bool = Column(Boolean)
+    bot_info_version: int = Column(Integer)
+    bot_description: str = Column(String(512))
+
     common_chats_count: int = Column(Integer, nullable=False)
 
     def __init__(self, uid: int):
