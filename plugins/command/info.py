@@ -13,7 +13,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(filters.command("info", prefixes="$") & filters.me & ~ filters.forwarded)
-async def info(cli: Client, msg: Message) -> None:
+async def info(_: Client, msg: Message) -> None:
     diff_check: str = subprocess.check_output(["git", "diff"]).strip().decode("utf-8")
     label: str = subprocess.check_output(["git", "describe", "--always"]).strip().decode("utf-8")
 

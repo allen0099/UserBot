@@ -50,16 +50,16 @@ async def parse_user(user: User) -> str:
                    f"<b>Username</b>: @{user.username}\n" \
                    f"<b>Bio</b>: \n" \
                    f"<code>{html.escape(user.about) if user.about else ''}</code>\n" \
-                   f"<b>Bot</b>: {EMOJI.true if user.bot else EMOJI.false}\n" \
-                   f"<b>Deleted</b>: {EMOJI.true if user.deleted else EMOJI.false}\n" \
-                   f"<b>Verified</b>: {EMOJI.true if user.verified else EMOJI.false}\n" \
-                   f"<b>Scam</b>: {EMOJI.true if user.scam else EMOJI.false}\n" \
-                   f"<b>Support</b>: {EMOJI.true if user.support else EMOJI.false}\n" \
-                   f"<b>Restricted</b>: {EMOJI.true if user.restricted else EMOJI.false}\n" \
-                   f"<b>Phone call available</b>: {EMOJI.true if user.phone_calls_available else EMOJI.false}\n" \
-                   f"<b>Phone call in privacy setting</b>: " \
-                   f"{EMOJI.true if user.phone_calls_private else EMOJI.false}\n" \
-                   f"<b>Video call</b>: {EMOJI.true if user.video_calls_available else EMOJI.false}\n" \
+                   f"{EMOJI.true if user.bot else EMOJI.false} <b>Bot</b>\n" \
+                   f"{EMOJI.true if user.deleted else EMOJI.false} <b>Deleted</b>\n" \
+                   f"{EMOJI.true if user.verified else EMOJI.false} <b>Verified</b>\n" \
+                   f"{EMOJI.true if user.scam else EMOJI.false} <b>Scam</b>\n" \
+                   f"{EMOJI.true if user.support else EMOJI.false} i<b>Support</b>\n" \
+                   f"{EMOJI.true if user.restricted else EMOJI.false} <b>Restricted</b>\n" \
+                   f"{EMOJI.true if user.phone_calls_available else EMOJI.false} <b>Phone call available</b>\n" \
+                   f"{EMOJI.true if user.phone_calls_private else EMOJI.false}" \
+                   f"<b>Phone call in privacy setting</b>\n" \
+                   f"{EMOJI.true if user.video_calls_available else EMOJI.false} <b>Video call</b>\n" \
                    f"<b>Groups in common</b>: {user.common_chats_count}\n"
 
     if user.bot:
@@ -89,10 +89,10 @@ async def parse_channel(cli: Client, channel: Channel) -> str:
 
     message += f"<b>Administrator counts</b>: <code>{channel.admins_count}</code>\n" \
                f"<b>Member counts</b>: <code>{channel.participants_count}</code>\n" \
-               f"<b>Verified</b>: {EMOJI.true if channel.verified else EMOJI.false}\n" \
-               f"<b>Scam</b>: {EMOJI.true if channel.scam else EMOJI.false}\n" \
-               f"<b>Signatures</b>: {EMOJI.true if channel.signatures else EMOJI.false}\n" \
-               f"<b>Restricted</b>: {EMOJI.true if channel.restricted else EMOJI.false}\n"
+               f"{EMOJI.true if channel.verified else EMOJI.false} <b>Verified</b>\n" \
+               f"{EMOJI.true if channel.scam else EMOJI.false} <b>Scam</b>\n" \
+               f"{EMOJI.true if channel.signatures else EMOJI.false} <b>Signatures</b>\n" \
+               f"{EMOJI.true if channel.restricted else EMOJI.false} <b>Restricted</b>\n"
 
     import pyrogram
     log.debug(f"Call for use: {pyrogram.__version__}")
