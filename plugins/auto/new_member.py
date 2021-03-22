@@ -6,6 +6,7 @@ from pyrogram.raw import functions
 from pyrogram.types import Message, User
 
 from database.models import Name
+from database.models.Name import CATEGORY
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -40,20 +41,20 @@ async def check_name(cli: Client, msg: Message):
     full_name: str = msg.from_user.first_name + (f" {msg.from_user.last_name}" if msg.from_user.last_name else "")
     log.debug(f"User {full_name}({msg.from_user.id}) joined the group {msg.chat.title}({msg.chat.id}), checking name.")
 
-    for _ in Name.get_dict(Name.PREFIX):
-        if msg.from_user.first_name.startswith(_) and len(msg.from_user.first_name) in (3, 4):
+    for _ in Name.get_dict(CATEGORY.PREFIX):
+        if msg.from_user.first_name.startswith(_.match) and len(msg.from_user.first_name) in (3, 4):
             await cli.send_message(os.getenv("LOG_CHANNEL"),
                                    f"#auto #ban #name #prefix <code>{full_name}</code>\n"
                                    f"Uid {msg.from_user.id}\n"
-                                   f"Due to name_prefix: {_}\n"
+                                   f"Due to name_prefix: {_.match}\n"
                                    f"From {msg.chat.title}({msg.chat.id})")
             return
 
-    for _ in Name.get_dict(Name.CONTAIN):
-        if _ in full_name:
+    for _ in Name.get_dict(CATEGORY.CONTAIN):
+        if _.match in full_name:
             await cli.send_message(os.getenv("LOG_CHANNEL"),
                                    f"#auto #ban #name #contain <code>{full_name}</code>\n"
                                    f"Uid {msg.from_user.id}\n"
-                                   f"Due to contain: {_}\n"
+                                   f"Due to contain: {_.match}\n"
                                    f"From {msg.chat.title}({msg.chat.id})")
             return
