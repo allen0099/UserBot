@@ -54,11 +54,11 @@ async def parse_user(user: User) -> str:
                    f"{EMOJI.true if user.deleted else EMOJI.false} <b>Deleted</b>\n" \
                    f"{EMOJI.true if user.verified else EMOJI.false} <b>Verified</b>\n" \
                    f"{EMOJI.true if user.scam else EMOJI.false} <b>Scam</b>\n" \
-                   f"{EMOJI.true if user.support else EMOJI.false} i<b>Support</b>\n" \
+                   f"{EMOJI.true if user.support else EMOJI.false} <b>Support</b>\n" \
                    f"{EMOJI.true if user.restricted else EMOJI.false} <b>Restricted</b>\n" \
                    f"{EMOJI.true if user.phone_calls_available else EMOJI.false} <b>Phone call available</b>\n" \
                    f"{EMOJI.true if user.phone_calls_private else EMOJI.false}" \
-                   f"<b>Phone call in privacy setting</b>\n" \
+                   f" <b>Phone call in privacy setting</b>\n" \
                    f"{EMOJI.true if user.video_calls_available else EMOJI.false} <b>Video call</b>\n" \
                    f"<b>Groups in common</b>: {user.common_chats_count}\n"
 
