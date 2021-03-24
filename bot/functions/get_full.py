@@ -7,9 +7,10 @@ from pyrogram.errors import PeerIdInvalid
 from pyrogram.raw import functions
 from pyrogram.raw.base import InputPeer
 from pyrogram.raw.types import Channel, ChannelFull, ChatBannedRights, InputChannel, InputPeerChannel, \
-    InputPeerChannelFromMessage, \
-    InputPeerChat, InputPeerUser, InputPeerUserFromMessage, InputUser, UserFull
+    InputPeerChannelFromMessage, InputPeerChat, InputPeerUser, InputPeerUserFromMessage, InputUser, UserFull
 from pyrogram.raw.types.messages import ChatFull
+from pyrogram.types import ChatMember
+from pyrogram.utils import get_channel_id
 from sqlalchemy.orm import Session
 
 from bot.util import resolve_peer
@@ -140,7 +141,7 @@ async def refresh_channel(cli: Client,
     cache_channel.about = channel_full.about
     cache_channel.broadcast = channel.broadcast
 
-    log.debug("Not fragment code")
+    admins: list[ChatMember] = await cli.get_chat_members(get_channel_id(peer.channel_id), filter="administrators")
 
     cache_channel.pinned_msg_id = channel_full.pinned_msg_id
     cache_channel.linked_chat_id = channel_full.linked_chat_id
@@ -157,7 +158,8 @@ async def refresh_channel(cli: Client,
     cache_channel.sticker_link = repr(channel_full.stickerset)
     cache_channel.slowmode_enabled = channel.slowmode_enabled
     cache_channel.slowmode_seconds = channel_full.slowmode_seconds
-    cache_channel.admins_count = channel_full.admins_count
+
+    cache_channel.admins_count = len(admins)
     cache_channel.kicked_count = channel_full.kicked_count
     cache_channel.banned_count = channel_full.banned_count
     cache_channel.participants_count = channel_full.participants_count
