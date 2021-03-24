@@ -20,6 +20,7 @@ class User(db.base, BaseMixin, TimestampMixin):
     deleted: bool = Column(Boolean, nullable=False)
     verified: bool = Column(Boolean, nullable=False)
     scam: bool = Column(Boolean, nullable=False)
+    fake: bool = Column(Boolean, nullable=False)
     support: bool = Column(Boolean, nullable=False)
     restricted: bool = Column(Boolean, nullable=False)
 

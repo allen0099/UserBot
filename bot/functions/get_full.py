@@ -76,6 +76,7 @@ async def refresh_user(cli: Client, peer: Union[InputPeerUser, InputPeerUserFrom
     cache_user.deleted = full_user.user.deleted
     cache_user.verified = full_user.user.verified
     cache_user.scam = full_user.user.scam
+    cache_user.fake = full_user.user.fake
     cache_user.support = full_user.user.support
     cache_user.restricted = full_user.user.restricted
     cache_user.phone_calls_available = full_user.phone_calls_available
@@ -145,6 +146,7 @@ async def refresh_channel(cli: Client,
     cache_channel.linked_chat_id = channel_full.linked_chat_id
     cache_channel.verified = channel.verified
     cache_channel.scam = channel.scam
+    cache_channel.fake = channel.fake
     cache_channel.signatures = channel.signatures
     cache_channel.restricted = channel.restricted
     cache_channel.restriction_reason = repr(channel.restriction_reason)

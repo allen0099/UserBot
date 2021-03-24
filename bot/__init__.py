@@ -16,11 +16,11 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 class Bot:
-    def __init__(self):
-        self.app_version: str = "0.1.1"
-        self.device_model: str = f"PC {platform.architecture()[0]}"
-        self.system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
+    app_version: str = "0.1.1"
+    device_model: str = f"PC {platform.architecture()[0]}"
+    system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
 
+    def __init__(self):
         self.app: Client = Client(
             "bot",
             app_version=self.app_version,

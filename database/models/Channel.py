@@ -20,6 +20,7 @@ class Channel(db.base, BaseMixin, TimestampMixin):
 
     verified: bool = Column(Boolean, nullable=False)
     scam: bool = Column(Boolean, nullable=False)
+    fake: bool = Column(Boolean, nullable=False)
     signatures: bool = Column(Boolean, nullable=False)
     restricted: bool = Column(Boolean, nullable=False)
     restriction_reason: str = Column(Text, nullable=False)  # objs

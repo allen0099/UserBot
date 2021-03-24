@@ -54,6 +54,7 @@ async def parse_user(user: User) -> str:
                    f"{EMOJI.true if user.deleted else EMOJI.false} <b>Deleted</b>\n" \
                    f"{EMOJI.true if user.verified else EMOJI.false} <b>Verified</b>\n" \
                    f"{EMOJI.true if user.scam else EMOJI.false} <b>Scam</b>\n" \
+                   f"{EMOJI.true if user.fake else EMOJI.false} <b>Fake</b>\n" \
                    f"{EMOJI.true if user.support else EMOJI.false} <b>Support</b>\n" \
                    f"{EMOJI.true if user.restricted else EMOJI.false} <b>Restricted</b>\n" \
                    f"{EMOJI.true if user.phone_calls_available else EMOJI.false} <b>Phone call available</b>\n" \
@@ -91,6 +92,7 @@ async def parse_channel(cli: Client, channel: Channel) -> str:
                f"<b>Member counts</b>: <code>{channel.participants_count}</code>\n" \
                f"{EMOJI.true if channel.verified else EMOJI.false} <b>Verified</b>\n" \
                f"{EMOJI.true if channel.scam else EMOJI.false} <b>Scam</b>\n" \
+               f"{EMOJI.true if channel.fake else EMOJI.false} <b>Fake</b>\n" \
                f"{EMOJI.true if channel.signatures else EMOJI.false} <b>Signatures</b>\n" \
                f"{EMOJI.true if channel.restricted else EMOJI.false} <b>Restricted</b>\n"
 

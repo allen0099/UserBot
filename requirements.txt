@@ -6,8 +6,8 @@ psutil==5.8.0
 pyaes==1.6.1
 pycparser==2.20
 PyMySQL==1.0.2
-Pyrogram==1.1.13
+Pyrogram==1.2.4
 PySocks==1.7.1
 python-dotenv==0.15.0
-SQLAlchemy==1.4.0
+SQLAlchemy==1.4.2
 TgCrypto==1.2.2
