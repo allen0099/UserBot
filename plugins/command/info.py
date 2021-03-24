@@ -24,7 +24,8 @@ async def info(_: Client, msg: Message) -> None:
                          f"<b>Language</b>: <code>Python</code>\n"
                          f"<b>Library</b>: <code>Pyrogram/{pyrogram.__version__}</code>\n"
                          f"<b>Uptime</b>: <code>{await _parse_time()}</code>\n"
-                         f"<b>Memory</b>: <code>{user_bot.process.memory_info().rss / 1024 / 1024} MiB</code>\n"
+                         f"<b>Memory</b>: <code>"
+                         f"{math.floor((user_bot.process.memory_info().rss / 1024 / 1024) * 1000) / 1000} MiB</code>\n"
                          f"<b>Git revision number</b>: <code>{label}</code>")
 
 
