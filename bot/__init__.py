@@ -3,6 +3,7 @@ import os
 import platform
 import sys
 from datetime import datetime
+from typing import Optional, Union
 
 import psutil
 from pyrogram import Client
@@ -16,6 +17,8 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 class Bot:
+    _instance: Union[None, "Bot"] = None
+    me: Optional[User] = None
     app_version: str = "0.1.1"
     device_model: str = f"PC {platform.architecture()[0]}"
     system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
@@ -30,6 +33,11 @@ class Bot:
 
         self.start_time: datetime = datetime.utcnow()
         self.process = psutil.Process(os.getpid())
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def run(self):
         self.app.run(self.run_once())
@@ -57,6 +65,8 @@ class Bot:
             info_str += f" ID: {me.id}"
 
             log.info(info_str)
+
+            self.me: User = me
         except ApiIdInvalid:
             log.critical("[Failed] Api ID is invalid")
             sys.exit(1)

@@ -14,13 +14,13 @@ from sqlalchemy.orm import Session
 
 from bot.util import resolve_peer
 from database.models import Channel as DB_Channel, ChatBannedRights as Rights, User as DB_User
-from main import db
+from main import db, user_bot
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
 async def get_full(cli: Client, telegram_id: str) -> Union[DB_User, DB_Channel]:
-    self: types.User = await cli.get_me()
+    self: types.User = user_bot.me
 
     if telegram_id in ("self", "me"):
         telegram_id: str = str(self.id)

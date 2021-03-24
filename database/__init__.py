@@ -1,7 +1,8 @@
 import logging
 import os
-
 # noinspection PyProtectedMember
+from typing import Union
+
 from sqlalchemy import MetaData
 # noinspection PyProtectedMember
 from sqlalchemy.engine import Engine, create_engine
@@ -13,6 +14,8 @@ log: logging.Logger = logging.getLogger(__name__)
 class Database:
     # registry should be a global shared object
     registry: registry = registry()
+
+    _instance: Union[None, "Database"] = None
 
     def __init__(self):
         self._host: str = os.getenv("DB_HOST")
@@ -32,6 +35,11 @@ class Database:
         self._session: sessionmaker = sessionmaker(self.engine, future=True)
 
         from . import models
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def get_session(self) -> Session:
         return self._session()
