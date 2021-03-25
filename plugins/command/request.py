@@ -4,6 +4,7 @@ import re
 from typing import Union
 
 from pyrogram import Client, filters, utils
+from pyrogram.errors import PeerIdInvalid
 from pyrogram.raw import base, functions, types
 from pyrogram.raw.types import ChannelParticipantAdmin, ChannelParticipantCreator, ChannelParticipantsAdmins, \
     ChatAdminRights, RestrictionReason, StickerSet
@@ -29,7 +30,12 @@ async def request(cli: Client, msg: Message) -> None:
         await cli.send_message("me", "Usage: <code>$req &lt;uid|username&gt;</code>")
         return
     else:
-        data: Union[User, Channel] = await get_full(cli, peer_id)
+        try:
+            data: Union[User, Channel] = await get_full(cli, peer_id)
+        except PeerIdInvalid:
+            await msg.reply_text(f"<b><u>ERROR!</u></b>\n"
+                                 f"Peer Not Found")
+            return
         if isinstance(data, User):
             await msg.reply_text(await parse_user(data))
             return
