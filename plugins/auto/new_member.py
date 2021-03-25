@@ -32,6 +32,7 @@ async def add_member_report(cli: Client, msg: Message) -> None:
                 await cli.send_message(os.getenv("LOG_CHANNEL"),
                                        f"#auto #reportspam #leave {msg.chat.title}({msg.chat.id})")
                 await cli.leave_chat(msg.chat.id)
+                return
             await cli.send_message(os.getenv("LOG_CHANNEL"), f"#auto #failed {msg.chat.title}({msg.chat.id})")
             return
 

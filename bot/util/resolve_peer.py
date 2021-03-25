@@ -43,7 +43,10 @@ async def resolve_peer(
         except ValueError:
             return await _string_exe(cli, peer_id)
         else:
-            peer_type = utils.get_peer_type(peer_id)
+            try:
+                peer_type = utils.get_peer_type(peer_id)
+            except ValueError:
+                raise PeerIdInvalid
 
             if peer_type == "user":
                 await cli.fetch_peers(
