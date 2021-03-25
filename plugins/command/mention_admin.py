@@ -11,7 +11,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(filters.command("admin", "@") & filters.group & filters.me & ~ filters.forwarded)
-async def mention_admins(cli: Client, msg: Message) -> None:
+async def mention_admin(cli: Client, msg: Message) -> None:
     log.debug(f"{msg.from_user.id} called {msg.chat.id} admins")
     await cli.delete_messages(msg.chat.id, msg.message_id)
 

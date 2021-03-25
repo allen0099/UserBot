@@ -8,7 +8,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(filters.command("random", prefixes="$") & filters.me)
-def roll_dice(_: Client, msg: Message) -> None:
+def roll(_: Client, msg: Message) -> None:
     if len(msg.command) == 1:
         msg.reply(str(random.randint(1, 6)))
     elif len(msg.command) == 2 and msg.command[1].isdigit():
