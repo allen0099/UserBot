@@ -29,7 +29,7 @@ async def add_member_report(cli: Client, msg: Message) -> None:
         if len(inviter_commons) <= 3:
             log.debug(f"What happened, I should leave {msg.chat.title}({msg.chat.id}) and report now.")
             if await cli.send(functions.messages.ReportSpam(peer=await cli.resolve_peer(msg.chat.id))):
-                await cli.send_message(os.getenv("log_channel"),
+                await cli.send_message(os.getenv("LOG_CHANNEL"),
                                        f"#auto #reportspam #leave {msg.chat.title}({msg.chat.id})")
                 await cli.leave_chat(msg.chat.id)
             await cli.send_message(os.getenv("LOG_CHANNEL"), f"#auto #failed {msg.chat.title}({msg.chat.id})")
@@ -37,7 +37,7 @@ async def add_member_report(cli: Client, msg: Message) -> None:
 
     # Others add another one
     b: Callable[[list[User]], list[str]] = lambda x: [f"{_.first_name} {_.last_name}({_.id})" for _ in x]
-    log.debug(f"{msg.from_user.id} invited {b(msg.new_chat_members)}")
+    log.debug(f"{msg.from_user.id} invited {b(msg.new_chat_members)} into {msg.chat.title}({msg.chat.id})")
 
 
 async def check_name(cli: Client, msg: Message):
