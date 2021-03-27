@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Callable
 
 from pyrogram import Client, filters
 from pyrogram.raw import functions
@@ -37,8 +36,10 @@ async def add_member_report(cli: Client, msg: Message) -> None:
             return
 
     # Others add another one
-    b: Callable[[list[User]], list[str]] = lambda x: [f"{_.first_name} {_.last_name}({_.id})" for _ in x]
-    log.debug(f"{msg.from_user.id} invited {b(msg.new_chat_members)} into {msg.chat.title}({msg.chat.id})")
+    def get_str_mbs(x: list[User]) -> list[str]:
+        return [f"{_.first_name}{' ' + _.last_name if _.last_name else ''}({_.id})" for _ in x]
+
+    log.debug(f"{msg.from_user.id} invited {get_str_mbs(msg.new_chat_members)} into {msg.chat.title}({msg.chat.id})")
 
 
 async def check_name(cli: Client, msg: Message):
