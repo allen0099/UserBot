@@ -15,4 +15,4 @@ def get_time(timestamp: int) -> str:
 def get_mention_name(uid: int, first_name: str, last_name: str = None) -> str:
     return f"<a href='tg://user?id={uid}'>" \
            f"{html.escape(first_name) if first_name else EMOJI.empty}" \
-           f"{' ' + html.escape(last_name) if last_name else EMOJI.empty}</a>\n"
+           f"{' ' + html.escape(last_name) if last_name else EMOJI.empty}</a>"

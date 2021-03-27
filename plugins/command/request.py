@@ -13,6 +13,7 @@ from pyrogram.types import Message
 
 from bot.functions import get_full
 from bot.types import EMOJI
+from bot.util import get_mention_name
 from database.models import Channel, ChatBannedRights, User
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ async def parse_user(user: User) -> str:
     message: str = f"<b>UID</b>: <code>{user.uid}</code>\n" \
                    f"<b>User data center</b>: <code>{user.dc_id}</code>\n" \
                    f"<b>First Name</b>: " \
-                   f"<a href='tg://user?id={user.id}'>{html.escape(user.first_name) if user.first_name else ''}</a>\n" \
+                   f"{get_mention_name(user.uid, user.first_name)}\n" \
                    f"<b>Last Name</b>: {html.escape(user.last_name if user.last_name else EMOJI.empty)}\n" \
                    f"<b>Username</b>: @{user.username}\n" \
                    f"<b>Bio</b>: \n" \
@@ -173,9 +174,7 @@ async def parse_channel_admins(cli: Client, channel: Channel) -> str:
     user_creator: types.User = users[creator.user_id]
     message: str = f"\n<u><b>Administrators</b></u>:\n" \
                    f"Creator: <code>[{html.escape(creator.rank) if creator.rank else EMOJI.empty}]</code> " \
-                   f"<a href='tg://user?id={creator.user_id}'>" \
-                   f"{html.escape(user_creator.first_name) if user_creator.first_name else EMOJI.empty} " \
-                   f"{html.escape(user_creator.last_name) if user_creator.last_name else EMOJI.empty}</a>\n"
+                   f"{get_mention_name(user_creator.id, user_creator.first_name, user_creator.last_name)}\n"
 
     message += parse_admin(admins, users)
     message += parse_admin(bots, users)
@@ -203,8 +202,6 @@ def parse_admin(admins: list[ChannelParticipantAdmin], users: dict[int, types.Us
             ret += f"({EMOJI.bot})"
             ret += f"({EMOJI.bot_eyes if users[_.user_id].bot_chat_history else EMOJI.bot_close_eyes})"
         ret += f"<code>[{html.escape(_.rank) if _.rank else EMOJI.empty}]</code> " \
-               f"<a href='tg://user?id={_.user_id}'>" \
-               f"{html.escape(users[_.user_id].first_name) if users[_.user_id].first_name else EMOJI.empty} " \
-               f"{html.escape(users[_.user_id].last_name) if users[_.user_id].last_name else EMOJI.empty}</a>\n"
+               f"{get_mention_name(_.user_id, users[_.user_id].first_name, users[_.user_id].last_name)}\n"
 
     return ret
