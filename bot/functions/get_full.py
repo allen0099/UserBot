@@ -5,8 +5,8 @@ from typing import Optional, Union
 from pyrogram import Client, types
 from pyrogram.errors import PeerIdInvalid
 from pyrogram.raw.base import InputPeer
-from pyrogram.raw.types import InputChannel, InputPeerChannel, \
-    InputPeerChannelFromMessage, InputPeerChat, InputPeerUser, InputPeerUserFromMessage, InputUser
+from pyrogram.raw.types import InputChannel, InputPeerChannel, InputPeerChannelFromMessage, InputPeerChat, \
+    InputPeerUser, InputPeerUserFromMessage, InputUser
 from sqlalchemy.orm import Session
 
 from bot.util import resolve_peer
