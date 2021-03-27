@@ -46,7 +46,7 @@ class Bot:
     async def run_once(self):
         # Disable notice
         Session.notice_displayed = True
-        logging.getLogger("pyrogram.client").disabled = True
+        logging.getLogger("pyrogram").setLevel(logging.WARNING)
         try:
             await self.app.start()
         except AuthKeyUnregistered:
@@ -54,7 +54,7 @@ class Bot:
             log.critical("        Removed old session and exit...!")
             await self.app.storage.delete()
             exit(1)
-        logging.getLogger("pyrogram.client").disabled = False
+
 
         try:
             me: User = await self.app.get_me()
@@ -91,3 +91,4 @@ class Bot:
         log.info("Client started successfully")
 
         await self.app.stop()
+        logging.getLogger("pyrogram").setLevel(logging.INFO)
