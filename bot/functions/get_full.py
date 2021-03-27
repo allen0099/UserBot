@@ -3,7 +3,7 @@ import logging
 from typing import Optional, Union
 
 from pyrogram import Client, types
-from pyrogram.errors import PeerIdInvalid
+from pyrogram.errors import ChatAdminRequired, PeerIdInvalid
 from pyrogram.raw import functions
 from pyrogram.raw.base import InputPeer
 from pyrogram.raw.types import Channel, ChannelFull, ChatBannedRights, InputChannel, InputPeerChannel, \
@@ -27,7 +27,7 @@ async def get_full(cli: Client, telegram_id: str) -> Union[DB_User, DB_Channel]:
         telegram_id: str = str(self.id)
 
     peer: InputPeer = await resolve_peer(cli, telegram_id)
-    log.debug(f"Peer: {peer}")
+    log.debug(f"Peer: {type(peer)}")
 
     if isinstance(peer, (InputPeerUser, InputPeerUserFromMessage, InputUser)):
         return await get_user_full(cli, peer)
@@ -141,7 +141,10 @@ async def refresh_channel(cli: Client,
     cache_channel.about = channel_full.about
     cache_channel.broadcast = channel.broadcast
 
-    admins: list[ChatMember] = await cli.get_chat_members(get_channel_id(peer.channel_id), filter="administrators")
+    try:
+        admins: list[ChatMember] = await cli.get_chat_members(get_channel_id(peer.channel_id), filter="administrators")
+    except ChatAdminRequired:
+        admins: list = []
 
     cache_channel.pinned_msg_id = channel_full.pinned_msg_id
     cache_channel.linked_chat_id = channel_full.linked_chat_id
