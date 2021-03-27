@@ -3,8 +3,9 @@ import os
 
 from pyrogram import Client, filters
 from pyrogram.raw import functions
-from pyrogram.types import Message, User
+from pyrogram.types import Chat, Message, User
 
+from bot.util import get_common_chats
 from database.models import Name
 from database.models.Name import CATEGORY
 from main import user_bot
@@ -24,7 +25,7 @@ async def add_member_report(cli: Client, msg: Message) -> None:
 
     # Others add me
     if me.id in new_users.keys():
-        inviter_commons = await cli.get_common_chats(msg.from_user.id)
+        inviter_commons: list[Chat] = await get_common_chats(cli, msg.from_user.id)
         if len(inviter_commons) <= 3:
             log.debug(f"What happened, I should leave {msg.chat.title}({msg.chat.id}) and report now.")
             if await cli.send(functions.messages.ReportSpam(peer=await cli.resolve_peer(msg.chat.id))):
