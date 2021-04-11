@@ -12,7 +12,6 @@ pip install -r requirements.txt
 
 # edit configs
 cp .env.example .env
-cp config.ini.example config.ini
 
 # build database
 python main.py rebuild
@@ -20,21 +19,10 @@ python main.py rebuild
 python main.py
 ```
 
-### docker run
+### docker
 
-- docker
-- docker-compose
-
-```shell
-cp .env.example .env
-# edit .env file
-
-
-# login Telegram
-# I don't know how to login without terminal
-
-docker-compose up --build -d userbot mysql
-```
+- due to docker limit, it is not possible to login inside docker image.
+- docker is not support until I have idea how to login with docker container.
 
 ## author
 
