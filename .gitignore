@@ -1,7 +1,6 @@
 # User define
 *.session
 *.session-journal
-config.ini
 .idea/
 _example/
 
