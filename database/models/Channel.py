@@ -141,3 +141,19 @@ class Channel(db.base, BaseMixin, TimestampMixin):
     async def add(self, cli: Client) -> "Channel":
         log.debug(f"Adding new channel: {self.cid}")
         return await self.refresh(cli)
+
+    @staticmethod
+    async def get(cli: Client, cid: int) -> "Channel":
+        session: Session = db.get_session()
+        cache: Channel = session.query(Channel).filter_by(cid=cid).first()
+
+        if cache is None:
+            log.debug(f"{cid} not exist in database, creating...")
+            return await Channel(cid).add(cli)
+
+        if datetime.datetime.utcnow() < cache.expired_at:
+            log.debug(f"{cid} cached")
+            return cache
+
+        log.debug(f"{cid} expired at {cache.expired_at}, now is {datetime.datetime.utcnow()}")
+        return await cache.refresh(cli)

@@ -1,51 +1,60 @@
 import html
 import logging
 import re
-from typing import Union
 
 from pyrogram import Client, filters, utils
 from pyrogram.errors import PeerIdInvalid
 from pyrogram.raw import base, functions, types
+from pyrogram.raw.base import InputPeer
 from pyrogram.raw.types import ChannelParticipantAdmin, ChannelParticipantCreator, ChannelParticipantsAdmins, \
-    ChatAdminRights, RestrictionReason, StickerSet
+    ChatAdminRights, InputChannel, InputPeerChannel, InputPeerChannelFromMessage, InputPeerChat, InputPeerUser, \
+    InputPeerUserFromMessage, InputUser, RestrictionReason, StickerSet
 from pyrogram.raw.types.channels import ChannelParticipants
 from pyrogram.types import Message
 
-from bot.functions import get_full
 from bot.types import EMOJI
-from bot.util import get_mention_name
+from bot.util import get_mention_name, resolve_peer
 from database.models import Channel, ChatBannedRights, User
+from main import user_bot
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
 @Client.on_message(filters.command("req", prefixes="$") & filters.me & ~ filters.forwarded)
 async def request(cli: Client, msg: Message) -> None:
+    self: types.User = user_bot.me
+
     log.debug(f"{msg.from_user.id} issued command request")
     log.debug(f" -> text: {msg.text}")
 
     try:
         peer_id: str = re.search(re.compile(r"(?<=@)?\w{5,}$|^[+-]?\d+$|(?:me|self)$"), msg.command[1])[0]
         log.debug(f"Peer id: {peer_id}")
+
+        if peer_id in ("self", "me"):
+            peer_id: str = str(self.id)
+
     except (IndexError, TypeError):
-        await cli.send_message("me", "Usage: <code>$req &lt;uid|username&gt;</code>")
+        await msg.reply_text("Usage: <code>$req &lt;uid|username&gt;</code>")
         return
     else:
         try:
-            data: Union[User, Channel] = await get_full(cli, peer_id)
+            peer: InputPeer = await resolve_peer(cli, peer_id)
+            log.debug(f"Peer instance: {type(peer)}")
         except PeerIdInvalid:
             await msg.reply_text(f"<b><u>ERROR!</u></b>\n"
                                  f"Peer Not Found")
             return
-        if isinstance(data, User):
-            await msg.reply_text(await parse_user(data))
-            return
-        elif isinstance(data, Channel):
-            await msg.reply_text(await parse_channel(cli, data))
-            return
+        if isinstance(peer, (InputPeerUser, InputPeerUserFromMessage, InputUser)):
+            await msg.reply_text(await parse_user(await User.get(cli, peer.user_id)))
+        elif isinstance(peer, InputPeerChat):
+            # full_chat: ChatFull = await cli.send(functions.messages.GetFullChat(chat_id=-int(telegram_id)))
+            await msg.reply_text("Not implemented")
+        elif isinstance(peer, (InputPeerChannel, InputPeerChannelFromMessage, InputChannel)):
+            await msg.reply_text(await parse_channel(cli, await Channel.get(cli, peer.channel_id)))
         else:
-            await msg.reply_text("Not yet support")
-            return
+            await msg.reply_text(f"<b><u>ERROR!</u></b>\n"
+                                 f"Peer Not Found")
 
 
 async def parse_user(user: User) -> str:

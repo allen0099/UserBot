@@ -1,5 +1,6 @@
 import datetime
 import logging
+from typing import Optional
 
 from pyrogram import Client
 from pyrogram.errors import PeerIdInvalid
@@ -103,3 +104,19 @@ class User(db.base, BaseMixin, TimestampMixin):
     async def add(self, cli: Client) -> "User":
         log.debug(f"Adding new user: {self.uid}")
         return await self.refresh(cli)
+
+    @staticmethod
+    async def get(cli: Client, uid: int) -> "User":
+        session: Session = db.get_session()
+        cache_user: Optional[User] = session.query(User).filter_by(uid=uid).first()
+
+        if cache_user is None:
+            log.debug(f"{uid} not exist in database, creating...")
+            return await User(uid).add(cli)
+
+        if datetime.datetime.utcnow() < cache_user.expired_at:
+            log.debug(f"{uid} cached")
+            return cache_user
+
+        log.debug(f"{uid} expired at {cache_user.expired_at}, now is {datetime.datetime.utcnow()}")
+        return await cache_user.refresh(cli)

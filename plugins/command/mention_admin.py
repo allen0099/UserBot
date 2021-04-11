@@ -4,7 +4,6 @@ import logging
 from pyrogram import Client, filters
 from pyrogram.types import ChatMember, Message
 
-from bot.functions import get_full
 from database.models import Channel
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -18,7 +17,7 @@ async def mention_admin(cli: Client, msg: Message) -> None:
     admins: list[ChatMember] = await cli.get_chat_members(msg.chat.id,
                                                           filter="administrators")
 
-    channel: Channel = await get_full(cli, str(msg.chat.id))
+    channel: Channel = await Channel.get(cli, msg.chat.id)
 
     if channel.slowmode_seconds:
         await asyncio.sleep(channel.slowmode_seconds)
