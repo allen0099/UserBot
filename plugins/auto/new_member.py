@@ -48,7 +48,7 @@ async def check_name(cli: Client, msg: Message):
     log.debug(f"User {full_name}({msg.from_user.id}) joined the group {msg.chat.title}({msg.chat.id}), checking name.")
 
     for _ in Name.get_dict(CATEGORY.PREFIX):
-        if msg.from_user.first_name.startswith(_.match) and len(msg.from_user.first_name) in (3, 4):
+        if full_name.startswith(_.match) and len(full_name) in (3, 4):
             await cli.send_message(os.getenv("LOG_CHANNEL"),
                                    f"#auto #ban #name #prefix <code>{full_name}</code>\n"
                                    f"Uid {msg.from_user.id}\n"

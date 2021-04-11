@@ -1,7 +1,0 @@
-[pyrogram]
-api_id = 012345
-api_hash = 12345678901234567890123456789012
-lang_code = zh-hant
-
-[plugins]
-root = plugins

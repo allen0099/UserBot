@@ -19,7 +19,7 @@ log: logging.Logger = logging.getLogger(__name__)
 class Bot:
     _instance: Union[None, "Bot"] = None
     me: Optional[User] = None
-    app_version: str = "0.1.1"
+    app_version: str = os.getenv("VERSION")
     device_model: str = f"PC {platform.architecture()[0]}"
     system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
 
@@ -28,6 +28,14 @@ class Bot:
             "bot",
             app_version=self.app_version,
             device_model=self.device_model,
+            api_id=os.getenv("API_ID"),
+            api_hash=os.getenv("API_HASH"),
+            plugins={
+                "enabled": True,
+                "root": "plugins",
+                "include": [],
+                "exclude": []
+            },
             system_version=self.system_version
         )
 
@@ -54,7 +62,6 @@ class Bot:
             log.critical("        Removed old session and exit...!")
             await self.app.storage.delete()
             exit(1)
-
 
         try:
             me: User = await self.app.get_me()
