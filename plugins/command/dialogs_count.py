@@ -8,6 +8,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 @Client.on_message(filters.command("count", prefixes="$") & filters.me & ~ filters.forwarded)
 async def dialogs_count(cli: Client, msg: Message) -> None:
+    m: Message = await msg.reply_text("Counting...")
     count: dict = {
         "total": 0,
         "group": 0,
@@ -21,9 +22,9 @@ async def dialogs_count(cli: Client, msg: Message) -> None:
         count["total"] += 1
         count[dialog.chat.type] += 1
 
-    await msg.reply_text(f"Total: <code>{count['total']}</code>\n"
-                         f"Groups: <code>{count['group']}</code>\n"
-                         f"Super groups: <code>{count['supergroup']}</code>\n"
-                         f"Channel: <code>{count['channel']}</code>\n"
-                         f"Private: <code>{count['private']}</code>\n"
-                         f"Bot: <code>{count['bot']}</code>\n")
+    await m.edit(f"Total: <code>{count['total']}</code>\n"
+                 f"Groups: <code>{count['group']}</code>\n"
+                 f"Super groups: <code>{count['supergroup']}</code>\n"
+                 f"Channel: <code>{count['channel']}</code>\n"
+                 f"Private: <code>{count['private']}</code>\n"
+                 f"Bot: <code>{count['bot']}</code>\n")
