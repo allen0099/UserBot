@@ -22,7 +22,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 class Channel(db.base, BaseMixin, TimestampMixin):
-    cid: int = Column(BigInteger, nullable=False)
+    id: int = Column(BigInteger, primary_key=True, autoincrement=False)
     title: str = Column(String(128), nullable=False)
     username: str = Column(String(64))
     about: str = Column(String(256), nullable=False)
@@ -50,11 +50,11 @@ class Channel(db.base, BaseMixin, TimestampMixin):
     default_banned_rights = relationship("ChatBannedRights", back_populates="channel", cascade="all, delete")
 
     def __init__(self, cid: int):
-        self.cid = cid
+        self.id = cid
 
     async def refresh(self, cli: Client) -> "Channel":
         session: Session = db.get_session()
-        cid: int = self.cid
+        cid: int = self.id
 
         log.debug(f"Refreshing {cid}")
         peer: InputPeer = await resolve_peer(cli, get_channel_id(cid))
@@ -66,7 +66,7 @@ class Channel(db.base, BaseMixin, TimestampMixin):
         channel_full: ChannelFull = chat_full.full_chat
         channel: p_Channel = chat_full.chats[0]
 
-        cache_channel: Channel = session.query(Channel).filter_by(cid=channel_full.id).first()
+        cache_channel: Channel = session.query(Channel).filter_by(id=channel_full.id).first()
 
         if cache_channel is None:
             cache_channel = Channel(channel_full.id)
@@ -135,17 +135,17 @@ class Channel(db.base, BaseMixin, TimestampMixin):
         else:
             session.add(cache_channel)
             session.commit()
-        ret: Channel = session.query(Channel).filter_by(cid=channel_full.id).first()
+        ret: Channel = session.query(Channel).filter_by(id=channel_full.id).first()
         return ret
 
     async def add(self, cli: Client) -> "Channel":
-        log.debug(f"Adding new channel: {self.cid}")
+        log.debug(f"Adding new channel: {self.id}")
         return await self.refresh(cli)
 
     @staticmethod
     async def get(cli: Client, cid: int) -> "Channel":
         session: Session = db.get_session()
-        cache: Channel = session.query(Channel).filter_by(cid=cid).first()
+        cache: Channel = session.query(Channel).filter_by(id=cid).first()
 
         if cache is None:
             log.debug(f"{cid} not exist in database, creating...")

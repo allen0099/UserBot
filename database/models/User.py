@@ -18,7 +18,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 class User(db.base, BaseMixin, TimestampMixin):
-    uid: int = Column(BigInteger, nullable=False)
+    id: int = Column(BigInteger, primary_key=True, autoincrement=False)
     dc_id: int = Column(Integer)
     first_name: str = Column(String(64))
     last_name: str = Column(String(64))
@@ -47,11 +47,11 @@ class User(db.base, BaseMixin, TimestampMixin):
     common_chats_count: int = Column(Integer, nullable=False)
 
     def __init__(self, uid: int):
-        self.uid = uid
+        self.id = uid
 
     async def refresh(self, cli: Client) -> "User":
         session: Session = db.get_session()
-        uid = self.uid
+        uid = self.id
 
         log.debug(f"Refreshing {uid}")
         peer: InputPeer = await resolve_peer(cli, uid)
@@ -60,7 +60,7 @@ class User(db.base, BaseMixin, TimestampMixin):
             raise PeerIdInvalid
 
         full_user: UserFull = await cli.send(functions.users.GetFullUser(id=peer))
-        cache_user: User = session.query(User).filter_by(uid=full_user.user.id).first()
+        cache_user: User = session.query(User).filter_by(id=full_user.user.id).first()
 
         if cache_user is None:
             cache_user: User = User(full_user.user.id)
@@ -98,17 +98,17 @@ class User(db.base, BaseMixin, TimestampMixin):
             session.commit()
 
         log.debug(f"Refreshed user {uid}!")
-        ret: User = session.query(User).filter_by(uid=full_user.user.id).first()
+        ret: User = session.query(User).filter_by(id=full_user.user.id).first()
         return ret
 
     async def add(self, cli: Client) -> "User":
-        log.debug(f"Adding new user: {self.uid}")
+        log.debug(f"Adding new user: {self.id}")
         return await self.refresh(cli)
 
     @staticmethod
     async def get(cli: Client, uid: int) -> "User":
         session: Session = db.get_session()
-        cache_user: Optional[User] = session.query(User).filter_by(uid=uid).first()
+        cache_user: Optional[User] = session.query(User).filter_by(id=uid).first()
 
         if cache_user is None:
             log.debug(f"{uid} not exist in database, creating...")

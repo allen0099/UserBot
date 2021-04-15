@@ -58,10 +58,10 @@ async def request(cli: Client, msg: Message) -> None:
 
 
 async def parse_user(user: User) -> str:
-    message: str = f"<b>UID</b>: <code>{user.uid}</code>\n" \
+    message: str = f"<b>UID</b>: <code>{user.id}</code>\n" \
                    f"<b>User data center</b>: <code>{user.dc_id}</code>\n" \
                    f"<b>First Name</b>: " \
-                   f"{get_mention_name(user.uid, user.first_name)}\n" \
+                   f"{get_mention_name(user.id, user.first_name)}\n" \
                    f"<b>Last Name</b>: {html.escape(user.last_name if user.last_name else EMOJI.empty)}\n" \
                    f"<b>Username</b>: @{user.username}\n" \
                    f"<b>Bio</b>: \n" \
@@ -97,7 +97,7 @@ def parse_bot(user: User) -> str:
 
 
 async def parse_channel(cli: Client, channel: Channel) -> str:
-    message: str = f"<b>Chat ID</b>: <code>{utils.get_channel_id(channel.cid)}</code>\n" \
+    message: str = f"<b>Chat ID</b>: <code>{utils.get_channel_id(channel.id)}</code>\n" \
                    f"<b>Chat Type</b>: <code>{'Channel' if channel.broadcast else 'Supergroup'}</code>\n" \
                    f"<b>Chat Title</b>: <code>{html.escape(channel.title)}</code>\n" \
                    f"<b>Chat Username</b>: @{channel.username}\n" \
@@ -124,7 +124,7 @@ async def parse_channel(cli: Client, channel: Channel) -> str:
                        f"   {reason.text}\n"
 
     if channel.pinned_msg_id:
-        message += f"🔗 <a href='https://t.me/c/{channel.cid}/{channel.pinned_msg_id}'>Pinned message</a>\n"
+        message += f"🔗 <a href='https://t.me/c/{channel.id}/{channel.pinned_msg_id}'>Pinned message</a>\n"
     if channel.linked_chat_id:
         message += f"🔗 <a href='https://t.me/c/{channel.linked_chat_id}/999999999'>Linked Chat</a>\n"
 
@@ -156,7 +156,7 @@ async def parse_permission(rights: ChatBannedRights) -> str:
 
 
 async def parse_channel_admins(cli: Client, channel: Channel) -> str:
-    peer = await cli.resolve_peer(utils.get_channel_id(channel.cid))
+    peer = await cli.resolve_peer(utils.get_channel_id(channel.id))
 
     channel_participants: ChannelParticipants = await cli.send(
         functions.channels.GetParticipants(
