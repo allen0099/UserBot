@@ -6,7 +6,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from bot import Bot
-from database import Database
 
 load_dotenv(dotenv_path=str(Path(sys.argv[0]).parent / ".env"), verbose=True)
 
@@ -16,14 +15,7 @@ logging.basicConfig(level=eval(f"logging.{os.getenv('LOG_LEVEL')}"),
 
 logging.getLogger("pyrogram").setLevel(logging.INFO)
 
-db: Database = Database()
 user_bot: Bot = Bot()
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 2:
-        cmd: str = sys.argv[1]
-        if cmd == "rebuild":
-            db.rebuild()
-            log.info(f"[Success] Database rebuilt!")
-    else:
-        user_bot.run()
+    user_bot.run()

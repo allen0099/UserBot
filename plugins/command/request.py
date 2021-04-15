@@ -3,18 +3,19 @@ import logging
 import re
 
 from pyrogram import Client, filters, utils
-from pyrogram.errors import PeerIdInvalid
+from pyrogram.errors import ChatAdminRequired, PeerIdInvalid
 from pyrogram.raw import base, functions, types
-from pyrogram.raw.base import InputPeer
-from pyrogram.raw.types import ChannelParticipantAdmin, ChannelParticipantCreator, ChannelParticipantsAdmins, \
-    ChatAdminRights, InputChannel, InputPeerChannel, InputPeerChannelFromMessage, InputPeerChat, InputPeerUser, \
-    InputPeerUserFromMessage, InputUser, RestrictionReason, StickerSet
+from pyrogram.raw.base import ChatBannedRights, InputPeer, UserFull
+from pyrogram.raw.base.messages import ChatFull
+from pyrogram.raw.types import Channel, ChannelFull, ChannelParticipantAdmin, ChannelParticipantCreator, \
+    ChannelParticipantsAdmins, ChatAdminRights, InputChannel, InputPeerChannel, InputPeerChannelFromMessage, \
+    InputPeerChat, InputPeerUser, InputPeerUserFromMessage, InputUser, RestrictionReason, StickerSet
 from pyrogram.raw.types.channels import ChannelParticipants
-from pyrogram.types import Message
+from pyrogram.types import ChatMember, Message
+from pyrogram.utils import get_channel_id
 
 from bot.types import EMOJI
 from bot.util import get_mention_name, resolve_peer
-from database.models import Channel, ChatBannedRights, User
 from main import user_bot
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -46,76 +47,82 @@ async def request(cli: Client, msg: Message) -> None:
                                  f"Peer Not Found")
             return
         if isinstance(peer, (InputPeerUser, InputPeerUserFromMessage, InputUser)):
-            await msg.reply_text(await parse_user(await User.get(cli, peer.user_id)))
+            await msg.reply_text(await parse_user(await cli.send(functions.users.GetFullUser(id=peer))))
         elif isinstance(peer, InputPeerChat):
             # full_chat: ChatFull = await cli.send(functions.messages.GetFullChat(chat_id=-int(telegram_id)))
             await msg.reply_text("Not implemented")
         elif isinstance(peer, (InputPeerChannel, InputPeerChannelFromMessage, InputChannel)):
-            await msg.reply_text(await parse_channel(cli, await Channel.get(cli, peer.channel_id)))
+            await msg.reply_text(
+                await parse_channel(cli, await cli.send(functions.channels.GetFullChannel(channel=peer))))
         else:
             await msg.reply_text(f"<b><u>ERROR!</u></b>\n"
                                  f"Peer Not Found")
 
 
-async def parse_user(user: User) -> str:
-    message: str = f"<b>UID</b>: <code>{user.id}</code>\n" \
-                   f"<b>User data center</b>: <code>{user.dc_id}</code>\n" \
+async def parse_user(uf: UserFull) -> str:
+    message: str = f"<b>UID</b>: <code>{uf.user.id}</code>\n" \
+                   f"<b>User data center</b>: " \
+                   f"<code>{uf.profile_photo.dc_id if uf.profile_photo is not None else None}</code>\n" \
                    f"<b>First Name</b>: " \
-                   f"{get_mention_name(user.id, user.first_name)}\n" \
-                   f"<b>Last Name</b>: {html.escape(user.last_name if user.last_name else EMOJI.empty)}\n" \
-                   f"<b>Username</b>: @{user.username}\n" \
+                   f"{get_mention_name(uf.user.id, uf.user.first_name)}\n" \
+                   f"<b>Last Name</b>: {html.escape(uf.user.last_name if uf.user.last_name else EMOJI.empty)}\n" \
+                   f"<b>Username</b>: @{uf.user.username}\n" \
                    f"<b>Bio</b>: \n" \
-                   f"<code>{html.escape(user.about) if user.about else ''}</code>\n" \
-                   f"{EMOJI.true if user.bot else EMOJI.false} <b>Bot</b>\n" \
-                   f"{EMOJI.true if user.deleted else EMOJI.false} <b>Deleted</b>\n" \
-                   f"{EMOJI.true if user.verified else EMOJI.false} <b>Verified</b>\n" \
-                   f"{EMOJI.true if user.scam else EMOJI.false} <b>Scam</b>\n" \
-                   f"{EMOJI.true if user.fake else EMOJI.false} <b>Fake</b>\n" \
-                   f"{EMOJI.true if user.support else EMOJI.false} <b>Support</b>\n" \
-                   f"{EMOJI.true if user.restricted else EMOJI.false} <b>Restricted</b>\n" \
-                   f"{EMOJI.true if user.phone_calls_available else EMOJI.false} <b>Phone call available</b>\n" \
-                   f"{EMOJI.true if user.phone_calls_private else EMOJI.false}" \
+                   f"<code>{html.escape(uf.about) if uf.about else ''}</code>\n" \
+                   f"{EMOJI.true if uf.user.bot else EMOJI.false} <b>Bot</b>\n" \
+                   f"{EMOJI.true if uf.user.deleted else EMOJI.false} <b>Deleted</b>\n" \
+                   f"{EMOJI.true if uf.user.verified else EMOJI.false} <b>Verified</b>\n" \
+                   f"{EMOJI.true if uf.user.scam else EMOJI.false} <b>Scam</b>\n" \
+                   f"{EMOJI.true if uf.user.fake else EMOJI.false} <b>Fake</b>\n" \
+                   f"{EMOJI.true if uf.user.support else EMOJI.false} <b>Support</b>\n" \
+                   f"{EMOJI.true if uf.user.restricted else EMOJI.false} <b>Restricted</b>\n" \
+                   f"{EMOJI.true if uf.phone_calls_available else EMOJI.false} <b>Phone call available</b>\n" \
+                   f"{EMOJI.true if uf.phone_calls_private else EMOJI.false}" \
                    f" <b>Phone call in privacy setting</b>\n" \
-                   f"{EMOJI.true if user.video_calls_available else EMOJI.false} <b>Video call</b>\n" \
-                   f"<b>Groups in common</b>: {user.common_chats_count}\n"
+                   f"{EMOJI.true if uf.video_calls_available else EMOJI.false} <b>Video call</b>\n" \
+                   f"<b>Groups in common</b>: {uf.common_chats_count}\n"
 
-    if user.bot:
-        message += parse_bot(user)
+    if uf.user.bot:
+        message += parse_bot(uf)
     return message
 
 
-def parse_bot(user: User) -> str:
+def parse_bot(uf: UserFull) -> str:
     message: str = f"\n<b><u>Bot</u></b>:\n" \
-                   f"{EMOJI.true if user.bot_chat_history else EMOJI.false} read message\n" \
-                   f"{EMOJI.false if user.bot_nochats else EMOJI.true} add to group\n" \
-                   f"{EMOJI.true if user.bot_inline_geo else EMOJI.false} request geo in inline mode\n" \
+                   f"{EMOJI.true if uf.user.bot_chat_history else EMOJI.false} read message\n" \
+                   f"{EMOJI.false if uf.user.bot_nochats else EMOJI.true} add to group\n" \
+                   f"{EMOJI.true if uf.user.bot_inline_geo else EMOJI.false} request geo in inline mode\n" \
                    f"Bot inline placeholder: " \
-                   f"<code>{user.bot_inline_placeholder if user.bot_inline_placeholder else ''}</code>\n" \
-                   f"Bot info version: <code>{user.bot_info_version}</code>\n" \
-                   f"Bot description: <code>{user.bot_description}</code>\n"
+                   f"<code>{uf.user.bot_inline_placeholder if uf.user.bot_inline_placeholder else ''}</code>\n" \
+                   f"Bot info version: <code>{uf.user.bot_info_version}</code>\n" \
+                   f"Bot description: <code>{uf.bot_info.description if uf.bot_info else None}</code>\n"
     return message
 
 
-async def parse_channel(cli: Client, channel: Channel) -> str:
-    message: str = f"<b>Chat ID</b>: <code>{utils.get_channel_id(channel.id)}</code>\n" \
+async def parse_channel(cli: Client, chat_full: ChatFull) -> str:
+    channel_full: ChannelFull = chat_full.full_chat
+    channel: Channel = chat_full.chats[0]
+    message: str = f"<b>Chat ID</b>: <code>{get_channel_id(channel_full.id)}</code>\n" \
                    f"<b>Chat Type</b>: <code>{'Channel' if channel.broadcast else 'Supergroup'}</code>\n" \
                    f"<b>Chat Title</b>: <code>{html.escape(channel.title)}</code>\n" \
                    f"<b>Chat Username</b>: @{channel.username}\n" \
                    f"<b>Description</b>:\n" \
-                   f"<code>{html.escape(channel.about)}</code>\n"
+                   f"<code>{html.escape(channel_full.about)}</code>\n"
 
-    message += f"<b>Administrator counts</b>: <code>{channel.admins_count}</code>\n" \
-               f"<b>Member counts</b>: <code>{channel.participants_count}</code>\n" \
+    try:
+        admins: list[ChatMember] = await cli.get_chat_members(get_channel_id(channel_full.id), filter="administrators")
+    except ChatAdminRequired:
+        admins: list = []
+
+    message += f"<b>Administrator counts</b>: <code>{len(admins)}</code>\n" \
+               f"<b>Member counts</b>: <code>{channel_full.participants_count}</code>\n" \
                f"{EMOJI.true if channel.verified else EMOJI.false} <b>Verified</b>\n" \
                f"{EMOJI.true if channel.scam else EMOJI.false} <b>Scam</b>\n" \
                f"{EMOJI.true if channel.fake else EMOJI.false} <b>Fake</b>\n" \
                f"{EMOJI.true if channel.signatures else EMOJI.false} <b>Signatures</b>\n" \
                f"{EMOJI.true if channel.restricted else EMOJI.false} <b>Restricted</b>\n"
 
-    import pyrogram
-    log.debug(f"Call for use: {pyrogram.__version__}")
-
-    restriction_reason: list[RestrictionReason] = eval(channel.restriction_reason)
+    restriction_reason: list[RestrictionReason] = channel.restriction_reason
 
     if restriction_reason:
         message += f"<b>Restriction reason(s)</b>:\n"
@@ -123,12 +130,12 @@ async def parse_channel(cli: Client, channel: Channel) -> str:
             message += f"-> <code>{reason.platform} - {reason.reason}</code>\n" \
                        f"   {reason.text}\n"
 
-    if channel.pinned_msg_id:
-        message += f"🔗 <a href='https://t.me/c/{channel.id}/{channel.pinned_msg_id}'>Pinned message</a>\n"
-    if channel.linked_chat_id:
-        message += f"🔗 <a href='https://t.me/c/{channel.linked_chat_id}/999999999'>Linked Chat</a>\n"
+    if channel_full.pinned_msg_id:
+        message += f"🔗 <a href='https://t.me/c/{channel_full.id}/{channel_full.pinned_msg_id}'>Pinned message</a>\n"
+    if channel_full.linked_chat_id:
+        message += f"🔗 <a href='https://t.me/c/{channel_full.linked_chat_id}/999999999'>Linked Chat</a>\n"
 
-    sticker: StickerSet = eval(channel.sticker_link)
+    sticker: StickerSet = channel_full.stickerset
     if sticker:
         message += f"<b>Group Stickers</b>: <a href='https://t.me/addstickers/{sticker.short_name}'>" \
                    f"{html.escape(sticker.title)}</a>\n"

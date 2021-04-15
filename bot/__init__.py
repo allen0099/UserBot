@@ -10,8 +10,6 @@ from pyrogram import Client
 from pyrogram.errors import ApiIdInvalid, AuthKeyUnregistered
 from pyrogram.session import Session
 from pyrogram.types import User
-from sqlalchemy import text
-from sqlalchemy.exc import OperationalError
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -30,12 +28,7 @@ class Bot:
             device_model=self.device_model,
             api_id=os.getenv("API_ID"),
             api_hash=os.getenv("API_HASH"),
-            plugins={
-                "enabled": True,
-                "root": "plugins",
-                "include": [],
-                "exclude": []
-            },
+            plugins=None,
             system_version=self.system_version
         )
 
@@ -49,6 +42,12 @@ class Bot:
 
     def run(self):
         self.app.run(self.run_once())
+        self.app.plugins = {
+            "enabled": True,
+            "root": "plugins",
+            "include": [],
+            "exclude": []
+        }
         self.app.run()
 
     async def run_once(self):
@@ -76,20 +75,6 @@ class Bot:
             self.me: User = me
         except ApiIdInvalid:
             log.critical("[Failed] Api ID is invalid")
-            sys.exit(1)
-        except Exception as e:
-            log.exception(e)
-            sys.exit(1)
-
-        try:
-            from main import db
-
-            with db.engine.connect() as conn:
-                conn.execute(text('SELECT now()'))
-
-            log.info("[Database] Successfully connect!")
-        except OperationalError:
-            log.critical("[Failed] Can not connect to database!")
             sys.exit(1)
         except Exception as e:
             log.exception(e)
