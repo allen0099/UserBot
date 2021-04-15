@@ -37,52 +37,57 @@ async def resolve_peer(
         return await cli.storage.get_peer_by_id(peer_id)
     except KeyError:
         # key not found
-        peer_id = re.sub(r"[@+\s]", "", peer_id.lower())
-        try:
-            peer_id = int(peer_id)
-        except ValueError:
-            return await _string_exe(cli, peer_id)
-        else:
-            try:
-                peer_type = utils.get_peer_type(peer_id)
-            except ValueError:
-                raise PeerIdInvalid
+        return await _key_check(cli, peer_id)
 
-            if peer_type == "user":
-                await cli.fetch_peers(
-                    await cli.send(
-                        raw.functions.users.GetUsers(
-                            id=[
-                                raw.types.InputUser(
-                                    user_id=peer_id,
-                                    access_hash=0
-                                )
-                            ]
-                        )
-                    )
-                )
-            elif peer_type == "chat":
+
+async def _key_check(cli: Client, peer_id: Union[int, str]):
+    if isinstance(peer_id, str):
+        peer_id = re.sub(r"[@+\s]", "", peer_id.lower())
+    try:
+        peer_id = int(peer_id)
+    except ValueError:
+        return await _string_exe(cli, peer_id)
+    else:
+        try:
+            peer_type = utils.get_peer_type(peer_id)
+        except ValueError:
+            raise PeerIdInvalid
+
+        if peer_type == "user":
+            await cli.fetch_peers(
                 await cli.send(
-                    raw.functions.messages.GetChats(
-                        id=[-peer_id]
-                    )
-                )
-            else:
-                await cli.send(
-                    raw.functions.channels.GetChannels(
+                    raw.functions.users.GetUsers(
                         id=[
-                            raw.types.InputChannel(
-                                channel_id=utils.get_channel_id(peer_id),
+                            raw.types.InputUser(
+                                user_id=peer_id,
                                 access_hash=0
                             )
                         ]
                     )
                 )
+            )
+        elif peer_type == "chat":
+            await cli.send(
+                raw.functions.messages.GetChats(
+                    id=[-peer_id]
+                )
+            )
+        else:
+            await cli.send(
+                raw.functions.channels.GetChannels(
+                    id=[
+                        raw.types.InputChannel(
+                            channel_id=utils.get_channel_id(peer_id),
+                            access_hash=0
+                        )
+                    ]
+                )
+            )
 
-            try:
-                return await cli.storage.get_peer_by_id(peer_id)
-            except KeyError:
-                raise PeerIdInvalid
+        try:
+            return await cli.storage.get_peer_by_id(peer_id)
+        except KeyError:
+            raise PeerIdInvalid
 
 
 async def _string_exe(cli, peer_id):
