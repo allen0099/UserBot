@@ -82,6 +82,10 @@ async def parse_user(uf: UserFull) -> str:
                    f"{EMOJI.true if uf.video_calls_available else EMOJI.false} <b>Video call</b>\n" \
                    f"<b>Groups in common</b>: {uf.common_chats_count}\n"
 
+    restriction_reason: list[RestrictionReason] = uf.user.restriction_reason
+
+    message += parse_res_reason(restriction_reason)
+
     if uf.user.bot:
         message += parse_bot(uf)
     return message
@@ -95,7 +99,7 @@ def parse_bot(uf: UserFull) -> str:
                    f"Bot inline placeholder: " \
                    f"<code>{uf.user.bot_inline_placeholder if uf.user.bot_inline_placeholder else ''}</code>\n" \
                    f"Bot info version: <code>{uf.user.bot_info_version}</code>\n" \
-                   f"Bot description: <code>{uf.bot_info.description if uf.bot_info else None}</code>\n"
+                   f"Bot description: \n<code>{uf.bot_info.description if uf.bot_info else None}</code>\n"
     return message
 
 
@@ -124,11 +128,7 @@ async def parse_channel(cli: Client, chat_full: ChatFull) -> str:
 
     restriction_reason: list[RestrictionReason] = channel.restriction_reason
 
-    if restriction_reason:
-        message += f"<b>Restriction reason(s)</b>:\n"
-        for reason in restriction_reason:
-            message += f"-> <code>{reason.platform} - {reason.reason}</code>\n" \
-                       f"   {reason.text}\n"
+    message += parse_res_reason(restriction_reason)
 
     if channel_full.pinned_msg_id:
         message += f"🔗 <a href='https://t.me/c/{channel_full.id}/{channel_full.pinned_msg_id}'>Pinned message</a>\n"
@@ -221,3 +221,15 @@ def parse_admin(admins: list[ChannelParticipantAdmin], users: dict[int, types.Us
                f"{get_mention_name(_.user_id, users[_.user_id].first_name, users[_.user_id].last_name)}\n"
 
     return ret
+
+
+def parse_res_reason(restriction_reason) -> str:
+    message: str = ""
+
+    if restriction_reason:
+        message = f"\n<b>Restriction reason(s)</b>:\n"
+        for reason in restriction_reason:
+            message += f"-> <code>{reason.platform} - {reason.reason}</code>\n" \
+                       f"   {reason.text}\n"
+
+    return message
