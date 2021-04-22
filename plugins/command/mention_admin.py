@@ -8,7 +8,6 @@ from pyrogram.raw.base import InputChannel, InputPeer
 from pyrogram.raw.base.messages import ChatFull
 from pyrogram.raw.types import InputPeerChannel, InputPeerChannelFromMessage
 from pyrogram.types import ChatMember, Message
-from pyrogram.utils import get_channel_id
 
 from bot.util import resolve_peer
 
@@ -22,7 +21,7 @@ async def mention_admin(cli: Client, msg: Message) -> None:
 
     admins: list[ChatMember] = await cli.get_chat_members(msg.chat.id, filter="administrators")
 
-    peer: InputPeer = await resolve_peer(cli, get_channel_id(msg.chat.id))
+    peer: InputPeer = await resolve_peer(cli, msg.chat.id)
     if not isinstance(peer, (InputPeerChannel, InputPeerChannelFromMessage, InputChannel)):
         raise PeerIdInvalid
 
