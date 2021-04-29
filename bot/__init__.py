@@ -17,14 +17,13 @@ log: logging.Logger = logging.getLogger(__name__)
 class Bot:
     _instance: Union[None, "Bot"] = None
     me: Optional[User] = None
-    app_version: str = os.getenv("VERSION")
     device_model: str = f"PC {platform.architecture()[0]}"
     system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
 
     def __init__(self):
         self.app: Client = Client(
             "bot",
-            app_version=self.app_version,
+            app_version="1.0.0",
             device_model=self.device_model,
             api_id=os.getenv("API_ID"),
             api_hash=os.getenv("API_HASH"),

@@ -20,7 +20,7 @@ async def info(_: Client, msg: Message) -> None:
     if diff_check != '':
         label += " (modified)"
 
-    await msg.reply_text(f"<b>AllenUserBot</b> <code>v{user_bot.app_version}</code>\n"
+    await msg.reply_text(f"<b>AllenUserBot</b> <code>v{user_bot.app.app_version}</code>\n"
                          f"<b>Language</b>: <code>Python</code>\n"
                          f"<b>Library</b>: <code>Pyrogram/{pyrogram.__version__}</code>\n"
                          f"<b>Uptime</b>: <code>{await _parse_time()}</code>\n"
