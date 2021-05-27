@@ -10,8 +10,14 @@ from main import user_bot
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(filters.command("killda", prefixes="!") & filters.me)
+@Client.on_message(filters.command("killda", prefixes="!"))
 async def kill_da(cli: Client, msg: Message):
+    admins: list[ChatMember] = await get_members(cli, msg.chat.id, choose=Filters.ADMINISTRATORS)
+
+    if msg.from_user.id not in [_.user.id for _ in admins]:
+        await msg.reply_text("<b>Permission denied</b>")
+        return
+
     me: ChatMember = await cli.get_chat_member(msg.chat.id, user_bot.me.id)
     if not me.can_restrict_members or not me.can_delete_messages:
         await msg.reply_text("<b>Permission denied</b>")
