@@ -1,9 +1,12 @@
+import ast
 import html
 import logging
 import re
 import sys
 import traceback
+from _ast import AST, Module
 from io import StringIO
+from typing import Union
 
 from pyrogram import Client, filters
 from pyrogram.types import Message
@@ -11,25 +14,37 @@ from pyrogram.types import Message
 log: logging.Logger = logging.getLogger(__name__)
 
 
+# https://stackoverflow.com/a/60934327
 @Client.on_message(filters.command("eval", prefixes=".") & filters.me)
-async def api(_: Client, msg: Message) -> None:
+async def eval(cli: Client, msg: Message) -> None:
     out: StringIO = StringIO()
     sys.stdout = out
     err: StringIO = StringIO()
     sys.stderr = err
+
+    parsed_fn: Union[AST, Module] = ast.parse(f"async def __s(cli: Client, msg: Message): pass")
 
     message: str = f"<b><u>Expression</u></b>\n"
     send: Message = await msg.reply(message, parse_mode="html")
 
     cmd: str = re.findall(r"(?s)(?<=\.eval ).*", msg.text)[0]
 
-    log.info(f"{msg.from_user.id} exec\n{cmd}")
+    log.info(f"{msg.from_user.id} try to execute\n{cmd}")
+
+    message += f"<code>{html.escape(cmd)}</code>\n\n"
+    await send.edit(message, parse_mode="html")
 
     # noinspection PyBroadException
     try:
-        message += f"<code>{html.escape(cmd)}</code>\n\n"
-        await send.edit(message, parse_mode="html")
-        eval(compile(cmd, 'tmp_code', 'exec'))
+        parsed_stmts: Union[AST, Module] = ast.parse(cmd)
+
+        for _ in parsed_stmts.body:
+            ast.increment_lineno(_)
+
+        parsed_fn.body[0].body = parsed_stmts.body
+
+        exec(compile(parsed_fn, filename="<ast>", mode="exec"), None)
+        await eval("__s(cli, msg)", None)
     except Exception:
         lines: list[str] = traceback.format_exc().splitlines()
         print(lines[-1], file=err)
