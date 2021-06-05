@@ -16,7 +16,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 # https://stackoverflow.com/a/60934327
 @Client.on_message(filters.command("eval", prefixes=".") & filters.me)
-async def eval(cli: Client, msg: Message) -> None:
+async def api(cli: Client, msg: Message) -> None:
     out: StringIO = StringIO()
     sys.stdout = out
     err: StringIO = StringIO()
