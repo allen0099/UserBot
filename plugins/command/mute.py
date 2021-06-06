@@ -5,19 +5,14 @@ from datetime import datetime, timedelta
 from pyrogram import Client, filters
 from pyrogram.types import ChatMember, ChatPermissions, Message, User
 
-from main import user_bot
+from bot.custom_filters import admin_required
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(filters.command("mute", prefixes="!") & filters.me)
+@Client.on_message(filters.command("mute", prefixes="!") & filters.me & admin_required)
 async def mute(cli: Client, msg: Message):
     await cli.delete_messages(msg.chat.id, msg.message_id)
-
-    me: ChatMember = await cli.get_chat_member(msg.chat.id, user_bot.me.id)
-    if not me.can_restrict_members or not me.can_delete_messages:
-        await msg.reply_text("<b>Permission denied</b>")
-        return
 
     if msg.reply_to_message and msg.chat.type == "supergroup":
         _: User = msg.reply_to_message.from_user

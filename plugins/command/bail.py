@@ -4,8 +4,8 @@ from pyrogram import Client, filters
 from pyrogram.methods.chats.get_chat_members import Filters
 from pyrogram.types import ChatMember, Message
 
+from bot.custom_filters import admin_required
 from bot.functions import get_members
-from main import user_bot
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -14,13 +14,8 @@ KICKED: list[str] = ["kick", "kicked"]
 RESTRICTED: list[str] = ["restrict", "restricted"]
 
 
-@Client.on_message(filters.command("bail", prefixes="!") & filters.me)
+@Client.on_message(filters.command("bail", prefixes="!") & filters.me & admin_required)
 async def bail(cli: Client, msg: Message):
-    me: ChatMember = await cli.get_chat_member(msg.chat.id, user_bot.me.id)
-    if not me.can_restrict_members or not me.can_delete_messages:
-        await msg.reply_text("<b>Permission denied</b>")
-        return
-
     if len(msg.command) == 2:
         log.debug(f"Bailing out {msg.command[1].lower()} users...")
         if msg.command[1].lower() in KICKED:
