@@ -53,8 +53,14 @@ class Bot:
         # Disable notice
         Session.notice_displayed = True
         logging.getLogger("pyrogram").setLevel(logging.WARNING)
+
         try:
             await self.app.start()
+
+        except (ApiIdInvalid, AttributeError):
+            log.critical("[Failed] Api ID is invalid")
+            sys.exit(1)
+
         except AuthKeyUnregistered:
             log.critical("[Oops!] Session expired!")
             log.critical("        Removed old session and exit...!")
@@ -72,9 +78,7 @@ class Bot:
             log.info(info_str)
 
             self.me: User = me
-        except ApiIdInvalid:
-            log.critical("[Failed] Api ID is invalid")
-            sys.exit(1)
+
         except Exception as e:
             log.exception(e)
             sys.exit(1)
