@@ -3,7 +3,7 @@ import logging
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
-from bot.functions import delete_messages
+from bot.functions import CustomFunctions
 
 log: logging.Logger = logging.getLogger(__name__)
 __USAGE__: str = "Usage: <code>$del &lt;start&gt; &lt;end&gt;</code>"
@@ -24,4 +24,4 @@ async def del_messages(cli: Client, msg: Message) -> None:
         await msg.reply(__USAGE__)
         return
 
-    await delete_messages(cli, msg.chat.id, start, stop)
+    await CustomFunctions.delete_range_messages(cli, msg.chat.id, start, stop)

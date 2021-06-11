@@ -4,12 +4,12 @@ import logging
 from pyrogram import Client, filters
 from pyrogram.types import ChatMember, Message, User
 
-from bot.custom_filters import admin_required
+from bot.filters import CustomFilters
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(filters.command("ban", prefixes="!") & filters.me & admin_required)
+@Client.on_message(filters.command("ban", prefixes="!") & filters.me & CustomFilters.admin_required)
 async def ban(cli: Client, msg: Message):
     await cli.delete_messages(msg.chat.id, msg.message_id)
 

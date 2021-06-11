@@ -4,15 +4,15 @@ from pyrogram import Client, filters
 from pyrogram.methods.chats.get_chat_members import Filters
 from pyrogram.types import ChatMember, Message
 
-from bot.custom_filters import admin_required
-from bot.functions import get_members
+from bot.filters import CustomFilters
+from bot.functions import CustomFunctions
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(filters.command("killda", prefixes="!") & admin_required)
+@Client.on_message(filters.command("killda", prefixes="!") & CustomFilters.admin_required)
 async def kill_da(cli: Client, msg: Message):
-    members: list[ChatMember] = await get_members(cli, msg.chat.id, choose=Filters.ALL)
+    members: list[ChatMember] = await CustomFunctions.get_members(cli, msg.chat.id, choose=Filters.ALL)
 
     count: int = 0
     message: Message = await cli.send_message(msg.chat.id, f"{len(members)} users found!")

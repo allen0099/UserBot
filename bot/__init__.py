@@ -1,7 +1,9 @@
+import asyncio
 import logging
 import os
 import platform
 import sys
+from asyncio import AbstractEventLoop
 from datetime import datetime
 from typing import Optional, Union
 
@@ -12,18 +14,21 @@ from pyrogram.session import Session
 from pyrogram.types import User
 
 log: logging.Logger = logging.getLogger(__name__)
+__version__: str = "1.0.1"
 
 
 class Bot:
     _instance: Union[None, "Bot"] = None
+
     me: Optional[User] = None
+    version: str = __version__
     device_model: str = f"PC {platform.architecture()[0]}"
     system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
 
     def __init__(self):
         self.app: Client = Client(
             "bot",
-            app_version="1.0.0",
+            app_version=self.version,
             device_model=self.device_model,
             api_id=os.getenv("API_ID"),
             api_hash=os.getenv("API_HASH"),
@@ -40,13 +45,18 @@ class Bot:
         return cls._instance
 
     def run(self):
-        self.app.run(self.run_once())
+        loop: AbstractEventLoop = asyncio.get_event_loop()
+        run = loop.run_until_complete
+        run(self.run_once())
+
         self.app.plugins = {
             "enabled": True,
             "root": "plugins",
             "include": [],
             "exclude": []
         }
+
+        log.info("Plugins loaded!")
         self.app.run()
 
     async def run_once(self):

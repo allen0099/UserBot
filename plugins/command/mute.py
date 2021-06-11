@@ -5,12 +5,12 @@ from datetime import datetime, timedelta
 from pyrogram import Client, filters
 from pyrogram.types import ChatMember, ChatPermissions, Message, User
 
-from bot.custom_filters import admin_required
+from bot.filters import CustomFilters
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(filters.command("mute", prefixes="!") & filters.me & admin_required)
+@Client.on_message(filters.command("mute", prefixes="!") & filters.me & CustomFilters.admin_required)
 async def mute(cli: Client, msg: Message):
     await cli.delete_messages(msg.chat.id, msg.message_id)
 

@@ -4,8 +4,8 @@ from pyrogram import Client, filters
 from pyrogram.methods.chats.get_chat_members import Filters
 from pyrogram.types import ChatMember, Message
 
-from bot.custom_filters import admin_required
-from bot.functions import get_members
+from bot.filters import CustomFilters
+from bot.functions import CustomFunctions
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -14,14 +14,14 @@ KICKED: list[str] = ["kick", "kicked"]
 RESTRICTED: list[str] = ["restrict", "restricted"]
 
 
-@Client.on_message(filters.command("bail", prefixes="!") & filters.me & admin_required)
+@Client.on_message(filters.command("bail", prefixes="!") & filters.me & CustomFilters.admin_required)
 async def bail(cli: Client, msg: Message):
     if len(msg.command) == 2:
         log.debug(f"Bailing out {msg.command[1].lower()} users...")
         if msg.command[1].lower() in KICKED:
-            members: list[ChatMember] = await get_members(cli, msg.chat.id, choose=Filters.KICKED)
+            members: list[ChatMember] = await CustomFunctions.get_members(cli, msg.chat.id, choose=Filters.KICKED)
         elif msg.command[1].lower() in RESTRICTED:
-            members: list[ChatMember] = await get_members(cli, msg.chat.id, choose=Filters.RESTRICTED)
+            members: list[ChatMember] = await CustomFunctions.get_members(cli, msg.chat.id, choose=Filters.RESTRICTED)
         else:
             await msg.reply_text(__USAGE__)
             return
