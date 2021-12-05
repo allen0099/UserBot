@@ -4,7 +4,7 @@ import logging
 from pyrogram import Client, filters
 from pyrogram.types import ChatMember, Message, User
 
-from bot.filters import CustomFilters
+from filters import CustomFilters
 
 log: logging.Logger = logging.getLogger(__name__)
 

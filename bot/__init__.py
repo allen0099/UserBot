@@ -47,7 +47,10 @@ class Bot:
     def run(self):
         loop: AbstractEventLoop = asyncio.get_event_loop()
         run = loop.run_until_complete
-        run(self.run_once())
+
+        run(self._pyrogram_testing())
+
+        log.info("[Bot] Loading plugins!")
 
         self.app.plugins = {
             "enabled": True,
@@ -56,24 +59,27 @@ class Bot:
             "exclude": []
         }
 
-        log.info("Plugins loaded!")
+        log.info("[Bot] Plugins loaded!")
+
         self.app.run()
 
-    async def run_once(self):
+    async def _pyrogram_testing(self):
         # Disable notice
         Session.notice_displayed = True
         logging.getLogger("pyrogram").setLevel(logging.WARNING)
+
+        log.debug("[Bot] Initializing pyrogram...")
 
         try:
             await self.app.start()
 
         except (ApiIdInvalid, AttributeError):
-            log.critical("[Failed] Api ID is invalid")
+            log.critical("[Bot] Api ID is invalid")
             sys.exit(1)
 
         except AuthKeyUnregistered:
-            log.critical("[Oops!] Session expired!")
-            log.critical("        Removed old session and exit...!")
+            log.critical("[Bot] Session expired!")
+            log.critical("      Removing old session and exiting!")
             await self.app.storage.delete()
             exit(1)
 
@@ -93,7 +99,7 @@ class Bot:
             log.exception(e)
             sys.exit(1)
 
-        log.info("Client started successfully")
+        log.debug("[Bot] Pyrogram initialized successfully!")
 
         await self.app.stop()
         logging.getLogger("pyrogram").setLevel(logging.INFO)
