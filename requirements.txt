@@ -1,7 +1,7 @@
-async-lru==1.0.2
+﻿async-lru==1.0.2
 psutil==5.8.0
 pyaes==1.6.1
-Pyrogram==1.2.9
+Pyrogram==1.2.11
 PySocks==1.7.1
-python-dotenv==0.17.0
+python-dotenv==0.19.2
 TgCrypto==1.2.2
