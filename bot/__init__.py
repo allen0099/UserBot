@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import platform
@@ -26,12 +27,14 @@ class Bot:
     system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
 
     def __init__(self):
+        test_mode: bool = json.loads(os.getenv("TEST_MODE").lower())
         self.app: Client = Client(
-            "bot",
+            "test" if test_mode else "bot",
             app_version=self.version,
             device_model=self.device_model,
             api_id=os.getenv("API_ID"),
             api_hash=os.getenv("API_HASH"),
+            test_mode=test_mode,
             plugins=None,
             system_version=self.system_version
         )
@@ -45,6 +48,9 @@ class Bot:
         return cls._instance
 
     def run(self):
+        if self.app.test_mode:
+            log.debug("[Bot] Warning: bot is running in test mode!")
+
         loop: AbstractEventLoop = asyncio.get_event_loop()
         run = loop.run_until_complete
 
