@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Optional, Union
 
 import psutil
+import pyrogram
 from pyrogram import Client
 from pyrogram.errors import ApiIdInvalid, AuthKeyUnregistered
 from pyrogram.session import Session
@@ -74,7 +75,8 @@ class Bot:
         Session.notice_displayed = True
         logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
-        log.debug("[Bot] Initializing pyrogram...")
+        log.debug(f"[Bot] Initializing pyrogram...")
+        log.debug(f"[Bot] Pyrogram version: {pyrogram.__version__}")
 
         try:
             await self.app.start()
