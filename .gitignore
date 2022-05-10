@@ -1,4 +1,5 @@
 # User define
+*.db
 *.session
 *.session-journal
 .idea/

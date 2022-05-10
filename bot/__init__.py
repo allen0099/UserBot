@@ -27,6 +27,9 @@ class Bot:
     device_model: str = f"PC {platform.architecture()[0]}"
     system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
 
+    from database import db
+    db.init()
+
     def __init__(self):
         test_mode: bool = json.loads(os.getenv("TEST_MODE").lower())
         self.app: Client = Client(
