@@ -35,7 +35,7 @@ async def get_target(cli: Client, msg: Message) -> Optional[types.User]:
     return target
 
 
-@Client.on_message(filters.command(prefixes="!", commands="gban"))
+@Client.on_message(filters.command("gban", prefixes="!") & ~ filters.forwarded)
 async def global_ban(cli: Client, msg: Message) -> None:
     """
     Globally bans a user from all groups if I have the permission to do so.
@@ -64,6 +64,10 @@ async def global_ban(cli: Client, msg: Message) -> None:
         if chat.id in groups:
             counter += 1
             log.debug(f"Ban user {target.first_name} from {chat.id}")
+
+            async for message in cli.search_messages(chat.id, from_user=target.id):
+                # TODO: speed up async search
+                await message.delete()
             GBanLog.create(target.id, chat.id)
             await cli.ban_chat_member(chat.id, target.id)
 
@@ -77,12 +81,12 @@ async def global_ban(cli: Client, msg: Message) -> None:
                                         f"in <u>{time_:.2f}</u> seconds.")
 
 
-@Client.on_message(filters.command(prefixes="!", commands="ungban"))
+@Client.on_message(filters.command("ungban", prefixes="!") & ~ filters.forwarded)
 async def undo_global_ban(cli: Client, msg: Message) -> None:
     """
     Unban a user from all the groups where I am the admin, check if the user is banned from me.
 
-    Usage: ``!ungban <username/uid>``
+    Usage: ``!ungban <username/uid>`` or  ``!ungban`` by reply
     """
     await msg.delete()
 
