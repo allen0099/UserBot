@@ -36,3 +36,11 @@ class Privilege(db.base):
 
     def __str__(self):
         return f"Privilege {self.group_id}"
+
+    @staticmethod
+    def admin_groups() -> list[int]:
+        groups: list[Privilege] = db.session.query(Privilege) \
+            .filter_by(can_delete_messages=True, can_restrict_members=True) \
+            .all()
+
+        return [group.group_id for group in groups]

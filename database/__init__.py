@@ -10,7 +10,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 class Database:
-    engine: Engine = create_engine(os.getenv("SQLITE_URI"), future=True)
+    engine: Engine = create_engine(os.getenv("SQLITE_URI"), future=True, echo=False)
 
     mapper_registry: registry = registry()
     base: declarative_base = mapper_registry.generate_base()
@@ -31,3 +31,5 @@ db: Database = Database()
 db.init()
 
 from . import privilege
+from . import users
+from . import gbanlog

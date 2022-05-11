@@ -1,8 +1,3 @@
-"""
-Trigger: new update
-Description: Add user privilege when new update income and database not exist
-"""
-
 import logging
 
 from pyrogram import Client, filters
@@ -17,8 +12,10 @@ log: logging.Logger = logging.getLogger(__name__)
 
 @Client.on_message(filters.group, group=-1)
 async def privilege(_: Client, msg: Message) -> None:
+    """
+    Log user privilege when new update income and database not exist.
+    """
     if msg.chat.type == ChatType.SUPERGROUP:
-        log.debug(f"{msg.chat.title} is a supergroup")
         group_id: int = msg.chat.id
         group = db.session.query(Privilege).get(group_id)
 
@@ -37,5 +34,10 @@ async def privilege(_: Client, msg: Message) -> None:
                 group.is_anonymous = me.privileges.is_anonymous
 
             db.session.add(group)
-            db.session.commit()
-            db.session.close()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                return
+            finally:
+                db.session.commit()

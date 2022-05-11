@@ -15,6 +15,8 @@ from pyrogram.errors import ApiIdInvalid, AuthKeyUnregistered
 from pyrogram.session import Session
 from pyrogram.types import User
 
+from database import db
+
 log: logging.Logger = logging.getLogger(__name__)
 __version__: str = "1.0.1"
 
@@ -27,7 +29,6 @@ class Bot:
     device_model: str = f"PC {platform.architecture()[0]}"
     system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
 
-    from database import db
     db.init()
 
     def __init__(self):
@@ -105,6 +106,16 @@ class Bot:
             log.info(info_str)
 
             self.me: User = me
+
+            from database.users import User as SQL_User
+            _check: SQL_User = db.session.query(SQL_User).get(me.id)
+
+            if not _check:
+                _u: SQL_User = SQL_User(me.id)
+                _u.is_white = True
+                db.session.add(_u)
+                db.session.commit()
+                db.session.close()
 
         except Exception as e:
             log.exception(e)
