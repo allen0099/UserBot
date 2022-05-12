@@ -6,7 +6,7 @@ from pyrogram.types import Message
 
 from database.gbanlog import GBanLog
 from database.privilege import Privilege
-from database.users import User
+from plugins.utils import is_black_listed_user
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -26,9 +26,10 @@ async def join_group(cli: Client, msg: Message) -> None:
     if msg.service != MessageServiceType.NEW_CHAT_MEMBERS:
         return
 
-    blacklist: list[int] = User.get_blacklist()
     for user in msg.new_chat_members:
-        if user.id in blacklist:
+        log.debug(f"User {user.id} joined {msg.chat.id}")
+        if is_black_listed_user(user):
             log.debug(f"User {user.id} is in blacklist, banning...")
+            await msg.delete()
             GBanLog.create(user.id, msg.chat.id)
             await cli.ban_chat_member(msg.chat.id, user.id)

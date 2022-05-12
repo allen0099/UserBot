@@ -3,7 +3,7 @@
 *.session
 *.session-journal
 .idea/
-_example/
+json/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

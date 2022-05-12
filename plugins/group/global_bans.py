@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import time
 from typing import Optional
@@ -8,20 +9,10 @@ from pyrogram.types import Message
 from database.gbanlog import GBanLog
 from database.privilege import Privilege
 from database.users import User
+from plugins.utils import is_white_list_user, permission_check
 
 log: logging.Logger = logging.getLogger(__name__)
-
-
-def pre_check(msg: Message) -> bool:
-    if msg.sender_chat:
-        log.debug(f"Sender chat {msg.sender_chat.title} is not allowed, skipping command.")
-        return False
-
-    if msg.from_user.id not in User.get_whitelist():
-        log.debug(f"User {msg.from_user.id} is not whitelisted, skipping command.")
-        return False
-
-    return True
+SLEEP_TIME: int = 10
 
 
 async def get_target(cli: Client, msg: Message) -> Optional[types.User]:
@@ -46,7 +37,7 @@ async def global_ban(cli: Client, msg: Message) -> None:
 
     start_time = time.perf_counter()
 
-    if not pre_check(msg):
+    if not permission_check(msg):
         return
 
     target: Optional[types.User] = await get_target(cli, msg)
@@ -54,6 +45,9 @@ async def global_ban(cli: Client, msg: Message) -> None:
 
     if not target:
         await cli.send_message(msg.chat.id, "No target specified.")
+        return
+
+    if is_white_list_user(target):
         return
 
     counter: int = 0
@@ -65,20 +59,21 @@ async def global_ban(cli: Client, msg: Message) -> None:
             counter += 1
             log.debug(f"Ban user {target.first_name} from {chat.id}")
 
-            async for message in cli.search_messages(chat.id, from_user=target.id):
-                # TODO: speed up async search
-                await message.delete()
             GBanLog.create(target.id, chat.id)
+            await cli.delete_user_history(chat.id, target.id)
             await cli.ban_chat_member(chat.id, target.id)
 
     time_ = time.perf_counter() - start_time
 
-    await cli.send_message(msg.chat.id, f"Globally banned "
-                                        f"<a href='tg://user?id={target.id}'>"
-                                        f"{target.id}"
-                                        f"</a> "
-                                        f"from <u>{counter}/{len(groups)}</u> groups "
-                                        f"in <u>{time_:.2f}</u> seconds.")
+    end: Message = await cli.send_message(msg.chat.id, f"Globally banned "
+                                                       f"<a href='tg://user?id={target.id}'>"
+                                                       f"{target.id}"
+                                                       f"</a> "
+                                                       f"from <u>{counter}/{len(groups)}</u> groups "
+                                                       f"in <u>{time_:.2f}</u> seconds.")
+
+    await asyncio.sleep(SLEEP_TIME)
+    await end.delete()
 
 
 @Client.on_message(filters.command("ungban", prefixes="!") & ~ filters.forwarded)
@@ -92,7 +87,7 @@ async def undo_global_ban(cli: Client, msg: Message) -> None:
 
     start_time = time.perf_counter()
 
-    if not pre_check(msg):
+    if not permission_check(msg):
         return
 
     target: Optional[types.User] = await get_target(cli, msg)
@@ -113,9 +108,12 @@ async def undo_global_ban(cli: Client, msg: Message) -> None:
 
     time_ = time.perf_counter() - start_time
 
-    await cli.send_message(msg.chat.id, f"Globally unbanned "
-                                        f"<a href='tg://user?id={target.id}'>"
-                                        f"{target.id}"
-                                        f"</a> "
-                                        f"from <u>{len(groups)}</u> groups "
-                                        f"in <u>{time_:.2f}</u> seconds.")
+    end: Message = await cli.send_message(msg.chat.id, f"Globally unbanned "
+                                                       f"<a href='tg://user?id={target.id}'>"
+                                                       f"{target.id}"
+                                                       f"</a> "
+                                                       f"from <u>{len(groups)}</u> groups "
+                                                       f"in <u>{time_:.2f}</u> seconds.")
+
+    await asyncio.sleep(SLEEP_TIME)
+    await end.delete()

@@ -7,12 +7,12 @@ from pyrogram.types import Message
 log: logging.Logger = logging.getLogger(__name__)
 
 
-@Client.on_message(filters.command("random", prefixes="!") & filters.me & ~ filters.forwarded)
+@Client.on_message(filters.command("roll", prefixes="!") & filters.me & ~ filters.forwarded)
 async def roll(_: Client, msg: Message) -> None:
     """
     Rolls a die with the specified number of sides, default is a six-sided die.
 
-    Usage: ``!random <number>`` or ``!random <choices>``
+    Usage: ``!roll <number>`` or ``!roll <choices>``
     """
     if len(msg.command) == 1:
         await msg.reply(str(random.randint(1, 6)))
