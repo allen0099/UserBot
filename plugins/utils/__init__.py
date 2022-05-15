@@ -1,6 +1,7 @@
 import logging
+from typing import Optional
 
-from pyrogram import types
+from pyrogram import Client, enums, errors, types
 
 from database.privilege import Privilege
 from database.users import User
@@ -8,72 +9,20 @@ from database.users import User
 log: logging.Logger = logging.getLogger(__name__)
 
 
-def from_anonymous(msg: types.Message) -> bool:
+def is_admin_group(group: types.Chat) -> bool:
     """
-    Checks if the user is anonymous.
+    Checks if the group is an admin group.
 
     Args:
-        msg:
+        group:
 
     Returns:
-        bool: True if the user is anonymous, False otherwise.
+        bool: True if the group is an admin group, False otherwise.
     """
-    return True if msg.sender_chat else False
+    if group.type != enums.ChatType.SUPERGROUP:
+        return False
 
-
-def from_whitelist_user(msg: types.Message) -> bool:
-    """
-    Checks if the user is whitelisted.
-
-    Args:
-        msg:
-
-    Returns:
-        bool: True if the user is whitelisted, False otherwise.
-    """
-    if msg.from_user.id in User.get_whitelist():
-        return True
-
-    return False
-
-
-def from_bot(msg: types.Message) -> bool:
-    """
-    Checks if the message is sent from a bot.
-
-    Args:
-        msg:
-
-    Returns:
-        bool: True if the message is sent from a bot, False otherwise.
-    """
-    return True if msg.from_user.is_bot else False
-
-
-def from_contact(msg: types.Message) -> bool:
-    """
-    Checks if the message is sent from a contact.
-
-    Args:
-        msg:
-
-    Returns:
-        bool: True if the message is sent from a contact, False otherwise.
-    """
-    return True if msg.from_user.is_contact else False
-
-
-def from_admin_groups(msg: types.Message) -> bool:
-    """
-    Checks if the message is sent from admin group.
-
-    Args:
-        msg:
-
-    Returns:
-        bool: True if the message is sent from admin group, False otherwise.
-    """
-    if msg.chat.id in Privilege.admin_groups():
+    if group.id in Privilege.admin_groups():
         return True
 
     return False
@@ -95,6 +44,22 @@ def is_white_list_user(user: types.User) -> bool:
     return False
 
 
+def is_protect_list_user(user: types.User) -> bool:
+    """
+    Checks if the user is in protect list.
+
+    Args:
+        user:
+
+    Returns:
+        bool: True if the user is in protect list, False otherwise.
+    """
+    if user.id in User.get_protected():
+        return True
+
+    return False
+
+
 def is_black_listed_user(user: types.User) -> bool:
     """
     Checks if the user is blacklisted.
@@ -111,16 +76,19 @@ def is_black_listed_user(user: types.User) -> bool:
     return False
 
 
-def permission_check(msg: types.Message) -> bool:
-    if from_anonymous(msg):
-        log.debug(f"Sender chat {msg.sender_chat.title} is not allowed, skipping command.")
-        return False
+async def get_target(cli: Client, msg: types.Message, location: int = 1) -> Optional[types.User]:
+    target: Optional[types.User] = None
 
-    if not from_whitelist_user(msg):
-        log.debug(f"User {msg.from_user.id} is not whitelisted, skipping command.")
-        return False
+    if msg.reply_to_message:
+        target = msg.reply_to_message.from_user
+        return target
 
-    return True
+    try:
+        target = await cli.get_users(msg.command[location])
+    except errors.PeerIdInvalid:
+        return target
+
+    return target
 
 
 def get_entity_string(text: str, entity: types.MessageEntity) -> str:

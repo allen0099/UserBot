@@ -9,21 +9,33 @@ from pyrogram.types import Message
 from database.gbanlog import GBanLog
 from database.privilege import Privilege
 from database.users import User
-from plugins.utils import is_white_list_user, permission_check
+from plugins.utils import get_target, is_protect_list_user, is_white_list_user
 
 log: logging.Logger = logging.getLogger(__name__)
 SLEEP_TIME: int = 10
 
 
-async def get_target(cli: Client, msg: Message) -> Optional[types.User]:
-    target: Optional[types.User] = None
-    if msg.reply_to_message:
-        target = msg.reply_to_message.from_user
+def permission_check(msg: types.Message) -> bool:
+    if msg.sender_chat:
+        return False
 
-    if len(msg.command) == 2:
-        target = await cli.get_users(msg.command[1])
+    if not is_white_list_user(msg.from_user):
+        return False
 
-    return target
+    return True
+
+
+def target_check(target: Optional[types.User]) -> bool:
+    if not target:
+        return False
+
+    if is_white_list_user(target):
+        return False
+
+    if is_protect_list_user(target):
+        return False
+
+    return True
 
 
 @Client.on_message(filters.command("gban", prefixes="!") & ~ filters.forwarded)
@@ -43,11 +55,7 @@ async def global_ban(cli: Client, msg: Message) -> None:
     target: Optional[types.User] = await get_target(cli, msg)
     groups: list[int] = Privilege.admin_groups()
 
-    if not target:
-        await cli.send_message(msg.chat.id, "No target specified.")
-        return
-
-    if is_white_list_user(target):
+    if not target_check(target):
         return
 
     counter: int = 0

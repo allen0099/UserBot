@@ -3,12 +3,13 @@ import html
 import logging
 import os
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 
 from pyrogram import Client, filters, types
 from pyrogram.enums import MessageEntityType
 
 from database.gbanlog import GBanLog
-from plugins.utils import from_admin_groups, from_anonymous, from_bot, from_whitelist_user, get_entity_string
+from plugins.utils import get_entity_string, is_admin_group, is_protect_list_user, is_white_list_user
 
 log: logging.Logger = logging.getLogger(__name__)
 LOG_CHANNEL: str = os.getenv("LOG_CHANNEL")
@@ -18,16 +19,16 @@ SLEEP_TIME: int = int(os.getenv("SLEEP_TIME"))
 
 
 def is_check(msg: types.Message) -> bool:
-    if from_anonymous(msg):
+    if not is_admin_group(msg.chat):
         return False
 
-    if not from_admin_groups(msg):
+    if msg.from_user.is_bot:
         return False
 
-    if from_bot(msg):
+    if is_white_list_user(msg.from_user):
         return False
 
-    if from_whitelist_user(msg):
+    if is_protect_list_user(msg.from_user):
         return False
 
     return True
@@ -103,7 +104,8 @@ async def webpage_check(cli: Client, msg: types.Message):
                     f"has been banned for spamming."
                 )
     else:
-        log.debug(f"{msg.web_page}")
+        parsed: urlparse = urlparse(msg.web_page.url)
+        log.debug(f"Parsed URL: {parsed}")
 
 
 @Client.on_message(filters.group, group=-100)
