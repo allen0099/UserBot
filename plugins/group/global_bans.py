@@ -68,8 +68,8 @@ async def global_ban(cli: Client, msg: Message) -> None:
             log.debug(f"Ban user {target.first_name} from {chat.id}")
 
             GBanLog.create(target.id, chat.id)
-            await cli.delete_user_history(chat.id, target.id)
             await cli.ban_chat_member(chat.id, target.id)
+            await cli.delete_user_history(chat.id, target.id)
 
     time_ = time.perf_counter() - start_time
 

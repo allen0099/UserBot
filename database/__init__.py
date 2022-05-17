@@ -30,6 +30,7 @@ class Database:
 db: Database = Database()
 db.init()
 
+from . import blacklist_domain
 from . import privilege
 from . import users
 from . import gbanlog

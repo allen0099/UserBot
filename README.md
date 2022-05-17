@@ -19,6 +19,32 @@ python main.py rebuild
 python main.py
 ```
 
+### levels
+
+- Group
+
+```mermaid
+graph TD;
+    INCOMING([Messages])
+    CHOICE_SERVICE{service}
+    CHOICE_BLACKLIST{in blacklist}
+
+    END([END])
+    
+    subgraph black list user
+    BLACKLIST_START([start])
+    --> BLACKLIST_DELETE_MESSAGES[Delete messages from user] 
+    --> BLACKLIST_BAN_USER[Ban user]
+    --> BLACKLIST_END([end])
+    end
+    
+    INCOMING --> CHOICE_SERVICE
+    CHOICE_SERVICE --> |Yes| CHOICE_BLACKLIST
+    CHOICE_SERVICE --> |No| END
+    CHOICE_BLACKLIST --> |Yes| BLACKLIST_START
+    CHOICE_BLACKLIST --> |No| END
+```
+
 ### docker
 
 - due to docker limit, it is not possible to login inside docker image.

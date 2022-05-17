@@ -13,6 +13,7 @@ from plugins.utils import is_black_listed_user
 log: logging.Logger = logging.getLogger(__name__)
 LOG_CHANNEL: str = os.getenv("LOG_CHANNEL")
 
+
 @Client.on_message(filters.service, group=-1)
 async def join_group(cli: Client, msg: Message) -> None:
     """
@@ -39,6 +40,8 @@ async def join_group(cli: Client, msg: Message) -> None:
             await cli.send_message(
                 LOG_CHANNEL,
                 f"#userbot #ban #blacklist\n"
-                f"User: {user.id} is in blacklist\n"
+                f"User: <code>{user.id}</code>\n"
                 f"Joined: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+                f"Reason: User is in blacklist\n"
+                f"Message Link: {msg.link}",
             )

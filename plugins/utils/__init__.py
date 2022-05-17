@@ -85,7 +85,7 @@ async def get_target(cli: Client, msg: types.Message, location: int = 1) -> Opti
 
     try:
         target = await cli.get_users(msg.command[location])
-    except errors.PeerIdInvalid:
+    except (errors.PeerIdInvalid, errors.UsernameNotOccupied):
         return target
 
     return target
