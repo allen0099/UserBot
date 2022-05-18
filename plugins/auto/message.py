@@ -3,9 +3,10 @@ import html
 import logging
 import os
 from datetime import datetime, timedelta
+from typing import Union
 from urllib.parse import urlparse
 
-from pyrogram import Client, errors, filters, types
+from pyrogram import Client, enums, errors, filters, types
 from pyrogram.enums import MessageEntityType
 
 from database.blacklist_domain import BlackListDomain
@@ -128,35 +129,38 @@ async def clean_up(cli: Client, msg: types.Message, log_message: str) -> None:
     )
 
 
-async def check_webpage(cli: Client, msg: types.Message) -> None:
-    if msg.web_page.type in ["telegram_user", "telegram_bot", "telegram_channel", "telegram_megagroup"]:
-        await clean_up(cli, msg, f"#userbot #ban #webpage #telegram\n"
-                                 f"From: <code>{msg.from_user.id}</code>\n"
-                                 f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
-                                 f"Reason: Telegram webpage spam\n"
-                                 f"Message Link: {msg.link}")
-        return
-
-    else:
-        if domain_in_black(msg.web_page.url):
-            url: str = url_encode(msg.web_page.url)
-            await clean_up(cli, msg, f"#userbot #ban #webpage\n"
-                                     f"From: <code>{msg.from_user.id}</code>\n"
-                                     f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
-                                     f"URL: <code>{url}</code>\n"
-                                     f"Message Link: {msg.link}")
-            return
-
-        await cli.send_message(
-            LOG_CHANNEL,
-            f"#userbot #log #webpage\n"
+async def check_user_in_chat(
+        cli: Client,
+        msg: types.Message,
+        entity: types.MessageEntity,
+        user: Union[types.Chat, types.User],
+) -> bool:
+    try:
+        _check: types.ChatMember = await msg.chat.get_member(user.id)
+    except errors.UserNotParticipant:
+        # Mentioned a user not in chat or joined chat.
+        await clean_up(
+            cli,
+            msg,
+            f"#userbot #ban #mention\n"
             f"From: <code>{msg.from_user.id}</code>\n"
             f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
-            f"URL: <code>{msg.web_page.url}</code>\n"
-            f"Message Link: {msg.link}",
-            disable_web_page_preview=True,
+            f"Mentioned: <code>{user.id}</code>, {get_entity_string(msg.text, entity)}\n"
+            f"Message Link: {msg.link}"
         )
-        return
+        return False
+    # Mentioned a user in chat.
+    await cli.send_message(
+        LOG_CHANNEL,
+        f"#userbot #log #mention\n"
+        f"From: <code>{msg.from_user.id}</code>\n"
+        f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+        f"Mentioned: <code>{user.id}</code>, {get_entity_string(msg.text, entity)}\n"
+        f"Status: <code>{_check.status}</code>\n"
+        f"Message Link: {msg.link}",
+        disable_web_page_preview=True,
+    )
+    return True
 
 
 def url_encode(url: str) -> str:
@@ -210,48 +214,93 @@ async def entity_mention_checker(cli: Client, msg: types.Message, entity: types.
     user: types.User = entity.user
 
     if not user:
-        try:
-            user = await cli.get_users(get_entity_string(msg.text, entity))
-        except errors.PeerIdInvalid:
-            # Maybe a supergroup, or channel?
-            await cli.send_message(
-                LOG_CHANNEL,
-                f"#userbot #log #mention\n"
-                f"From: <code>{msg.from_user.id}</code>\n"
-                f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
-                f"Mention: <code>{get_entity_string(msg.text, entity)}</code>\n"
-                f"Message Link: {msg.link}",
-                disable_web_page_preview=True,
-            )
-            return False
+        rest: Union[types.Chat, types.ChatPreview] = await cli.get_chat(get_entity_string(msg.text, entity))
+
+        if isinstance(rest, types.Chat):
+            if msg.chat.username == rest.username and msg.chat.username is not None:
+                log.debug(f"{msg.from_user.id} sent a mention to {msg.chat.title}")
+                return False
+
+            if rest.type in [enums.ChatType.PRIVATE, enums.ChatType.BOT]:
+                log.debug(f"{msg.from_user.id} sent a mention of {rest.id}")
+                return not await check_user_in_chat(cli, msg, entity, rest)
+
+            if rest.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP, enums.ChatType.CHANNEL]:
+                log.debug(f"{msg.from_user.id} sent a mention of {rest.id}")
+                await clean_up(cli, msg, f"#userbot #ban #entity #mention\n"
+                                         f"From: <code>{msg.from_user.id}</code>\n"
+                                         f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+                                         f"Mention: <code>{get_entity_string(msg.text, entity)}</code>\n"
+                                         f"Type: <code>{rest.type}</code>\n"
+                                         f"Message Link: {msg.link}")
+                return True
+
+        if isinstance(rest, types.ChatPreview):
+            # must be a group,supergroup or channel
+            await clean_up(cli, msg, f"#userbot #ban #entity #mention\n"
+                                     f"From: <code>{msg.from_user.id}</code>\n"
+                                     f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+                                     f"Mention: <code>{get_entity_string(msg.text, entity)}</code>\n"
+                                     f"Type: <code>{rest.type}</code>\n"
+                                     f"Message Link: {msg.link}")
+            return True
+
+        await cli.send_message(
+            LOG_CHANNEL,
+            f"#userbot #log #mention\n"
+            f"From: <code>{msg.from_user.id}</code>\n"
+            f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+            f"Mention: <code>{get_entity_string(msg.text, entity)}</code>\n"
+            f"Message Link: {msg.link}",
+            disable_web_page_preview=True,
+        )
+        return False
 
     if entity.type == MessageEntityType.TEXT_MENTION:
-        log.debug(f"{msg.from_user.id} mentions someone, id: {entity.user.id}")
+        log.debug(f"{msg.from_user.id} mentioned someone, id: {entity.user.id}")
     else:
-        log.debug(f"{msg.from_user.id} mentions someone.")
+        log.debug(f"{msg.from_user.id} mentioned username: {get_entity_string(msg.text, entity)}")
 
-    try:
-        _check: types.ChatMember = await msg.chat.get_member(user.id)
-    except errors.UserNotParticipant:
-        # Mentioned a user not in chat or joined chat.
-        await clean_up(cli, msg, f"#userbot #ban #mention\n"
+    return not await check_user_in_chat(cli, msg, entity, user)
+
+
+async def check_edit(cli: Client, msg: types.Message) -> bool:
+    await clean_up(cli, msg, f"#userbot #ban #edit\n"
+                             f"From: <code>{msg.from_user.id}</code>\n"
+                             f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+                             f"Message Link: {msg.link}")
+    return True
+
+
+async def check_webpage(cli: Client, msg: types.Message) -> None:
+    if msg.web_page.type in ["telegram_user", "telegram_bot", "telegram_channel", "telegram_megagroup"]:
+        await clean_up(cli, msg, f"#userbot #ban #webpage #telegram\n"
                                  f"From: <code>{msg.from_user.id}</code>\n"
                                  f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
-                                 f"Mentioned: <code>{user.id}</code>, {get_entity_string(msg.text, entity)}\n"
+                                 f"Reason: Telegram webpage spam\n"
                                  f"Message Link: {msg.link}")
-        return True
+        return
 
-    await cli.send_message(
-        LOG_CHANNEL,
-        f"#userbot #log #mention\n"
-        f"From: <code>{msg.from_user.id}</code>\n"
-        f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
-        f"Mentioned: <code>{user.id}</code>, {get_entity_string(msg.text, entity)}\n"
-        f"Status: <code>{_check.status}</code>\n"
-        f"Message Link: {msg.link}",
-        disable_web_page_preview=True,
-    )
-    return False
+    else:
+        if domain_in_black(msg.web_page.url):
+            url: str = url_encode(msg.web_page.url)
+            await clean_up(cli, msg, f"#userbot #ban #webpage\n"
+                                     f"From: <code>{msg.from_user.id}</code>\n"
+                                     f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+                                     f"URL: <code>{url}</code>\n"
+                                     f"Message Link: {msg.link}")
+            return
+
+        await cli.send_message(
+            LOG_CHANNEL,
+            f"#userbot #log #webpage\n"
+            f"From: <code>{msg.from_user.id}</code>\n"
+            f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+            f"URL: <code>{msg.web_page.url}</code>\n"
+            f"Message Link: {msg.link}",
+            disable_web_page_preview=True,
+        )
+        return
 
 
 async def check_entities(cli: Client, msg: types.Message) -> None:
@@ -271,13 +320,19 @@ async def check_entities(cli: Client, msg: types.Message) -> None:
                 return
 
 
-async def check_edit(cli: Client, msg: types.Message) -> bool:
-    await clean_up(cli, msg, f"#userbot #ban #edit\n"
+async def check_media_group(cli: Client, msg: types.Message) -> None:
+    await clean_up(cli, msg, f"#userbot #ban #media_group\n"
                              f"From: <code>{msg.from_user.id}</code>\n"
                              f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
                              f"Message Link: {msg.link}")
 
-    return True
+
+async def check_media(cli: Client, msg: types.Message) -> None:
+    if msg.media in [enums.MessageMediaType.PHOTO, enums.MessageMediaType.VIDEO]:
+        await clean_up(cli, msg, f"#userbot #ban #media\n"
+                                 f"From: <code>{msg.from_user.id}</code>\n"
+                                 f"In: <code>{html.escape(msg.chat.title)}</code>(<code>{msg.chat.id}</code>)\n"
+                                 f"Message Link: {msg.link}")
 
 
 @Client.on_message(filters.group, group=-100)
@@ -289,23 +344,33 @@ async def message(cli: Client, msg: types.Message) -> None:
     if not is_check(msg):
         return
 
-    if msg.edit_date:
-        if await is_user_too_quite(cli, msg):
-            if await is_user_too_young(cli, msg):
+    if msg.service:
+        return
+
+    if await is_user_too_quite(cli, msg):
+        if await is_user_too_young(cli, msg):
+
+            if msg.edit_date:
                 log.debug(f"{msg.from_user.id} is too young to edit messages.")
                 if await check_edit(cli, msg):
                     return
 
-    if msg.web_page:
-        if await is_user_too_quite(cli, msg):
-            if await is_user_too_young(cli, msg):
+            if msg.web_page:
                 log.debug(f"{msg.from_user.id} sent a webpage and should check at {msg.chat.title}")
                 await check_webpage(cli, msg)
                 return
 
-    if msg.entities:
-        if await is_user_too_quite(cli, msg):
-            if await is_user_too_young(cli, msg):
+            if msg.entities:
                 log.debug(f"{msg.from_user.id} should check entities in {msg.chat.title}")
                 await check_entities(cli, msg)
+                return
+
+            if msg.media_group_id:
+                log.debug(f"{msg.from_user.id} sent a media group and should check at {msg.chat.title}")
+                await check_media_group(cli, msg)
+                return
+
+            if msg.media:
+                log.debug(f"{msg.from_user.id} sent a media and should check at {msg.chat.title}")
+                await check_media(cli, msg)
                 return
