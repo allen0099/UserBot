@@ -5,7 +5,7 @@
 ### venv run
 
 ```shell
-python3 -m vnev venv
+python3 -m venv venv
 source venv/bin/activate
 # some libraries require, Google for each distro
 pip install -r requirements.txt
