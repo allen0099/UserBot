@@ -1,22 +1,26 @@
 import logging
-import os
-import sys
-from pathlib import Path
 
-from dotenv import load_dotenv
-
-load_dotenv(dotenv_path=str(Path(sys.argv[0]).parent / ".env"), verbose=True)
-
-log: logging.Logger = logging.getLogger(__name__)
-logging.basicConfig(level=eval(f"logging.{os.getenv('LOG_LEVEL')}"),
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-logging.getLogger("pyrogram").setLevel(logging.INFO)
-
-# bot modules
 from bot import Bot
+from core.log import (
+    main_logger,
+    PyrogramLogger,
+    SQLAlchemyEngineLogger,
+    SQLAlchemyORMLogger,
+    SQLAlchemyDialectsLogger,
+    SQLAlchemyPoolLogger,
+)
 
-user_bot: Bot = Bot()
+log: logging.Logger = main_logger(__name__)
+pg_log: logging.Logger = PyrogramLogger().logger
 
-if __name__ == '__main__':
-    user_bot.run()
+sa_engine_log: logging.Logger = SQLAlchemyEngineLogger().logger
+sa_dialects_log: logging.Logger = SQLAlchemyDialectsLogger().logger
+sa_orm_log: logging.Logger = SQLAlchemyORMLogger().logger
+sa_pool_log: logging.Logger = SQLAlchemyPoolLogger().logger
+
+if __name__ == "__main__":
+    bot: Bot = Bot()
+    bot.run()
+
+    log.info("Bye!")
+    logging.shutdown()

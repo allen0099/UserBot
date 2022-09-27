@@ -1,127 +1,91 @@
-import asyncio
-import json
 import logging
-import os
-import platform
 import sys
-from asyncio import AbstractEventLoop
-from datetime import datetime
-from typing import Optional, Union
+from typing import Union
 
-import psutil
 import pyrogram
-from pyrogram import Client
-from pyrogram.errors import ApiIdInvalid, AuthKeyUnregistered
+from pyrogram import Client, types
+from pyrogram.errors import ApiIdInvalid
 from pyrogram.session import Session
-from pyrogram.types import User
 
-from database import db
+from core import settings
+from core.log import main_logger
 
-log: logging.Logger = logging.getLogger(__name__)
-__version__: str = "1.0.1"
+log: logging.Logger = main_logger(__name__)
 
 
-class Bot:
+class Bot(Client):
     _instance: Union[None, "Bot"] = None
 
-    me: Optional[User] = None
-    version: str = __version__
-    device_model: str = f"PC {platform.architecture()[0]}"
-    system_version: str = f"{platform.system()} {platform.python_implementation()} {platform.python_version()}"
-
-    db.init()
-
-    def __init__(self):
-        test_mode: bool = json.loads(os.getenv("TEST_MODE").lower())
-        self.app: Client = Client(
-            "test" if test_mode else "bot",
-            app_version=self.version,
-            device_model=self.device_model,
-            api_id=os.getenv("API_ID"),
-            api_hash=os.getenv("API_HASH"),
-            test_mode=test_mode,
-            plugins=None,
-            system_version=self.system_version
-        )
-
-        self.start_time: datetime = datetime.utcnow()
-        self.process = psutil.Process(os.getpid())
-
     def __new__(cls, *args, **kwargs):
+        """Singleton pattern
+
+        Args:
+            *args:
+            **kwargs:
+        """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def run(self):
-        if self.app.test_mode:
-            log.debug("[Bot] Warning: bot is running in test mode!")
+    def __init__(self):
+        super().__init__(
+            "bot", api_id=settings.TELEGRAM_API_ID, api_hash=settings.TELEGRAM_API_HASH
+        )
 
-        loop: AbstractEventLoop = asyncio.get_event_loop()
-        run = loop.run_until_complete
+    def run(self, coroutine=None):
+        """Prepare and start the bot normally.
 
-        run(self._pyrogram_testing())
+        Args:
+            coroutine:
 
-        log.info("[Bot] Loading plugins!")
+        Returns:
 
-        self.app.plugins = {
+        """
+        super().run(self.prepare_start())
+
+        log.debug("Loading plugins...")
+
+        self.plugins = {
             "enabled": True,
-            "root": "plugins",
+            "root": "bot/plugins",
             "include": [],
-            "exclude": []
+            "exclude": [],
         }
 
-        log.info("[Bot] Plugins loaded!")
+        log.debug("Plugins loaded!")
 
-        self.app.run()
+        super().run(coroutine)
 
-    async def _pyrogram_testing(self):
-        # Disable notice
+    async def prepare_start(self):
+        """Prepare the bot before starting.
+
+        Returns:
+
+        """
+        # Disable Pyrogram notice
         Session.notice_displayed = True
-        logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
-        log.debug(f"[Bot] Initializing pyrogram...")
-        log.debug(f"[Bot] Pyrogram version: {pyrogram.__version__}")
+        log.info(f"Initializing pyrogram...")
+        log.debug(f"Pyrogram version: {pyrogram.__version__}")
 
         try:
-            await self.app.start()
+            await self.start()
 
         except (ApiIdInvalid, AttributeError):
             log.critical("[Bot] Api ID is invalid")
             sys.exit(1)
 
-        except AuthKeyUnregistered:
-            log.critical("[Bot] Session expired!")
-            log.critical("      Removing old session and exiting!")
-            await self.app.storage.delete()
-            exit(1)
+        me: types.User = self.me
 
-        try:
-            me: User = await self.app.get_me()
+        info_str: str = (
+            f"{me.first_name}"
+            f"{' ' + me.last_name if me.last_name else ''}"
+            f"{' (@' + me.username + ')' if me.username else ''}"
+            f" ID: {me.id}"
+        )
 
-            info_str: str = f"[Bot] {me.first_name}"
-            info_str += f" {me.last_name}" if me.last_name else ""
-            info_str += f" (@{me.username})" if me.username else ""
-            info_str += f" ID: {me.id}"
+        log.info(info_str)
 
-            log.info(info_str)
+        log.info("Pyrogram initialized successfully!")
 
-            self.me: User = me
-
-            from database.users import User as SQL_User
-            _check: SQL_User = db.session.query(SQL_User).get(me.id)
-
-            if not _check:
-                _u: SQL_User = SQL_User(me.id)
-                _u.is_white = True
-                db.session.add(_u)
-                db.session.commit()
-                db.session.close()
-
-        except Exception as e:
-            log.exception(e)
-            sys.exit(1)
-
-        log.debug("[Bot] Pyrogram initialized successfully!")
-
-        await self.app.stop()
-        logging.getLogger("pyrogram").setLevel(logging.INFO)
+        await self.stop()
