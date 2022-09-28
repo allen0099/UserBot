@@ -87,13 +87,13 @@ def load_models(path: str = "models"):
             try:
                 if isinstance(getattr(module, name), DeclarativeMeta):
                     table_name: str = getattr(module, name).__tablename__
-                    print(f"Registering table '{table_name}'")
+                    log.info(f"Registering table '{table_name}'")
                     loaded_models.append(getattr(module, name))
 
             except Exception:
                 pass
 
-    print(f"Loaded {len(loaded_models)} tables")
+    log.info(f"Loaded {len(loaded_models)} tables")
 
 
 load_models(settings.MODELS_PATH)

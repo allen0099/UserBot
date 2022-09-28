@@ -1,6 +1,6 @@
 [*]
 charset = utf-8
-end_of_line = crlf
+end_of_line = lf
 indent_size = 4
 indent_style = space
 insert_final_newline = false
@@ -715,7 +715,7 @@ ij_python_optimize_imports_case_insensitive_order = false
 ij_python_optimize_imports_join_from_imports_with_same_source = false
 ij_python_optimize_imports_sort_by_type_first = true
 ij_python_optimize_imports_sort_imports = true
-ij_python_optimize_imports_sort_names_in_from_imports = false
+ij_python_optimize_imports_sort_names_in_from_imports = true
 ij_python_space_after_comma = true
 ij_python_space_after_number_sign = true
 ij_python_space_after_py_colon = true
