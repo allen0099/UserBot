@@ -4,7 +4,6 @@ After=network.target
 
 [Service]
 ExecStart={{RunnerRoot}}/venv/bin/python {{RunnerRoot}}/main.py
-User={{User}}
 WorkingDirectory={{RunnerRoot}}
 KillMode=process
 KillSignal=SIGTERM
