@@ -10,7 +10,9 @@ SCRIPT=$(readlink -f "$0")
 SCRIPT_PATH=$(dirname "$SCRIPT")
 RUNNER_ROOT="$(dirname "$SCRIPT_PATH")"
 
-UNIT_PATH=/etc/systemd/system/${SVC_NAME}
+USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+
+UNIT_PATH=$USER_HOME/.config/systemd/user/${SVC_NAME}
 TEMPLATE_PATH=$GITHUB_ACTIONS_RUNNER_SERVICE_TEMPLATE
 IS_CUSTOM_TEMPLATE=0
 if [[ -z $TEMPLATE_PATH ]]; then
@@ -97,7 +99,7 @@ function install()
     # chown ${run_as_uid}:${run_as_gid} ./runsvc.sh || failed "failed to set owner for runsvc.sh"
     # chmod 755 ./runsvc.sh || failed "failed to set permission for runsvc.sh"
 
-    systemctl enable ${SVC_NAME} || failed "failed to enable ${SVC_NAME}"
+    systemctl enable --user ${SVC_NAME} || failed "failed to enable ${SVC_NAME}"
 
     echo "${SVC_NAME}" > ${CONFIG_PATH} || failed "failed to create .service file"
     chown ${run_as_uid}:${run_as_gid} ${CONFIG_PATH} || failed "failed to set permission for ${CONFIG_PATH}"
@@ -105,13 +107,13 @@ function install()
 
 function start()
 {
-    systemctl start ${SVC_NAME} || failed "failed to start ${SVC_NAME}"
+    systemctl start --user ${SVC_NAME} || failed "failed to start ${SVC_NAME}"
     status
 }
 
 function stop()
 {
-    systemctl stop ${SVC_NAME} || failed "failed to stop ${SVC_NAME}"
+    systemctl stop --user ${SVC_NAME} || failed "failed to stop ${SVC_NAME}"
     status
 }
 
@@ -119,7 +121,7 @@ function uninstall()
 {
     if service_exists; then
         stop
-        systemctl disable ${SVC_NAME} || failed "failed to disable ${SVC_NAME}"
+        systemctl disable --user ${SVC_NAME} || failed "failed to disable ${SVC_NAME}"
         rm "${UNIT_PATH}" || failed "failed to delete ${UNIT_PATH}"
     else
         echo "Service ${SVC_NAME} is not installed"
@@ -150,7 +152,7 @@ function status()
         exit 1
     fi
 
-    systemctl --no-pager status ${SVC_NAME}
+    systemctl --no-pager status --user ${SVC_NAME}
 }
 
 function usage()
