@@ -12,7 +12,7 @@ RUNNER_ROOT="$(dirname "$SCRIPT_PATH")"
 
 USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
 
-UNIT_PATH=$USER_HOME/.config/systemd/user/${SVC_NAME}
+UNIT_PATH=$HOME/.config/systemd/user/${SVC_NAME}
 TEMPLATE_PATH=$GITHUB_ACTIONS_RUNNER_SERVICE_TEMPLATE
 IS_CUSTOM_TEMPLATE=0
 if [[ -z $TEMPLATE_PATH ]]; then
@@ -24,13 +24,6 @@ TEMP_PATH=./service.temp
 CONFIG_PATH=.service
 
 user_id=`id -u`
-
-# systemctl must run as sudo
-# this script is a convenience wrapper around systemctl
-if [ $user_id -ne 0 ]; then
-    echo "Must run as sudo"
-    exit 1
-fi
 
 function failed()
 {
@@ -45,12 +38,6 @@ if [ ! -f "${TEMPLATE_PATH}" ]; then
     else
         failed "Service file at '$GITHUB_ACTIONS_RUNNER_SERVICE_TEMPLATE' using GITHUB_ACTIONS_RUNNER_SERVICE_TEMPLATE env variable is not found"
     fi
-fi
-
-#check if we run as root
-if [[ $(id -u) != "0" ]]; then
-    echo "Failed: This script requires to run with sudo." >&2
-    exit 1
 fi
 
 function install()
@@ -92,7 +79,7 @@ function install()
 
     # unit file should not be executable and world writable
     chmod 664 "${UNIT_PATH}" || failed "failed to set permissions on ${UNIT_PATH}"
-    systemctl daemon-reload || failed "failed to reload daemons"
+    systemctl daemon-reload --user || failed "failed to reload daemons"
 
     # Since we started with sudo, runsvc.sh will be owned by root. Change this to current login user.
     # cp ./bin/runsvc.sh ./runsvc.sh || failed "failed to copy runsvc.sh"
@@ -129,7 +116,7 @@ function uninstall()
     if [ -f "${CONFIG_PATH}" ]; then
       rm "${CONFIG_PATH}" || failed "failed to delete ${CONFIG_PATH}"
     fi
-    systemctl daemon-reload || failed "failed to reload daemons"
+    systemctl daemon-reload --user || failed "failed to reload daemons"
 }
 
 function service_exists() {
