@@ -1,0 +1,14 @@
+[Unit]
+Description=Allen0099's UserBot Service
+After=network.target
+
+[Service]
+ExecStart={{RunnerRoot}}/venv/bin/python {{RunnerRoot}}/main.py
+User={{User}}
+WorkingDirectory={{RunnerRoot}}
+KillMode=process
+KillSignal=SIGTERM
+TimeoutStopSec=5min
+
+[Install]
+WantedBy=multi-user.target

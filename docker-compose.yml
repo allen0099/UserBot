@@ -11,14 +11,14 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
-  redis:
-    image: redis:7.0.5-alpine
-    restart: always
-    ports:
-      - ${REDIS_HOST:-6379}:6379
-    command: redis-server --save 60 1 --loglevel warning
-    volumes:
-      - redis:/data
+#  redis:
+#    image: redis:7.0.5-alpine
+#    restart: always
+#    ports:
+#      - ${REDIS_HOST:-6379}:6379
+#    command: redis-server --save 60 1 --loglevel warning
+#    volumes:
+#      - redis:/data
 
 volumes:
   database:
