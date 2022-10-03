@@ -1,6 +1,7 @@
 import logging
 import os
-from logging.handlers import TimedRotatingFileHandler, BaseRotatingHandler
+from logging.handlers import BaseRotatingHandler, TimedRotatingFileHandler
+from pathlib import Path
 from typing import Optional
 
 import coloredlogs
@@ -20,16 +21,17 @@ if settings.DEBUG:
 #   Prepare folders
 # ---------------------------------------------------------------------------
 
-if not os.path.exists("logs"):
-    os.mkdir("logs")
+LOG_BASEDIR: Path = settings.BASE_DIR / "logs"
+if not os.path.exists(LOG_BASEDIR):
+    os.mkdir(LOG_BASEDIR)
     print("Folder logs created.")
 
-if not os.path.exists("logs/bot"):
-    os.mkdir("logs/bot")
+if not os.path.exists(LOG_BASEDIR / "bot"):
+    os.mkdir(LOG_BASEDIR / "bot")
     print("Folder logs/bot created.")
 
-if not os.path.exists("logs/third"):
-    os.mkdir("logs/third")
+if not os.path.exists(LOG_BASEDIR / "third"):
+    os.mkdir(LOG_BASEDIR / "third")
     print("Folder logs/third created.")
 
 
@@ -60,12 +62,12 @@ class Handlers:
         )
 
     EVENT_HANDLER: TimedRotatingFileHandler = TimedRotatingFileHandler(
-        "logs/bot/events.log", when="midnight", encoding="utf-8"
+        f"{LOG_BASEDIR}/bot/events.log", when="midnight", encoding="utf-8"
     )
     EVENT_HANDLER.setFormatter(BASIC_FORMATTER)
 
     MAIN_HANDLER: TimedRotatingFileHandler = TimedRotatingFileHandler(
-        "logs/bot/bot.log", when="midnight", encoding="utf-8"
+        f"{LOG_BASEDIR}/bot/bot.log", when="midnight", encoding="utf-8"
     )
     MAIN_HANDLER.setFormatter(MAIN_FORMATTER)
 
@@ -78,7 +80,7 @@ class Handlers:
 
         directory: str = "bot" if bot else "third"
         new_handler: TimedRotatingFileHandler = TimedRotatingFileHandler(
-            f"logs/{directory}/{name}.log", when="midnight", encoding="utf-8"
+            f"{LOG_BASEDIR}/{directory}/{name}.log", when="midnight", encoding="utf-8"
         )
         new_handler.setFormatter(cls.BASIC_FORMATTER)
 

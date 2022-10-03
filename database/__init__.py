@@ -1,7 +1,12 @@
+import io
 import logging
+import os
 from importlib import import_module
 from pathlib import Path
 
+from alembic.command import current, upgrade
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import MetaData
 from sqlalchemy import create_engine
 from sqlalchemy.future import Engine
@@ -10,6 +15,7 @@ from sqlalchemy.orm import registry
 from sqlalchemy.orm import sessionmaker
 
 from core import settings
+from core.log import main_logger
 
 try:
     from sqlalchemy.orm import declarative_base
@@ -26,7 +32,71 @@ try:
 except ImportError:
     from threading import get_ident as _ident_func
 
-log: logging.Logger = logging.getLogger(__name__)
+log: logging.Logger = main_logger(__name__)
+
+base_folder: Path = Path(__file__).parent.parent
+config_file: Path = base_folder / "alembic.ini"
+script_location: Path = base_folder / "migrations"
+
+alembic_config: Path = base_folder / "alembic.ini"
+alembic_empty_config: Path = base_folder / "alembic.ini.example"
+
+# Rebuild init file since ini is not git tracked
+if not os.path.isfile(alembic_config):
+    with open(alembic_config, "w") as file:
+        with open(alembic_empty_config, "r") as template:
+            for line in template:
+                if line.startswith("sqlalchemy.url"):
+                    file.write(f"sqlalchemy.url = {settings.DATABASE_URL}\n")
+                else:
+                    file.write(line)
+
+_buffer: io.StringIO = io.StringIO()
+
+
+def get_config(buffered: bool = False) -> Config:
+    # Reset before use
+    _buffer.seek(0)
+    if not buffered:
+        _config: Config = Config(f"{config_file}")
+    else:
+        _config: Config = Config(f"{config_file}", stdout=_buffer)
+    _config.set_main_option("script_location", f"{script_location}")
+
+    return _config
+
+
+def get_buffer_value() -> str:
+    _value: str = _buffer.getvalue()
+    return _value.strip()
+
+
+def alembic_upgrade() -> None:
+    upgrade(get_config(), "head")
+
+
+def need_upgrade() -> bool:
+    if not get_head():
+        # Means no migrations
+        return False
+
+    if get_current() == get_head():
+        return False
+    return True
+
+
+def get_current() -> str:
+    # https://stackoverflow.com/a/61770854
+    current(get_config(True))
+
+    _out: str = get_buffer_value()
+    return _out[:12]
+
+
+def get_head() -> str:
+    _script: ScriptDirectory = ScriptDirectory.from_config(get_config())
+
+    return _script.get_current_head()
 
 
 class Database:
@@ -66,10 +136,10 @@ class Database:
         # A MetaData object that will store a collection of Table objects.
         return self.REGISTRY.metadata
 
-    def create_all(self):
+    def create_all(self) -> None:
         self.metadata.create_all(self.ENGINE)
 
-    def drop_all(self):
+    def drop_all(self) -> None:
         self.metadata.drop_all(self.ENGINE)
 
 
