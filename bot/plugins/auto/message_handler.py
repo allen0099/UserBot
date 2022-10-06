@@ -10,8 +10,8 @@ log: logging.Logger = main_logger(__name__)
 logger: logging.Logger = event_logger(__name__)
 
 
-@Client.on_message(group=-1)
-@event_log
+@Client.on_message(group=-100)
+@event_log()
 def message_handler(cli: Client, msg: types.Message) -> None:
     if msg.chat.type != ChatType.SUPERGROUP:
         logger.warning(f"{msg.chat.type} is not SUPERGROUP, skipping...")

@@ -12,7 +12,7 @@ logger: logging.Logger = event_logger(__name__)
 
 
 @Client.on_message(filters.service, group=-100)
-@event_log
+@event_log()
 async def service_handler(cli: Client, msg: Message) -> None:
     """
     Ban user if user is in blacklist when user try to join the group.

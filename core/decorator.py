@@ -3,57 +3,38 @@ Used to decorate functions like logging, rate limiting, etc.
 """
 import inspect
 import logging
-from typing import Optional, Union
+from functools import wraps
+from typing import Callable, Union
 
 from pyrogram import types
 
 from bot import Bot
-from core.log import main_logger, event_logger
+from core.log import event_logger, main_logger
 
 log: logging.Logger = main_logger(__name__)
 logger: logging.Logger = event_logger(__name__)
 
 
-def event_log(func):
-    """
-    Decorator to print function call details.
+async def graceful_return(
+    func: Callable, bot: Bot, msg: types.Message, *args, **kwargs
+) -> Callable:
+    if inspect.iscoroutinefunction(func):
+        return await func(bot, msg, *args, **kwargs)
 
-    This includes parameters names and effective values.
-    Modified from: https://stackoverflow.com/a/6278457
-    """
+    return func(bot, msg, *args, **kwargs)
 
-    log.debug(f"Ready to log {func.__module__}.{func.__qualname__} ...")
 
-    async def wrapper(*args, **kwargs):
-        func_args: dict[str, object] = (
-            inspect.signature(func).bind(*args, **kwargs).arguments
-        )
+def event_log() -> Callable:
+    def decorator(func) -> Callable:
+        log.debug(f"Ready to log {func.__module__}.{func.__qualname__} ...")
 
-        instance: Optional[Bot] = None
-        message: Optional[types.Message] = None
-
-        # Parse args from function passed
-        for (name, value) in func_args.items():
-            arg_name: str = name
-            arg_value: object = value
-
-            if isinstance(arg_value, Bot):
-                instance = arg_value
-
-            if isinstance(arg_value, types.Message):
-                message = arg_value
-
-        if not message:
-            logger.critical(
-                f"{func.__module__}.{func.__qualname__} - No message found in {func_args.items()}"
-            )
-
-        if message:
+        @wraps(func)
+        async def wrapper(bot: Bot, msg: types.Message, *args, **kwargs) -> Callable:
             executor: Union[types.Chat, types.User] = (
-                message.from_user or message.sender_chat
+                msg.from_user or msg.sender_chat
             )  # From channel or user
             func_name: str = func.__qualname__
-            in_chat: types.Chat = message.chat
+            in_chat: types.Chat = msg.chat
 
             if executor:
                 logger.debug(
@@ -63,12 +44,25 @@ def event_log(func):
             else:
                 logger.debug(f"[Automatic] Triggered {func_name} in {in_chat.id}")
 
-            logger.debug(f"  Full message: {repr(message)}")
+            logger.debug(f"  Full message: {repr(msg)}")
 
-        # Ready to return
-        if inspect.iscoroutinefunction(func):
-            return await func(*args, **kwargs)
+            return await graceful_return(func, bot, msg, *args, **kwargs)
 
-        return func(*args, **kwargs)
+        return wrapper
 
-    return wrapper
+    return decorator
+
+
+def permission_check(permission) -> Callable:
+    def decorator(func) -> Callable:
+        log.debug(f"Checking {func.__qualname__} at {permission} permission...")
+
+        @wraps(func)
+        async def wrapper(bot: Bot, msg: types.Message, *args, **kwargs) -> Callable:
+            print("Not implemented yet")
+
+            return await graceful_return(func, bot, msg, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
