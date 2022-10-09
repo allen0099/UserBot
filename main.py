@@ -25,7 +25,8 @@ if __name__ == "__main__":
         log.info(f"Current version: {get_current()}")
         log.info(f"Heads: {get_head()}")
         log.info("Upgrading database!")
-        alembic_upgrade()
+        if not alembic_upgrade():
+            raise RuntimeError("Failed to upgrade database!")
 
     bot: Bot = Bot()
     bot.run()

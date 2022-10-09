@@ -1,12 +1,12 @@
-import io
 import logging
 import os
+import subprocess
 from importlib import import_module
 from pathlib import Path
 
-from alembic.command import current, upgrade
 from alembic.config import Config
 from alembic.script import ScriptDirectory
+from sqlalchemy import Column, String
 from sqlalchemy import MetaData
 from sqlalchemy import create_engine
 from sqlalchemy.future import Engine
@@ -51,28 +51,20 @@ if not os.path.isfile(alembic_config):
                 else:
                     file.write(line)
 
-_buffer: io.StringIO = io.StringIO()
 
-
-def get_config(buffered: bool = False) -> Config:
-    # Reset before use
-    _buffer.seek(0)
-    if not buffered:
-        _config: Config = Config(f"{config_file}")
-    else:
-        _config: Config = Config(f"{config_file}", stdout=_buffer)
+def get_config() -> Config:
+    _config: Config = Config(f"{config_file}")
     _config.set_main_option("script_location", f"{script_location}")
 
     return _config
 
 
-def get_buffer_value() -> str:
-    _value: str = _buffer.getvalue()
-    return _value.strip()
+def alembic_upgrade(revision: str = "head") -> bool:
+    result = subprocess.run(["alembic", "upgrade", revision], stdout=subprocess.PIPE)
 
-
-def alembic_upgrade() -> None:
-    upgrade(get_config(), "head")
+    if result.returncode != 0:
+        return False
+    return True
 
 
 def need_upgrade() -> bool:
@@ -85,12 +77,12 @@ def need_upgrade() -> bool:
     return True
 
 
-def get_current() -> str:
+def get_current() -> str | None:
     # https://stackoverflow.com/a/61770854
-    current(get_config(True))
+    # Rewrite by directly query alembic_version table
+    version: AlembicVersion = db.session.query(AlembicVersion).first()
 
-    _out: str = get_buffer_value()
-    return _out[:12]
+    return version.version_num if version else None
 
 
 def get_head() -> str:
@@ -144,6 +136,12 @@ class Database:
 
 
 db = Database()
+
+
+class AlembicVersion(db.BASE):
+    __tablename__ = "alembic_version"
+
+    version_num = Column(String(32), primary_key=True)
 
 
 # load models

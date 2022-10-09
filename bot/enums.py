@@ -2,10 +2,10 @@ from enum import Enum, auto
 
 
 class PermissionLevel(Enum):
-    BOT_OWNER = auto()
+    OWNER = auto()
     EXECUTOR = auto()
-    WHITE_USER = auto()
-    BLACK_USER = auto()
+    WHITE = auto()
+    BLACK = auto()
     OTHER = auto()
 
 

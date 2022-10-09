@@ -10,6 +10,7 @@ from pyrogram import types
 
 from bot import Bot
 from core.log import event_logger, main_logger
+from database.models.record import Record
 
 log: logging.Logger = main_logger(__name__)
 logger: logging.Logger = event_logger(__name__)
@@ -45,6 +46,9 @@ def event_log() -> Callable:
                 logger.debug(f"[Automatic] Triggered {func_name} in {in_chat.id}")
 
             logger.debug(f"  Full message: {repr(msg)}")
+
+            record: Record = Record(executor.id, in_chat.id, func_name, repr(msg))
+            record.add()
 
             return await graceful_return(func, bot, msg, *args, **kwargs)
 
