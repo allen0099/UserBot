@@ -3,6 +3,7 @@ import logging
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
+from bot import Bot
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
 from core.log import main_logger
@@ -16,7 +17,7 @@ log: logging.Logger = main_logger(__name__)
     filters.command("ping", prefixes=COMMAND_PREFIXES) & ~filters.forwarded
 )
 @event_log()
-async def ping(_: Client, msg: Message) -> None:
+async def ping(_: Bot, msg: Message) -> None:
     """
     Return pong.
 

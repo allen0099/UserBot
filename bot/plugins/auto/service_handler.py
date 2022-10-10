@@ -1,11 +1,12 @@
 import logging
 
 from pyrogram import Client, filters
-from pyrogram.enums import MessageServiceType, ChatType
+from pyrogram.enums import ChatType, MessageServiceType
 from pyrogram.types import Message
 
+from bot import Bot
 from core.decorator import event_log
-from core.log import main_logger, event_logger
+from core.log import event_logger, main_logger
 
 log: logging.Logger = main_logger(__name__)
 logger: logging.Logger = event_logger(__name__)
@@ -13,7 +14,7 @@ logger: logging.Logger = event_logger(__name__)
 
 @Client.on_message(filters.service, group=-100)
 @event_log()
-async def service_handler(cli: Client, msg: Message) -> None:
+async def service_handler(cli: Bot, msg: Message) -> None:
     """
     Ban user if user is in blacklist when user try to join the group.
     """
@@ -38,8 +39,6 @@ async def service_handler(cli: Client, msg: Message) -> None:
             logger.info(
                 f"Admin {repr(msg.from_user)} kicked me from {repr(msg.chat)}. Hope to see them again!"
             )
-            return
 
         case _:
             logger.debug(f"{msg.service} is not handled, skipping...")
-            return
