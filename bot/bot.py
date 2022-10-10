@@ -1,7 +1,9 @@
 import logging
+import os
 import sys
 from typing import Union
 
+import psutil
 import pyrogram
 from pyrogram import Client, types
 from pyrogram.errors import ApiIdInvalid
@@ -29,6 +31,8 @@ class Bot(Client, CustomMethods):
         return cls._instance
 
     def __init__(self):
+        self.process: psutil.Process = psutil.Process(os.getpid())
+
         super().__init__(
             "bot", api_id=settings.TELEGRAM_API_ID, api_hash=settings.TELEGRAM_API_HASH
         )
