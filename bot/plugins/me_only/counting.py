@@ -6,9 +6,10 @@ from pyrogram.types import Message
 
 from bot import Bot
 from bot.plugins import COMMAND_PREFIXES
+from core import main_logger
 from core.decorator import event_log
 
-log: logging.Logger = logging.getLogger(__name__)
+log: logging.Logger = main_logger(__name__)
 
 
 @Client.on_message(
