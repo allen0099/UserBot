@@ -6,6 +6,7 @@ from pyrogram import Client, filters, types
 from bot.functions import get_chat_info, get_message_info, get_user_info
 from bot.plugins import COMMAND_PREFIXES
 from core import main_logger
+from core.decorator import event_log
 
 log: logging.Logger = main_logger(__name__)
 
@@ -16,6 +17,7 @@ log: logging.Logger = main_logger(__name__)
     & filters.me
     & ~filters.forwarded
 )
+@event_log()
 async def get(_: Client, msg: types.Message) -> None:
     message: str = f"<b><u>Basic Info</u></b>\n"
     replied_message: types.Message = msg.reply_to_message
