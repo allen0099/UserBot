@@ -7,9 +7,8 @@ import traceback
 from _ast import AST, Module
 from io import StringIO
 
-from pyrogram import Client, filters
+from pyrogram import Client, filters, types
 from pyrogram.enums import ParseMode
-from pyrogram.types import Message
 
 from bot import Bot
 from core import main_logger
@@ -23,7 +22,7 @@ log: logging.Logger = main_logger(__name__)
     filters.command("eval", prefixes=".") & filters.me & ~filters.forwarded
 )
 @event_log()
-async def api_call(_: Bot, msg: Message) -> None:
+async def api_call(_: Bot, msg: types.Message) -> None:
     message: str = f"<b><u>Expression</u></b>\n"
 
     cmd: str = re.findall(r"(?s)(?<=\.eval ).*", msg.text)[0]
@@ -31,14 +30,16 @@ async def api_call(_: Bot, msg: Message) -> None:
 
     log.info(f"{msg.from_user.id} try to execute\n{cmd}")
 
-    send: Message = await msg.reply(message, parse_mode=ParseMode.HTML)
+    send: types.Message = await msg.reply(message, parse_mode=ParseMode.HTML)
 
     out: StringIO = StringIO()
     sys.stdout = out
     err: StringIO = StringIO()
     sys.stderr = err
 
-    parsed_fn: AST | Module = ast.parse(f"async def __s(cli: Bot, msg: Message): pass")
+    parsed_fn: AST | Module = ast.parse(
+        f"async def __s(cli: Bot, msg: types.Message): pass"
+    )
 
     # noinspection PyBroadException
     try:

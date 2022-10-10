@@ -1,8 +1,7 @@
 import logging
 
-from pyrogram import Client, filters
+from pyrogram import Client, filters, types
 from pyrogram.enums import ChatType
-from pyrogram.types import Message
 
 from bot import Bot
 from bot.plugins import COMMAND_PREFIXES
@@ -18,10 +17,10 @@ log: logging.Logger = main_logger(__name__)
     & ~filters.forwarded
 )
 @event_log()
-async def counting(cli: Bot, msg: Message) -> None:
+async def counting(cli: Bot, msg: types.Message) -> None:
     await msg.delete()
 
-    m: Message = await msg.reply_text("Counting...")
+    m: types.Message = await msg.reply_text("Counting...")
 
     count: dict[str | ChatType, int] = {
         "TOTAL": 0,
@@ -38,7 +37,10 @@ async def counting(cli: Bot, msg: Message) -> None:
 
     message: str = f""
 
-    for chat_type, count in count.items():
-        message += f"{chat_type.capitalize() if isinstance(chat_type, str) else chat_type.name.capitalize()}: <code>{count}</code>\n"
+    for t, count in count.items():
+        message += (
+            f"{t.capitalize() if isinstance(t, str) else t.name.capitalize()}"
+            f": <code>{count}</code>\n"
+        )
 
     await m.edit(message)

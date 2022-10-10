@@ -7,14 +7,14 @@ from pyrogram import Client, types
 from pyrogram.errors import ApiIdInvalid
 from pyrogram.session import Session
 
-from bot.functions import CustomFunctions
+from bot.methods import CustomMethods
 from core import settings
 from core.log import main_logger
 
 log: logging.Logger = main_logger(__name__)
 
 
-class Bot(Client, CustomFunctions):
+class Bot(Client, CustomMethods):
     _instance: Union[None, "Bot"] = None
 
     def __new__(cls, *args, **kwargs):

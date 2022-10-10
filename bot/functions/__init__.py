@@ -1,16 +1,71 @@
+import asyncio
 import logging
+import warnings
+from typing import Optional
 
-from core.log import main_logger
-from .custom_resolve_peer import CustomResolvePeer
-from .delete_range_messages import DeleteRangeMessages
-from .get_chat_admins import GetChatAdmins
+from pyrogram import Client
+from pyrogram import types
+from pyrogram.enums import ChatType
+from pyrogram.errors import PeerIdInvalid
+from pyrogram.types.user_and_chats.user import Link
+from pyrogram.utils import get_channel_id
+
+from core import main_logger
 
 log: logging.Logger = main_logger(__name__)
 
 
-class CustomFunctions(
-    CustomResolvePeer,
-    DeleteRangeMessages,
-    GetChatAdmins,
-):
-    pass
+def get_user_info(user: types.User) -> str:
+    call_sign: str = "機器人" if user.is_bot else "使用者"
+    return f"{call_sign}：{user.mention}\n{call_sign} ID：<code>{user.id}</code>\n"
+
+
+def get_chat_link(chat: types.Chat) -> Link:
+    return Link(
+        f"https://t.me/{chat.username}"
+        if chat.username
+        else f"https://t.me/c/{get_channel_id(chat.id)}/1",
+        chat.title,
+        chat._client.parse_mode,
+    )
+
+
+def get_chat_info(chat: types.Chat) -> str:
+    call_sign: str = "頻道" if chat.type is ChatType.CHANNEL else "群組"
+    return f"{call_sign}：{get_chat_link(chat)}\n{call_sign} ID：<code>{chat.id}</code>\n"
+
+
+def get_message_link(chat: types.Chat, message_id: int) -> Link:
+    return Link(
+        f"https://t.me/{chat.username}/{message_id}"
+        if chat.username
+        else f"https://t.me/c/{get_channel_id(chat.id)}/{message_id}",
+        chat.title,
+        chat._client.parse_mode,
+    )
+
+
+def get_message_info(chat: types.Chat, message_id: int) -> str:
+    return (
+        f"原始訊息 ID：<code>{message_id}</code>\n"
+        f"原始訊息連結：{get_message_link(chat, message_id)}\n"
+    )
+
+
+async def get_common_chats(cli: Client, uid: int) -> list[types.Chat]:
+    warnings.warn("This function is deprecated.", DeprecationWarning)
+
+    inviter_commons: Optional[list[types.Chat]] = None
+    times = 1
+    while not inviter_commons:
+        try:
+            inviter_commons = await cli.get_common_chats(uid)
+        except PeerIdInvalid:
+            times += 1
+            if times >= 5:
+                raise ValueError("Max retries exceeded!")
+            log.debug(
+                f"Can't get common chats with {uid}, this is {times} times try..."
+            )
+            await asyncio.sleep(5)
+        return inviter_commons
