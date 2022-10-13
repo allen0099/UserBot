@@ -63,7 +63,7 @@ async def parse_permission(rights: raw.types.ChatBannedRights) -> str:
         and _[0] not in ["ID", "QUALNAME"] + ["until_date"]
     ]
 
-    message: str = f"\n<u><b>Chat Permission</b></u>:\n"
+    message: str = f"<u><b>Chat Permission</b></u>:\n"
 
     for test in tests:
         message += f"{EmojiList.FALSE if test[1] else EmojiList.TRUE} <b>{capitalize(test[0])}</b>\n"
@@ -256,7 +256,7 @@ async def parse_channel(
 
     if channel.type != enums.ChatType.CHANNEL:
         message += (
-            "<b><u>Admins</u></b>\n"
+            "\n<b><u>Admins</u></b>\n"
             f"{await parse_channel_admins(cli, api_channel)}\n"
             f"{await parse_permission(api_channel.default_banned_rights)}\n"
         )
