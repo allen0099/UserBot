@@ -7,9 +7,8 @@ from pyrogram import Client
 from pyrogram import types
 from pyrogram.enums import ChatType
 from pyrogram.errors import PeerIdInvalid
-from pyrogram.types.user_and_chats.user import Link
-from pyrogram.utils import get_channel_id
 
+from bot.functions.link import get_chat_link, get_message_link
 from core import main_logger
 
 log: logging.Logger = main_logger(__name__)
@@ -20,29 +19,9 @@ def get_user_info(user: types.User) -> str:
     return f"{call_sign}：{user.mention}\n{call_sign} ID：<code>{user.id}</code>\n"
 
 
-def get_chat_link(chat: types.Chat) -> Link:
-    return Link(
-        f"https://t.me/{chat.username}"
-        if chat.username
-        else f"https://t.me/c/{get_channel_id(chat.id)}/1",
-        chat.title,
-        chat._client.parse_mode,
-    )
-
-
 def get_chat_info(chat: types.Chat) -> str:
     call_sign: str = "頻道" if chat.type is ChatType.CHANNEL else "群組"
     return f"{call_sign}：{get_chat_link(chat)}\n{call_sign} ID：<code>{chat.id}</code>\n"
-
-
-def get_message_link(chat: types.Chat, message_id: int) -> Link:
-    return Link(
-        f"https://t.me/{chat.username}/{message_id}"
-        if chat.username
-        else f"https://t.me/c/{get_channel_id(chat.id)}/{message_id}",
-        chat.title,
-        chat._client.parse_mode,
-    )
 
 
 def get_message_info(chat: types.Chat, message_id: int) -> str:
@@ -69,3 +48,14 @@ async def get_common_chats(cli: Client, uid: int) -> list[types.Chat]:
             )
             await asyncio.sleep(5)
         return inviter_commons
+
+
+def capitalize(s: str, _all: bool = False) -> str:
+    if not _all:
+        new_append: list[str] = s.capitalize().split("_")
+
+    else:
+        appended: list[str] = s.split("_")
+        new_append: list[str] = [_.capitalize() for _ in appended]
+
+    return " ".join(new_append)

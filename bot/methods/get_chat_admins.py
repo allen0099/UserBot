@@ -16,11 +16,11 @@ class GetChatAdmins:
         query: str = "",
         limit: int = 0,
     ) -> list[types.ChatMember]:
-        admins: list[types.ChatMember] = []
-
-        async for user in self.get_chat_members(
-            chat_id, query, limit, filter=ChatMembersFilter.ADMINISTRATORS
-        ):
-            admins.append(user)
+        admins: list[types.ChatMember] = [
+            user
+            async for user in self.get_chat_members(
+                chat_id, query, limit, filter=ChatMembersFilter.ADMINISTRATORS
+            )
+        ]
 
         return admins
