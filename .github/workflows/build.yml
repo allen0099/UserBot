@@ -37,8 +37,7 @@ jobs:
       - name: Restart service
         run: |
           cd /opt/UserBot/script
-          whoami
-          pwd
+          XDG_RUNTIME_DIR=/run/user/`id -u`
           ./svc.sh stop || echo "Stopped failed"
           ./svc.sh start || echo "Start failed"
           echo "Done!"
