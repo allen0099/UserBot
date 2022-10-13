@@ -131,9 +131,10 @@ async def parse_channel_admins(cli: Bot, channel: raw.types.Channel) -> str:
     message: str = (
         f"Creator: <code>[{html.escape(creator.rank or '')}]</code> "
         f"{get_uid_mention_link(user_creator)}\n"
-        f"{await parse_admin(admins, users)}\n"
-        f"{await parse_admin(bots, users)}\n"
     )
+    message += (
+        f"{await parse_admin(admins, users)}\n{await parse_admin(bots, users)}\n"
+    ).strip()
 
     return message
 
