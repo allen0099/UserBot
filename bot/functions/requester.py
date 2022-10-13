@@ -256,7 +256,7 @@ async def parse_channel(
 
     if channel.type != enums.ChatType.CHANNEL:
         message += (
-            "\n<b><u>Admins</u></b>\n"
+            "<b><u>Admins</u></b>\n"
             f"{await parse_channel_admins(cli, api_channel)}\n"
             f"{await parse_permission(api_channel.default_banned_rights)}\n"
         )

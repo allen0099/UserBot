@@ -36,5 +36,7 @@ jobs:
 
       - name: Restart service
         run: |
-          systemctl restart --user userbot.service || echo "Service not installed!"
+          cd /opt/UserBot/script
+          ./svc.sh stop || echo "Stopped failed"
+          ./svc.sh start || echo "Start failed"
           echo "Done!"
