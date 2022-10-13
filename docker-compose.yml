@@ -1,0 +1,27 @@
+services:
+  database:
+    image: postgres:14.5-alpine
+    restart: always
+    ports:
+      - ${POSTGRES_HOST}:5432
+    volumes:
+      - database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+#  redis:
+#    image: redis:7.0.5-alpine
+#    restart: always
+#    ports:
+#      - ${REDIS_HOST:-6379}:6379
+#    command: redis-server --save 60 1 --loglevel warning
+#    volumes:
+#      - redis:/data
+
+volumes:
+  database:
+    driver: local
+  redis:
+    driver: local

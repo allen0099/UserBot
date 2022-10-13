@@ -1,21 +1,35 @@
 import logging
-import os
-import sys
-from pathlib import Path
-
-from dotenv import load_dotenv
 
 from bot import Bot
+from core.log import (
+    PyrogramLogger,
+    SQLAlchemyDialectsLogger,
+    SQLAlchemyEngineLogger,
+    SQLAlchemyORMLogger,
+    SQLAlchemyPoolLogger,
+    main_logger,
+)
+from database import alembic_upgrade, get_current, get_head, need_upgrade
 
-load_dotenv(dotenv_path=str(Path(sys.argv[0]).parent / ".env"), verbose=True)
+log: logging.Logger = main_logger(__name__)
 
-log: logging.Logger = logging.getLogger(__name__)
-logging.basicConfig(level=eval(f"logging.{os.getenv('LOG_LEVEL')}"),
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+pyrogram_log: logging.Logger = PyrogramLogger().logger
+sa_engine_log: logging.Logger = SQLAlchemyEngineLogger().logger
+sa_dialects_log: logging.Logger = SQLAlchemyDialectsLogger().logger
+sa_orm_log: logging.Logger = SQLAlchemyORMLogger().logger
+sa_pool_log: logging.Logger = SQLAlchemyPoolLogger().logger
 
-logging.getLogger("pyrogram").setLevel(logging.INFO)
+if __name__ == "__main__":
+    log.info("Checking database status!")
+    if need_upgrade():
+        log.info(f"Current version: {get_current()}")
+        log.info(f"Heads: {get_head()}")
+        log.info("Upgrading database!")
+        if not alembic_upgrade():
+            raise RuntimeError("Failed to upgrade database!")
 
-user_bot: Bot = Bot()
+    bot: Bot = Bot()
+    bot.run()
 
-if __name__ == '__main__':
-    user_bot.run()
+    log.info("Bye!")
+    logging.shutdown()
