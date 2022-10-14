@@ -47,6 +47,7 @@ async def help_commands(_: Bot, msg: Message):
         "<b><u>AllenUserBot Help Table</u></b>\n"
         "\n"
         f"可用指令前綴 <code>{COMMAND_PREFIXES}</code>\n"
+        f"\n"
     )
 
     text += f"<b>Me only commands</b>\n"
