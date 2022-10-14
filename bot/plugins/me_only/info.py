@@ -35,7 +35,7 @@ async def info(cli: Bot, msg: Message) -> None:
         f"<b>套件庫版本：</b><code>Pyrogram/{pyrogram.__version__}</code>\n"
         f"<b>運行總時間：</b><code>{await _parse_time(cli)}</code>\n"
         f"<b>記憶體用量 (VMS)：</b><code>"
-        f"{pretty_memory_size(cli.process.memory_info().vms)}</code>\n"
+        f"{pretty_memory_size(cli.process.memory_info().rss)}</code>\n"
         f"<b>Git 版本：</b><code>{current_revision}</code>"
     )
 
