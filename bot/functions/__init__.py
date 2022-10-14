@@ -2,10 +2,9 @@ import asyncio
 import warnings
 from typing import Optional
 
-from pyrogram import Client
+from pyrogram import Client, errors
 from pyrogram import types
 from pyrogram.enums import ChatType
-from pyrogram.errors import PeerIdInvalid
 
 from bot.functions.links import get_chat_link, get_message_link
 
@@ -35,7 +34,7 @@ async def get_common_chats(cli: Client, uid: int) -> list[types.Chat]:
     while not inviter_commons:
         try:
             inviter_commons = await cli.get_common_chats(uid)
-        except PeerIdInvalid:
+        except errors.PeerIdInvalid:
             times += 1
             if times >= 5:
                 raise ValueError("Max retries exceeded!")

@@ -2,8 +2,7 @@ import html
 import inspect
 from typing import Any
 
-from pyrogram import enums, raw, types
-from pyrogram.errors import ChatAdminRequired
+from pyrogram import enums, errors, raw, types
 from pyrogram.utils import get_channel_id
 
 from bot import Bot
@@ -210,7 +209,7 @@ async def parse_channel(
     try:
         admins = await cli.get_chat_admins(channel.id)
 
-    except ChatAdminRequired:
+    except errors.ChatAdminRequired:
         admins: list = []
 
     holder: str = "頻道" if api_channel.broadcast else "群組"

@@ -5,8 +5,7 @@ from typing import Union
 
 import psutil
 import pyrogram
-from pyrogram import Client, types
-from pyrogram.errors import ApiIdInvalid
+from pyrogram import Client, errors, types
 from pyrogram.session import Session
 
 from bot.methods import CustomMethods
@@ -76,7 +75,7 @@ class Bot(Client, CustomMethods):
         try:
             await self.start()
 
-        except (ApiIdInvalid, AttributeError):
+        except (errors.ApiIdInvalid, AttributeError):
             log.critical("[Bot] Api ID is invalid")
             sys.exit(1)
 

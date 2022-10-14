@@ -1,8 +1,7 @@
 import asyncio
 import logging
 
-from pyrogram import Client, filters, raw, types
-from pyrogram.errors import PeerIdInvalid
+from pyrogram import Client, errors, filters, raw, types
 
 from bot import Bot
 from bot.functions.links import get_invisible_mention_link
@@ -34,7 +33,7 @@ async def mention_admin(cli: Bot, msg: types.Message) -> None:
             raw.types.InputChannel,
         ),
     ):
-        raise PeerIdInvalid
+        raise errors.PeerIdInvalid
 
     r: raw.types.messages.ChatFull = await cli.invoke(
         raw.functions.channels.GetFullChannel(channel=peer)

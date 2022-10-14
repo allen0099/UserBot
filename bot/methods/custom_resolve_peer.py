@@ -1,8 +1,7 @@
 import re
 import warnings
 
-from pyrogram import raw, utils
-from pyrogram.errors import PeerIdInvalid
+from pyrogram import errors, raw, utils
 
 import bot
 
@@ -55,7 +54,7 @@ async def _check(
 
                 return await cli.storage.get_peer_by_username(peer_id)
         else:
-            raise PeerIdInvalid
+            raise errors.PeerIdInvalid
 
     peer_type = utils.get_peer_type(peer_id)
 
@@ -83,4 +82,4 @@ async def _check(
     try:
         return await cli.storage.get_peer_by_id(peer_id)
     except KeyError:
-        raise PeerIdInvalid
+        raise errors.PeerIdInvalid

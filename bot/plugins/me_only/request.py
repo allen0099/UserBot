@@ -2,8 +2,7 @@ import logging
 import re
 from typing import BinaryIO
 
-from pyrogram import Client, filters, raw, types
-from pyrogram.errors import PeerIdInvalid, UsernameNotOccupied
+from pyrogram import Client, errors, filters, raw, types
 
 from bot import Bot
 from bot.functions.requester import parse_bot, parse_channel, parse_user
@@ -48,11 +47,11 @@ async def request(cli: Bot, msg: types.Message) -> None:
             peer: raw.base.InputPeer = await cli.custom_resolve_peer(peer_id)
             logger.debug(f"Peer instance: {type(peer)}")
 
-        except PeerIdInvalid:
+        except errors.PeerIdInvalid:
             await msg.reply_text(PEER_NOT_FOUND)
             return
 
-        except UsernameNotOccupied:
+        except errors.UsernameNotOccupied:
             await msg.reply_text(USERNAME_NOT_FOUND)
             return
 
