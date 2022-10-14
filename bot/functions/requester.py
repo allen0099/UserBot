@@ -25,7 +25,7 @@ async def parse_res_reason(reasons: list[raw.types.RestrictionReason]) -> str:
     message: str = ""
 
     if reasons:
-        message = f"\n<b><u>Restriction reason(s)</u></b>:\n"
+        message = f"\n<b><u>Restriction reason(s)</u></b>\n"
 
         for reason in reasons:
             message += (
@@ -63,7 +63,7 @@ async def parse_permission(rights: raw.types.ChatBannedRights) -> str:
         and _[0] not in ["ID", "QUALNAME"] + ["until_date"]
     ]
 
-    message: str = f"<u><b>Chat Permission</b></u>:\n"
+    message: str = f"\n<u><b>Chat Permission</b></u>\n"
 
     for test in tests:
         message += f"{EmojiList.FALSE if test[1] else EmojiList.TRUE} <b>{capitalize(test[0])}</b>\n"
@@ -129,7 +129,7 @@ async def parse_channel_admins(cli: Bot, channel: raw.types.Channel) -> str:
     user_creator: raw.types.User = users[creator.user_id]
 
     message: str = (
-        f"Creator: <code>[{html.escape(creator.rank or '')}]</code> "
+        f"群主：<code>[{html.escape(creator.rank or '')}]</code> "
         f"{get_uid_mention_link(user_creator)}\n"
     )
     message += (
@@ -144,17 +144,15 @@ async def parse_user(
 ) -> str:
     message: str = (
         f"<b><u>User info</u></b>\n"
-        f"<b>ID</b>: <code>{user.id}</code>\n"
-        f"<b>First Name</b>: {user.mention}\n"
-        f"<b>Last Name</b>: {html.escape(user.last_name or '')}\n"
-        f"<b>Username</b>: @{user.username or ''}\n"
-        f"<b>Groups in common</b>: {full_user.common_chats_count}\n"
+        f"<b>使用者 ID：</b><code>{user.id}</code>\n"
+        f"<b>名字：</b>{user.mention}\n"
+        f"<b>姓氏：</b>{html.escape(user.last_name or '')}\n"
+        f"<b>使用者名稱：</b>@{user.username or ''}\n"
+        f"<b>共同群組：</b>{full_user.common_chats_count}\n"
     )
 
     if full_user.about:
-        message += (
-            f"<b>About</b>: \n<code>{html.escape(full_user.about or '')}</code>\n"
-        )
+        message += f"<b>個人簡介：</b>\n<code>{html.escape(full_user.about or '')}</code>\n"
 
     message += "\n<b><u>Properties</u></b>\n"
 
@@ -189,17 +187,20 @@ async def parse_user(
 async def parse_bot(api_user: raw.types.User, full_user: raw.types.UserFull) -> str:
     if api_user.bot:
         return (
-            f"\n<b><u>Bot info</u></b>:\n"
-            f"{EmojiList.TRUE if api_user.bot_chat_history else EmojiList.FALSE} read message\n"
-            f"{EmojiList.FALSE if api_user.bot_nochats else EmojiList.TRUE} add to group\n"
-            f"{EmojiList.TRUE if api_user.bot_inline_geo else EmojiList.FALSE} request geo in inline mode\n"
-            f"{EmojiList.TRUE if api_user.bot_attach_menu else EmojiList.FALSE} have attach menu\n"
-            f"<b>Bot info version</b>: <code>{api_user.bot_info_version}</code>\n"
-            f"<b>Bot inline placeholder</b>: "
+            f"\n<b><u>Bot info</u></b>\n"
+            f"{EmojiList.TRUE if api_user.bot_chat_history else EmojiList.FALSE} 允許閱讀訊息\n"
+            f"{EmojiList.FALSE if api_user.bot_nochats else EmojiList.TRUE} 允許加入群組\n"
+            f"{EmojiList.TRUE if api_user.bot_inline_geo else EmojiList.FALSE} 允許內聯模式要求位置權限\n"
+            f"{EmojiList.TRUE if api_user.bot_attach_menu else EmojiList.FALSE} 允許加入選項 (Attach Menu)\n"
+            f"<b>機器人內聯提示：</b>"
             f"<code>{api_user.bot_inline_placeholder or ''}</code>\n"
-            f"<b>Bot group suggested right</b>: \n<code>{await parse_rights(full_user.bot_group_admin_rights)}</code>\n"
-            f"<b>Bot channel suggested right</b>: \n<code>{await parse_rights(full_user.bot_broadcast_admin_rights)}</code>\n"
-            f"<b>Bot description</b>: \n<code>{full_user.bot_info.description if full_user.bot_info else None}</code>\n"
+            f"<b>群組建議權限：</b>\n"
+            f"<code>{await parse_rights(full_user.bot_group_admin_rights)}</code>\n"
+            f"<b>頻道建議權限：</b>\n"
+            f"<code>{await parse_rights(full_user.bot_broadcast_admin_rights)}</code>\n"
+            f"<b>機器人簡介版本：</b><code>{api_user.bot_info_version}</code>\n"
+            f"<b>機器人簡介：</b>\n"
+            f"<code>{full_user.bot_info.description if full_user.bot_info else None}</code>\n"
         )
     return ""
 
@@ -216,18 +217,21 @@ async def parse_channel(
     except ChatAdminRequired:
         admins: list = []
 
+    holder: str = "頻道" if api_channel.broadcast else "群組"
     message: str = (
         f"<b><u>Channel info</u></b>\n"
-        f"<b>ID</b>: <code>{get_channel_id(api_channel.id)}</code>\n"
-        f"<b>Type</b>: <code>{channel.type.name.capitalize()}</code>\n"
-        f"<b>Title</b>: <code>{html.escape(channel.title)}</code>\n"
-        f"<b>Username</b>: @{channel.username}\n"
-        f"<b>Administrator counts</b>: <code>{len(admins)}</code>\n"
-        f"<b>Member counts</b>: <code>{full_channel.participants_count}</code>\n"
+        f"<b>{holder} ID：</b><code>{get_channel_id(api_channel.id)}</code>\n"
+        f"<b>類型：</b><code>{channel.type.name.capitalize()}</code>\n"
+        f"<b>{holder}標題：</b><code>{html.escape(channel.title)}</code>\n"
+        f"<b>{holder}名稱：</b>@{channel.username}\n"
+        f"<b>管理員數量：</b><code>{len(admins)}</code>\n"
+        f"<b>成員數量：</b><code>{full_channel.participants_count}</code>\n"
     )
 
     if full_channel.about:
-        message += f"<b>Description</b>:\n<code>{html.escape(full_channel.about or '')}</code>\n"
+        message += (
+            f"<b>{holder}描述</b>\n<code>{html.escape(full_channel.about or '')}</code>\n"
+        )
 
     message += "\n<b><u>Properties</u></b>\n"
 
@@ -252,7 +256,7 @@ async def parse_channel(
 
     sticker: raw.types.StickerSet = full_channel.stickerset
     if sticker:
-        message += f"<b>Group Stickers</b>: {get_sticker_pack_link(sticker)}\n"
+        message += f"<b>群組貼圖：</b>{get_sticker_pack_link(sticker)}\n"
 
     if channel.type != enums.ChatType.CHANNEL:
         message += (
