@@ -5,10 +5,11 @@ from pyrogram import Client, filters, types
 
 from bot.functions import get_chat_info, get_message_info, get_user_info
 from bot.plugins import COMMAND_PREFIXES
-from core import main_logger
 from core.decorator import event_log
+from core.log import event_logger, main_logger
 
 log: logging.Logger = main_logger(__name__)
+logger: logging.Logger = event_logger(__name__)
 
 
 @Client.on_message(

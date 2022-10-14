@@ -8,9 +8,10 @@ from bot import Bot
 from bot.functions.links import get_invisible_mention_link
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
-from core.log import main_logger
+from core.log import event_logger, main_logger
 
 log: logging.Logger = main_logger(__name__)
+logger: logging.Logger = event_logger(__name__)
 
 
 @Client.on_message(

@@ -1,15 +1,11 @@
-import logging
-
 import bot
-from core.log import main_logger
-
-log: logging.Logger = main_logger(__name__)
 
 
 class DeleteRangeMessages:
     async def delete_range_messages(
         self: "bot.Bot", chat_id: int, start: int, stop: int
     ) -> None:
+        # TODO: Add delete by message links or reply
         if start > stop:
             await self.send_message(chat_id, "<b><i>Start should before stop</b></i>")
             return

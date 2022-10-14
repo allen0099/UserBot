@@ -9,9 +9,11 @@ from bot import Bot
 from bot.functions.requester import parse_bot, parse_channel, parse_user
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
-from core.log import main_logger
+from core.log import event_logger, main_logger
 
 log: logging.Logger = main_logger(__name__)
+logger: logging.Logger = event_logger(__name__)
+
 PEER_NOT_FOUND: str = f"<b><u>ERROR!</u></b>\nPeer Not Found"
 USERNAME_NOT_FOUND: str = f"<b><u>ERROR!</u></b>\nUsername Not Found"
 
@@ -23,8 +25,8 @@ USERNAME_NOT_FOUND: str = f"<b><u>ERROR!</u></b>\nUsername Not Found"
 async def request(cli: Bot, msg: types.Message) -> None:
     self: types.User = cli.me
 
-    log.debug(f"{msg.from_user.id} issued command request")
-    log.debug(f" -> text: {msg.text}")
+    logger.debug(f"{msg.from_user.id} issued command request")
+    logger.debug(f" -> text: {msg.text}")
 
     # TODO: fix not @ started string cannot load
     regex_rule: list[str] = [r"(?<=@)\w{5,}$", r"^[+-]?\d+$", r"^(?:me|self)$"]
@@ -32,7 +34,7 @@ async def request(cli: Bot, msg: types.Message) -> None:
 
     try:
         peer_id: str = re.search(compiled_regex, msg.command[1])[0]
-        log.debug(f"Peer id: {peer_id}")
+        logger.debug(f"Peer id: {peer_id}")
 
         if peer_id in ("self", "me"):
             peer_id: str = str(self.id)
@@ -44,7 +46,7 @@ async def request(cli: Bot, msg: types.Message) -> None:
     else:
         try:
             peer: raw.base.InputPeer = await cli.custom_resolve_peer(peer_id)
-            log.debug(f"Peer instance: {type(peer)}")
+            logger.debug(f"Peer instance: {type(peer)}")
 
         except PeerIdInvalid:
             await msg.reply_text(PEER_NOT_FOUND)

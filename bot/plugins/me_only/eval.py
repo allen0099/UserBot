@@ -11,10 +11,11 @@ from pyrogram import Client, filters, types
 from pyrogram.enums import ParseMode
 
 from bot import Bot
-from core import main_logger
 from core.decorator import event_log
+from core.log import event_logger, main_logger
 
 log: logging.Logger = main_logger(__name__)
+logger: logging.Logger = event_logger(__name__)
 
 
 # https://stackoverflow.com/a/60934327

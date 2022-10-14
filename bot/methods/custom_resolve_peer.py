@@ -1,4 +1,3 @@
-import logging
 import re
 import warnings
 
@@ -6,9 +5,6 @@ from pyrogram import raw, utils
 from pyrogram.errors import PeerIdInvalid
 
 import bot
-from core.log import main_logger
-
-log: logging.Logger = main_logger(__name__)
 
 
 class CustomResolvePeer:

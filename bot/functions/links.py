@@ -1,14 +1,9 @@
-import logging
 from html import escape
 
 from pyrogram import raw, types
 from pyrogram.enums import ParseMode
 from pyrogram.types.user_and_chats.user import Link
 from pyrogram.utils import get_channel_id
-
-from core import main_logger
-
-log: logging.Logger = main_logger(__name__)
 
 
 def get_chat_link(chat: types.Chat) -> Link:

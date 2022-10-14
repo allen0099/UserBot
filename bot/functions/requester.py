@@ -1,6 +1,5 @@
 import html
 import inspect
-import logging
 from typing import Any
 
 from pyrogram import enums, raw, types
@@ -16,9 +15,6 @@ from bot.functions.links import (
     get_sticker_pack_link,
     get_uid_mention_link,
 )
-from core.log import main_logger
-
-log: logging.Logger = main_logger(__name__)
 
 
 async def parse_res_reason(reasons: list[raw.types.RestrictionReason]) -> str:

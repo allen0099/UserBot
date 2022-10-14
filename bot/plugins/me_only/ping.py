@@ -6,9 +6,10 @@ from pyrogram.types import Message
 from bot import Bot
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
-from core.log import main_logger
+from core.log import event_logger, main_logger
 
 log: logging.Logger = main_logger(__name__)
+logger: logging.Logger = event_logger(__name__)
 
 
 # 先合併裡面的，回傳 func 往上丟，每一次合併記憶體位置都會不一樣

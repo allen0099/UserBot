@@ -1,12 +1,7 @@
-import logging
-
 from pyrogram import types
 from pyrogram.enums import ChatMembersFilter
 
 import bot
-from core.log import main_logger
-
-log: logging.Logger = main_logger(__name__)
 
 
 class GetChatAdmins:

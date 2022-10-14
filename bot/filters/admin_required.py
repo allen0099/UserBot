@@ -1,4 +1,3 @@
-import logging
 import warnings
 
 from pyrogram import types
@@ -6,9 +5,6 @@ from pyrogram.filters import Filter, create
 from pyrogram.types import Message
 
 from bot import Bot
-from core.log import main_logger
-
-log: logging.Logger = main_logger(__name__)
 
 
 async def __filter_function(flt: Filter, cli: Bot, msg: Message) -> bool:
