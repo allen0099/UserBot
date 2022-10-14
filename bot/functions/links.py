@@ -63,3 +63,11 @@ def get_linked_chat_link(chat: types.Chat) -> Link:
         "🔗 Linked Chat",
         chat._client.parse_mode,
     )
+
+
+def get_invisible_mention_link(user: types.ChatMember) -> Link:
+    return Link(
+        f"tg://user?id={user.user.id}",
+        "\u2060",
+        ParseMode.DEFAULT,
+    )

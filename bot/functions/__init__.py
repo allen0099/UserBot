@@ -8,7 +8,7 @@ from pyrogram import types
 from pyrogram.enums import ChatType
 from pyrogram.errors import PeerIdInvalid
 
-from bot.functions.link import get_chat_link, get_message_link
+from bot.functions.links import get_chat_link, get_message_link
 from core import main_logger
 
 log: logging.Logger = main_logger(__name__)

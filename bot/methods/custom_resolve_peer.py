@@ -6,8 +6,9 @@ from pyrogram import raw, utils
 from pyrogram.errors import PeerIdInvalid
 
 import bot
+from core.log import main_logger
 
-log: logging = logging.getLogger(__name__)
+log: logging.Logger = main_logger(__name__)
 
 
 class CustomResolvePeer:

@@ -10,7 +10,7 @@ from pyrogram.utils import get_channel_id
 from bot import Bot
 from bot.enums import EmojiList
 from bot.functions import capitalize
-from bot.functions.link import (
+from bot.functions.links import (
     get_linked_chat_link,
     get_pinned_message_link,
     get_sticker_pack_link,
