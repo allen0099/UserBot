@@ -98,8 +98,18 @@ async def _user(
     full_user: raw.types.UserFull = r.full_user
     user: types.User = types.User._parse(cli, api_user)  # pyrogram type
 
-    if user.photo:
-        # TODO: add video profile support
+    get_photo: bool = (
+        msg.command[2].lower() == "photo" if len(msg.command) > 2 else False
+    )
+
+    if user.photo and get_photo:
+        if api_user.photo.has_video:
+            file_id: str = await cli.get_animated_profile_photo_file_id(full_user)
+            vid: BinaryIO = await cli.download_media(file_id, in_memory=True)
+            await msg.reply_document(
+                vid, file_name=f"{user.id}.mp4", force_document=True
+            )
+
         pic: BinaryIO = await cli.download_media(user.photo.big_file_id, in_memory=True)
         await msg.reply_document(pic, file_name=f"{user.id}.jpg")
 
