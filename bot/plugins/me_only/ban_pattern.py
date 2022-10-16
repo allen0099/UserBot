@@ -65,7 +65,7 @@ async def pattern(cli: Bot, msg: Message) -> None:
         full_name: str = f"{member.user.first_name} {member.user.last_name}"
         logger.debug(f"Checking {member.user.id}")
 
-        if compiled.match(member.user.first_name):
+        if compiled.match(full_name):
             count += 1
             logger.debug(f"{full_name} match pattern, remove from group!")
             await cli.ban_chat_member(group_id, member.user.id)
