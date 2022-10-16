@@ -41,5 +41,5 @@ async def kill_da(cli: Bot, msg: types.Message):
 
     log.debug("Remove deleted accounts finished!")
     await msg_auto_clean(
-        await message.edit(f"在這個群組內踢了 <b>{count}</b> <b><u>已刪除的帳號</u></b>！")
+        await message.edit(f"在這個群組內踢了 <b>{count}</b> 個 <b><u>已刪除的帳號</u></b>！")
     )
