@@ -21,6 +21,7 @@ class MeOnlyCommandList(Enum):
     GET = ("get", "取得訊息簡短內容")
     HELP = ("help", "取得指令列表")
     INFO = ("info", "取得機器人運行狀態")
+    BAN_PATTERN = ("pattern", "封鎖符合指定正規表達式的使用者")
     PING = ("ping", "PONG")
     REQUEST = ("req", "取得使用者 / 群組 / 頻道的詳細資訊")
     ROLL = ("roll", "隨機骰或隨機選擇")
