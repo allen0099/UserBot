@@ -46,7 +46,11 @@ async def ban(cli: Bot, msg: types.Message) -> None:
         elif isinstance(target, types.Chat):
             channel = await cli.get_chat(target.id)
 
-            if channel.linked_chat and channel.linked_chat.id == msg.chat.id:
+            if (
+                channel.linked_chat
+                and channel.linked_chat.id == msg.chat.id
+                or channel.id == msg.chat.id
+            ):
                 await msg_auto_clean(await msg.reply_text(f"<b>錯誤：這是本群的連結頻道！</b>"))
                 return
 
