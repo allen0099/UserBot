@@ -2,11 +2,13 @@ import os
 from pathlib import Path
 
 from .env import Env
+from datetime import datetime, timezone, timedelta
 
 # Read environment file from .env file
 env: Env = Env()
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 Env.read_env(os.path.join(BASE_DIR, ".env"))
+TIMEZONE = timezone(timedelta(hours=+8))  # asia/taipei
 
 # SECURITY WARNING: keep the secret key used in production secret!
 TELEGRAM_API_ID: str = env.str("TELEGRAM_API_ID")

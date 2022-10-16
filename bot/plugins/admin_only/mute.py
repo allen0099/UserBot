@@ -10,6 +10,7 @@ from bot.functions import get_mute_permission, msg_auto_clean
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
 from core.log import event_logger
+from core.settings import TIMEZONE
 
 log: logging.Logger = event_logger(__name__)
 
@@ -43,14 +44,16 @@ async def mute(cli: Bot, msg: types.Message):
                 try:
                     until_time: datetime = get_until(msg.command[1].lower())
                 except (ValueError, IndexError):
-                    await msg.reply_text("你的時間錯誤！")
+                    await msg_auto_clean(await msg.reply_text("你的時間錯誤！"))
                     return
 
                 await cli.restrict_chat_member(
                     msg.chat.id, target.id, permission, until_time
                 )
                 await msg_auto_clean(
-                    await msg.reply_text(f"已給 {target.mention} 上了口球，直到 {until_time}")
+                    await msg.reply_text(
+                        f"已給 {target.mention} 上了口球，直到 {until_time.strftime('%Y-%m-%d %H:%M:%S')}"
+                    )
                 )
                 return
 
@@ -66,7 +69,8 @@ async def mute(cli: Bot, msg: types.Message):
 
 
 def get_until(until: str) -> datetime:
-    _: datetime = datetime.now()
+    _: datetime = datetime.now(TIMEZONE)
+
     if until.endswith("d"):
         days: int = int(until.split("d")[0])
         if days < 365:
