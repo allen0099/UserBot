@@ -81,6 +81,6 @@ def get_until(until: str) -> datetime:
         if minutes < 60 * 24 * 365:
             _ += timedelta(minutes=minutes)
 
-    if _ - datetime.now() <= timedelta(seconds=58):
+    if _ - datetime.now(TIMEZONE) <= timedelta(seconds=58):
         raise ValueError("時間太短！")
     return _
