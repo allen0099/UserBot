@@ -55,7 +55,7 @@ async def ban(cli: Bot, msg: types.Message) -> None:
                 return
 
             await cli.ban_chat_member(msg.chat.id, target.id)
-            await msg_auto_clean(await msg.reply_text(f"已封鎖 <code>{target.id}</code>"))
+            await msg.reply_text(f"已封鎖 <code>{target.id}</code>")
         return
 
     await msg_auto_clean(await msg.reply_text("<b>錯誤：回覆群組中的訊息來封鎖使用者。</b>"))
