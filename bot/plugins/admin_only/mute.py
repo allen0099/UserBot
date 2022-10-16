@@ -44,7 +44,14 @@ async def mute(cli: Bot, msg: types.Message):
                 try:
                     until_time: datetime = get_until(msg.command[1].lower())
                 except (ValueError, IndexError):
-                    await msg_auto_clean(await msg.reply_text("你的時間錯誤！"))
+                    await msg_auto_clean(
+                        await msg.reply_text(
+                            "你的時間錯誤，時間格式為：\n"
+                            "<code>1d</code> - 1 天\n"
+                            "<code>1m</code> - 1 分鐘\n"
+                            "一次只能選擇一種！"
+                        )
+                    )
                     return
 
                 await cli.restrict_chat_member(
