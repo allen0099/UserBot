@@ -29,7 +29,7 @@ class MeOnlyCommandList(Enum):
 
 
 class AdminOnlyCommandList(Enum):
-    # Admin only commands (Not implemented yet)
+    # Admin only commands
     BAIL = ("bail", "清除本群所有封鎖或受限制成員的限制")
     BAN = ("ban", "封鎖使用者")
     DELETE_MESSAGE = ("del", "從回覆的訊息刪除到最後一條，或刪除指定連結之間的訊息")
@@ -42,7 +42,7 @@ class AdminOnlyCommandList(Enum):
     filters.command("help", prefixes=COMMAND_PREFIXES) & filters.me & ~filters.forwarded
 )
 @event_log()
-async def help_commands(_: Bot, msg: Message):
+async def help_commands(_: Bot, msg: Message) -> None:
     text: str = (
         "<b><u>AllenUserBot Help Table</u></b>\n"
         "\n"

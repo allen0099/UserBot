@@ -1,6 +1,7 @@
 import asyncio
+import inspect
 import warnings
-from typing import Optional
+from typing import Any, Optional
 
 from pyrogram import Client, errors
 from pyrogram import types
@@ -54,3 +55,25 @@ def capitalize(s: str, _all: bool = False) -> str:
         new_append: list[str] = [_.capitalize() for _ in appended]
 
     return " ".join(new_append)
+
+
+def get_mute_permission() -> types.ChatPermissions:
+    permission: types.ChatPermissions = types.ChatPermissions()
+
+    permissions: list[tuple[str, Any]] = [
+        member
+        for member in inspect.getmembers(permission)
+        if not member[0].startswith("_")
+        and not inspect.isfunction(member[1])
+        and not inspect.ismethod(member[1])
+    ]
+
+    for p in permissions:
+        setattr(permission, p[0], False)
+
+    return permission
+
+
+async def msg_auto_clean(msg: types.Message, time: int = 10):
+    await asyncio.sleep(time)
+    await msg.delete()

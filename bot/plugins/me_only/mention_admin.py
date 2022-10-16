@@ -4,6 +4,7 @@ import logging
 from pyrogram import Client, errors, filters, raw, types
 
 from bot import Bot
+from bot.functions import msg_auto_clean
 from bot.functions.links import get_invisible_mention_link
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
@@ -47,7 +48,4 @@ async def mention_admin(cli: Bot, msg: types.Message) -> None:
     for admin in admins:
         string += get_invisible_mention_link(admin)
 
-    new_message: types.Message = await cli.send_message(msg.chat.id, string)
-
-    await asyncio.sleep(30)
-    await new_message.delete()
+    await msg_auto_clean(await cli.send_message(msg.chat.id, string), 30)

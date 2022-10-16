@@ -1,19 +1,20 @@
-import warnings
-
 from pyrogram import types
 from pyrogram.filters import Filter, create
 from pyrogram.types import Message
 
 from bot import Bot
 
+PERMISSION_DENIED: str = "<b>Permission denied</b>"
+
 
 async def __filter_function(flt: Filter, cli: Bot, msg: Message) -> bool:
-    warnings.warn("This filter is not tested yet.")
-
     admins: list[types.ChatMember] = await cli.get_chat_admins(msg.chat.id)
 
+    if msg.sender_chat:
+        return False
+
     if msg.from_user.id not in [_.user.id for _ in admins]:
-        await msg.reply_text("<b>Permission denied</b>")
+        await msg.reply_text(PERMISSION_DENIED)
         return False
 
     me: types.ChatMember = await cli.get_chat_member(msg.chat.id, cli.me.id)
@@ -21,7 +22,7 @@ async def __filter_function(flt: Filter, cli: Bot, msg: Message) -> bool:
     privileges: types.ChatPrivileges = me.privileges
 
     if not privileges.can_restrict_members or not privileges.can_delete_messages:
-        await msg.reply_text("<b>Permission denied</b>")
+        await msg.reply_text(PERMISSION_DENIED)
         return False
 
     return True
