@@ -38,7 +38,6 @@ async def mute(cli: Bot, msg: types.Message):
                 ChatMemberStatus.OWNER,
                 ChatMemberStatus.ADMINISTRATOR,
             ]:
-                await cli.ban_chat_member(msg.chat.id, target.id)
                 permission: types.ChatPermissions = get_mute_permission()
 
                 try:
@@ -50,7 +49,6 @@ async def mute(cli: Bot, msg: types.Message):
                 await cli.restrict_chat_member(
                     msg.chat.id, target.id, permission, until_time
                 )
-
                 await msg_auto_clean(
                     await msg.reply_text(f"已給 {target.mention} 上了口球，直到 {until_time}")
                 )
