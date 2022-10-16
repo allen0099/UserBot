@@ -2,6 +2,7 @@ import logging
 import re
 
 from pyrogram import Client, filters, types
+from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import Message
 
 from bot import Bot
@@ -21,25 +22,43 @@ logger: logging.Logger = event_logger(__name__)
 )
 @event_log()
 async def pattern(cli: Bot, msg: Message) -> None:
-    if len(msg.command) != 2:
-        await msg.edit("請輸入一個正規表達式")
+    await msg.delete()
+
+    if len(msg.command) != 3:
+        await msg_auto_clean(
+            await msg.reply_text(
+                "請輸入正確的指令！\n格式為：<code>/pattern [group_id] [pattern]</code>"
+            )
+        )
         return
 
-    pattern: str = msg.command[1]
+    group_id: str = msg.command[1]
+    pattern: str = msg.command[2]
+
+    check_self: types.ChatMember = await cli.get_chat_member(group_id, cli.me.id)
+
+    if (
+        check_self.status
+        not in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]
+        or check_self.privileges.can_restrict_members is False
+    ):
+        await msg_auto_clean(await msg.reply_text("我不是管理員！"))
+        return
 
     try:
         compiled: re.Pattern = re.compile(pattern)
+
     except re.error as e:
         await msg.edit(f"正規表達式錯誤：{e}")
         return
 
     members: list[types.ChatMember] = [
-        user async for user in cli.get_chat_members(msg.chat.id)
+        user async for user in cli.get_chat_members(group_id)
     ]
 
     count: int = 0
     message: types.Message = await cli.send_message(
-        msg.chat.id, f"找到了 {len(members)} 個使用者，正在進行檢查..."
+        group_id, f"找到了 {len(members)} 個使用者，正在進行檢查..."
     )
 
     for member in members:
@@ -49,7 +68,7 @@ async def pattern(cli: Bot, msg: Message) -> None:
         if compiled.match(member.user.first_name):
             count += 1
             logger.debug(f"{full_name} match pattern, remove from group!")
-            await cli.ban_chat_member(msg.chat.id, member.user.id)
+            await cli.ban_chat_member(group_id, member.user.id)
 
     logger.debug("Remove matched accounts finished!")
     await msg_auto_clean(
