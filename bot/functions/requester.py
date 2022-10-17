@@ -144,12 +144,13 @@ async def parse_channel_admins(cli: Bot, channel: raw.types.Channel) -> str:
 async def parse_user(
     api_user: raw.types.User, full_user: raw.types.UserFull, user: types.User
 ) -> str:
+    username_holder: str = f"<b>使用者名稱：</b>@{user.username}\n" if user.username else ""
     message: str = (
         f"<b><u>User info</u></b>\n"
         f"<b>使用者 ID：</b><code>{user.id}</code>\n"
         f"<b>名字：</b>{user.mention}\n"
         f"<b>姓氏：</b>{html.escape(user.last_name or '')}\n"
-        f"<b>使用者名稱：</b>@{user.username or ''}\n"
+        f"{username_holder}"
         f"<b>共同群組：</b>{full_user.common_chats_count}\n"
     )
 
@@ -220,12 +221,16 @@ async def parse_channel(
         admins: list = []
 
     holder: str = "頻道" if api_channel.broadcast else "群組"
+
+    username_holder: str = (
+        f"<b>{holder}名稱：</b>@{channel.username}\n" if channel.username else ""
+    )
     message: str = (
         f"<b><u>Channel info</u></b>\n"
         f"<b>{holder} ID：</b><code>{get_channel_id(api_channel.id)}</code>\n"
         f"<b>類型：</b><code>{channel.type.name.capitalize()}</code>\n"
         f"<b>{holder}標題：</b><code>{html.escape(channel.title)}</code>\n"
-        f"<b>{holder}名稱：</b>@{channel.username}\n"
+        f"{username_holder}"
         f"<b>管理員數量：</b><code>{len(admins)}</code>\n"
         f"<b>成員數量：</b><code>{full_channel.participants_count}</code>\n"
     )
