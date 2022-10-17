@@ -105,9 +105,22 @@ async def parse_channel_admins(cli: Bot, channel: raw.types.Channel) -> str:
     participants: list[raw.base.ChannelParticipant] = channel_participants.participants
     users: dict[int, raw.types.User] = {i.id: i for i in channel_participants.users}
 
-    creator: raw.types.ChannelParticipantCreator = [
+    creator: list[raw.types.ChannelParticipantCreator] = [
         _ for _ in participants if isinstance(_, raw.types.ChannelParticipantCreator)
-    ][0]
+    ]
+
+    if creator:
+        creator: raw.types.ChannelParticipantCreator = creator[0]
+
+        user_creator: raw.types.User = users[creator.user_id]
+
+        message: str = (
+            f"群主：<code>[{html.escape(creator.rank or '')}]</code> "
+            f"{get_uid_mention_link(user_creator)}\n"
+        )
+
+    else:
+        message: str = f"群主：<code>匿名的群主</code>\n"
 
     admins: list[raw.types.ChannelParticipantAdmin] = [
         _
@@ -121,12 +134,6 @@ async def parse_channel_admins(cli: Bot, channel: raw.types.Channel) -> str:
     admins.sort(key=lambda x: x.user_id)
     bots.sort(key=lambda x: x.user_id)
 
-    user_creator: raw.types.User = users[creator.user_id]
-
-    message: str = (
-        f"群主：<code>[{html.escape(creator.rank or '')}]</code> "
-        f"{get_uid_mention_link(user_creator)}\n"
-    )
     message += (
         f"{await parse_admin(admins, users)}\n{await parse_admin(bots, users)}\n"
     ).strip()
