@@ -1,4 +1,5 @@
 from pyrogram import types
+from pyrogram.enums import ChatMemberStatus
 from pyrogram.filters import Filter, create
 from pyrogram.types import Message
 
@@ -18,6 +19,9 @@ async def __filter_function(flt: Filter, cli: Bot, msg: Message) -> bool:
         return False
 
     me: types.ChatMember = await cli.get_chat_member(msg.chat.id, cli.me.id)
+
+    if me.status not in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
+        return False
 
     privileges: types.ChatPrivileges = me.privileges
 

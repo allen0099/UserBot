@@ -1,6 +1,7 @@
 import logging
 
 from pyrogram import Client, filters, types
+from pyrogram.enums import ChatMemberStatus
 
 from bot import Bot
 from bot.filters import admin_required
@@ -31,13 +32,16 @@ async def kill_da(cli: Bot, msg: types.Message):
         msg.chat.id, f"找到了 {len(members)} 個使用者，正在進行檢查..."
     )
 
-    for _ in members:
-        log.debug(f"Checking {_.user.id}")
+    for member in members:
+        log.debug(f"Checking {member.user.id}")
 
-        if _.user.is_deleted:
+        if member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
+            continue
+
+        if member.user.is_deleted:
             count += 1
-            log.debug(f"{_.user.id} is deleted, remove from group!")
-            await cli.kick_chat_member(msg.chat.id, _.user.id)
+            log.debug(f"{member.user.id} is deleted, remove from group!")
+            await cli.kick_chat_member(msg.chat.id, member.user.id)
 
     log.debug("Remove deleted accounts finished!")
     await msg_auto_clean(
