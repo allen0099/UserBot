@@ -240,6 +240,15 @@ async def parse_channel(
             f"<b>{holder}描述</b>\n<code>{html.escape(full_channel.about or '')}</code>\n"
         )
 
+    if channel.pinned_message:
+        message += f"{get_pinned_message_link(channel.pinned_message)}\n"
+
+    if channel.linked_chat:
+        message += f"{get_linked_chat_link(channel.linked_chat)}\n"
+
+    sticker: raw.types.StickerSet = full_channel.stickerset
+    if sticker:
+        message += f"<b>群組貼圖：</b>{get_sticker_pack_link(sticker)}\n"
     message += "\n<b><u>Properties</u></b>\n"
 
     tests: list[tuple[str, Any]] = [
@@ -254,16 +263,6 @@ async def parse_channel(
         message += f"{EmojiList.TRUE if test[1] else EmojiList.FALSE} <b>{capitalize(test[0][3:])}</b>\n"
 
     message += await parse_res_reason(api_channel.restriction_reason)
-
-    if channel.pinned_message:
-        message += f"{get_pinned_message_link(channel.pinned_message)}\n"
-
-    if channel.linked_chat:
-        message += f"{get_linked_chat_link(channel.linked_chat)}\n"
-
-    sticker: raw.types.StickerSet = full_channel.stickerset
-    if sticker:
-        message += f"<b>群組貼圖：</b>{get_sticker_pack_link(sticker)}\n"
 
     if channel.type != enums.ChatType.CHANNEL:
         message += (
