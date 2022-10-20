@@ -3,6 +3,7 @@ import re
 
 from pyrogram import Client, filters, types
 from pyrogram.enums import ChatMemberStatus
+from pyrogram.errors import PeerIdInvalid
 from pyrogram.types import Message
 
 from bot import Bot
@@ -27,7 +28,7 @@ async def pattern(cli: Bot, msg: Message) -> None:
     if len(msg.command) != 3:
         await msg_auto_clean(
             await msg.reply_text(
-                "請輸入正確的指令！\n格式為：<code>/pattern [group_id] [pattern]</code>"
+                "請輸入正確的指令！\n格式為：<code>$pattern [group_id] [pattern]</code>"
             )
         )
         return
@@ -35,7 +36,17 @@ async def pattern(cli: Bot, msg: Message) -> None:
     group_id: str = msg.command[1]
     pattern: str = msg.command[2]
 
-    check_self: types.ChatMember = await cli.get_chat_member(group_id, cli.me.id)
+    try:
+        check_self: types.ChatMember = await cli.get_chat_member(group_id, cli.me.id)
+    except PeerIdInvalid as error:
+        await msg_auto_clean(
+            await msg.reply_text(
+                f"請輸入正確的 Group ID！\n"
+                f"格式為：<code>$pattern [group_id] [pattern]</code>\n"
+                f"{error.MESSAGE}"
+            )
+        )
+        return
 
     if (
         check_self.status
@@ -49,7 +60,7 @@ async def pattern(cli: Bot, msg: Message) -> None:
         compiled: re.Pattern = re.compile(pattern)
 
     except re.error as e:
-        await msg.edit(f"正規表達式錯誤：{e}")
+        await msg_auto_clean(await msg.reply_text(f"正規表達式錯誤：{e}"))
         return
 
     members: list[types.ChatMember] = [
