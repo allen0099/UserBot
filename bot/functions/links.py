@@ -45,7 +45,7 @@ def get_sticker_pack_link(sticker: raw.types.StickerSet) -> Link:
 def get_pinned_message_link(message: types.Message) -> Link:
     return Link(
         message.link,
-        "🔗 Pinned Message",
+        "📌 置頂的訊息",
         message.chat._client.parse_mode,
     )
 
@@ -55,7 +55,7 @@ def get_linked_chat_link(chat: types.Chat) -> Link:
         f"https://t.me/{chat.username}"
         if chat.username
         else f"https://t.me/c/{get_channel_id(chat.id)}/999999999",
-        "🔗 Linked Chat",
+        "🔗 連結的群組",
         chat._client.parse_mode,
     )
 

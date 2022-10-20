@@ -249,6 +249,7 @@ async def parse_channel(
     sticker: raw.types.StickerSet = full_channel.stickerset
     if sticker:
         message += f"<b>群組貼圖：</b>{get_sticker_pack_link(sticker)}\n"
+
     message += "\n<b><u>Properties</u></b>\n"
 
     tests: list[tuple[str, Any]] = [
