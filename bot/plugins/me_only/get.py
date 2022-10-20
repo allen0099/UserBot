@@ -1,9 +1,15 @@
 import html
 import logging
 
-from pyrogram import Client, filters, types
+from pyrogram import Client, filters, raw, types
 
-from bot.functions import get_chat_info, get_message_info, get_user_info
+from bot import Bot
+from bot.functions import (
+    get_chat_info,
+    get_message_info,
+    get_sticker_pack_info,
+    get_user_info,
+)
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
 from core.log import event_logger, main_logger
@@ -19,7 +25,7 @@ logger: logging.Logger = event_logger(__name__)
     & ~filters.forwarded
 )
 @event_log()
-async def get(_: Client, msg: types.Message) -> None:
+async def get(cli: Bot, msg: types.Message) -> None:
     message: str = f"<b><u>Basic Info</u></b>\n"
     replied_message: types.Message = msg.reply_to_message
 
@@ -32,6 +38,13 @@ async def get(_: Client, msg: types.Message) -> None:
     if replied_message.sender_chat:
         # Message is forwarded from a hidden user
         message += get_chat_info(replied_message.sender_chat)
+
+    if replied_message.sticker:
+        sticker_set: raw.types.StickerSet = await cli.get_sticker_set(
+            replied_message.sticker.set_name
+        )
+        message += f"\n<b><u>Sticker Info</u></b>\n"
+        message += get_sticker_pack_info(replied_message.sticker, sticker_set)
 
     if replied_message.forward_date:
         # Message is forwarded

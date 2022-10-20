@@ -1,13 +1,16 @@
 import asyncio
 import inspect
-import warnings
-from typing import Any, Optional
+from typing import Any
 
-from pyrogram import Client, errors
-from pyrogram import types
+from pyrogram import raw, types
 from pyrogram.enums import ChatType
 
-from bot.functions.links import get_chat_link, get_message_link
+from bot.enums import EmojiList
+from bot.functions.links import (
+    get_chat_link,
+    get_message_link,
+    get_sticker_set_link,
+)
 
 
 def get_user_info(user: types.User) -> str:
@@ -27,23 +30,16 @@ def get_message_info(chat: types.Chat, message_id: int) -> str:
     )
 
 
-async def get_common_chats(cli: Client, uid: int) -> list[types.Chat]:
-    warnings.warn("This function is deprecated.", DeprecationWarning)
-
-    inviter_commons: Optional[list[types.Chat]] = None
-    times = 1
-    while not inviter_commons:
-        try:
-            inviter_commons = await cli.get_common_chats(uid)
-        except errors.PeerIdInvalid:
-            times += 1
-            if times >= 5:
-                raise ValueError("Max retries exceeded!")
-            log.debug(
-                f"Can't get common chats with {uid}, this is {times} times try..."
-            )
-            await asyncio.sleep(5)
-        return inviter_commons
+def get_sticker_pack_info(
+    pyrogram_sticker: types.Sticker, sticker: raw.types.StickerSet
+) -> str:
+    return (
+        f"貼圖包連結：{get_sticker_set_link(sticker)}\n"
+        f"貼圖高度：<code>{pyrogram_sticker.height}</code>\n"
+        f"貼圖寬度：<code>{pyrogram_sticker.width}</code>\n"
+        f"影片貼圖：{EmojiList.TRUE if pyrogram_sticker.is_video else EmojiList.FALSE}\n"
+        f"動態貼圖：{EmojiList.TRUE if pyrogram_sticker.is_animated else EmojiList.FALSE}\n"
+    )
 
 
 def capitalize(s: str, _all: bool = False) -> str:

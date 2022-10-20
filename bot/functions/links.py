@@ -34,9 +34,9 @@ def get_uid_mention_link(user: raw.types.User) -> Link:
     )
 
 
-def get_sticker_pack_link(sticker: raw.types.StickerSet) -> Link:
+def get_sticker_set_link(sticker: raw.types.StickerSet) -> Link:
     return Link(
-        f"https://t.me/addstickers/{sticker.short_name}",
+        f"tg://addstickers?set={sticker.short_name}",
         escape(sticker.title),
         ParseMode.DEFAULT,
     )

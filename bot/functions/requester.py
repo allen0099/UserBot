@@ -11,7 +11,7 @@ from bot.functions import capitalize
 from bot.functions.links import (
     get_linked_chat_link,
     get_pinned_message_link,
-    get_sticker_pack_link,
+    get_sticker_set_link,
     get_uid_mention_link,
 )
 
@@ -248,7 +248,7 @@ async def parse_channel(
 
     sticker: raw.types.StickerSet = full_channel.stickerset
     if sticker:
-        message += f"<b>群組貼圖：</b>{get_sticker_pack_link(sticker)}\n"
+        message += f"<b>群組貼圖：</b>{get_sticker_set_link(sticker)}\n"
 
     message += "\n<b><u>Properties</u></b>\n"
 
