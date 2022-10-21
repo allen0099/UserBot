@@ -38,7 +38,7 @@ async def ban(cli: Bot, msg: types.Message) -> None:
                 ChatMemberStatus.ADMINISTRATOR,
             ]:
                 await cli.ban_chat_member(msg.chat.id, target.id)
-                await msg_auto_clean(await msg.reply_text(f"已封鎖使用者 {target.mention}"))
+                await msg.reply_text(f"已封鎖使用者 {target.mention}")
                 return
 
             await msg_auto_clean(await msg.reply_text(f"<b>錯誤：你無法對管理員下手！</b>"))
