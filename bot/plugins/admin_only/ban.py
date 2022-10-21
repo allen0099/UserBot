@@ -90,20 +90,20 @@ async def _ban_helper(cli: Bot, msg: types.Message, target: types.Chat | types.U
                 message += f"<b>直到：</b><code>{until_date.strftime('%Y-%m-%d %H:%M:%S')}</code>\n"
 
                 if size == 3:
-                    message += f"<b>原因：</b>{''.join(msg.command[2:])}"
+                    message += f"<b>原因：</b>{' '.join(msg.command[2:])}"
 
                 await cli.ban_chat_member(msg.chat.id, target.id, until_date)
 
             else:
                 message += (
                     f"<b>直到：</b><code>永久</code>\n"
-                    f"<b>原因：</b>{''.join(msg.command[1:])}"
+                    f"<b>原因：</b>{' '.join(msg.command[1:])}"
                 )
                 await cli.ban_chat_member(msg.chat.id, target.id)
 
         case _:
             message += (
-                f"<b>直到：</b><code>永久</code>\n<b>原因：</b>{''.join(msg.command[1:])}"
+                f"<b>直到：</b><code>永久</code>\n<b>原因：</b>{' '.join(msg.command[1:])}"
             )
             await cli.ban_chat_member(msg.chat.id, target.id)
 
