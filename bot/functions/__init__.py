@@ -1,5 +1,6 @@
 import asyncio
 import inspect
+from datetime import datetime, timedelta
 from typing import Any
 
 from pyrogram import raw, types
@@ -11,6 +12,7 @@ from bot.functions.links import (
     get_message_link,
     get_sticker_set_link,
 )
+from core.settings import TIMEZONE
 
 
 def get_user_info(user: types.User) -> str:
@@ -42,17 +44,6 @@ def get_sticker_pack_info(
     )
 
 
-def capitalize(s: str, _all: bool = False) -> str:
-    if not _all:
-        new_append: list[str] = s.capitalize().split("_")
-
-    else:
-        appended: list[str] = s.split("_")
-        new_append: list[str] = [_.capitalize() for _ in appended]
-
-    return " ".join(new_append)
-
-
 def get_mute_permission() -> types.ChatPermissions:
     permission: types.ChatPermissions = types.ChatPermissions()
 
@@ -68,6 +59,54 @@ def get_mute_permission() -> types.ChatPermissions:
         setattr(permission, p[0], False)
 
     return permission
+
+
+def capitalize(s: str, _all: bool = False) -> str:
+    if not _all:
+        new_append: list[str] = s.capitalize().split("_")
+
+    else:
+        appended: list[str] = s.split("_")
+        new_append: list[str] = [_.capitalize() for _ in appended]
+
+    return " ".join(new_append)
+
+
+def calculate_time(time: int, unit: str) -> datetime:
+    """
+    計算時間差異，並回傳 datetime 物件。
+    其中時間必須小於 365 天，單位必須為 'd', 'm'
+
+    Args:
+        time: 多少單位時間
+        unit: 單位
+
+    Returns:
+        datetime: 計算後的時間
+
+    Raises:
+        ValueError: 單位不符合或時間超過 365 天
+    """
+    now_time: datetime = datetime.now(TIMEZONE)
+    delta: timedelta = timedelta()
+
+    if unit == "d":
+        if time < 365:
+            delta = timedelta(days=time)
+
+    elif unit == "m":
+        if time < 365 * 24 * 60:
+            delta = timedelta(minutes=time)
+
+    else:
+        raise ValueError("單位必須是 'd' 或 'm' 且時間必須小於 365 天")
+
+    calculated_time: datetime = now_time + delta
+
+    if calculated_time - datetime.now(TIMEZONE) <= timedelta(seconds=58):
+        raise ValueError("時間太短！")
+
+    return calculated_time
 
 
 async def msg_auto_clean(msg: types.Message, time: int = 10):

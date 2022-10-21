@@ -1,11 +1,15 @@
 import logging
+import re
+from datetime import datetime
+from html import escape
+from re import Pattern
 
 from pyrogram import Client, filters, types
 from pyrogram.enums import ChatMemberStatus
 
 from bot import Bot
 from bot.filters import admin_required
-from bot.functions import msg_auto_clean
+from bot.functions import calculate_time, msg_auto_clean
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
 from core.log import event_logger
@@ -37,14 +41,13 @@ async def ban(cli: Bot, msg: types.Message) -> None:
                 ChatMemberStatus.OWNER,
                 ChatMemberStatus.ADMINISTRATOR,
             ]:
-                await cli.ban_chat_member(msg.chat.id, target.id)
-                await msg.reply_text(f"已封鎖使用者 {target.mention}")
+                await _ban_helper(cli, msg, target)
                 return
 
             await msg_auto_clean(await msg.reply_text(f"<b>錯誤：你無法對管理員下手！</b>"))
 
         elif isinstance(target, types.Chat):
-            channel = await cli.get_chat(target.id)
+            channel: types.Chat = await cli.get_chat(target.id)
 
             if (
                 channel.linked_chat
@@ -54,8 +57,54 @@ async def ban(cli: Bot, msg: types.Message) -> None:
                 await msg_auto_clean(await msg.reply_text(f"<b>錯誤：這是本群的連結頻道！</b>"))
                 return
 
-            await cli.ban_chat_member(msg.chat.id, target.id)
-            await msg.reply_text(f"已封鎖 <code>{target.id}</code>")
+            await _ban_helper(cli, msg, target)
         return
 
-    await msg_auto_clean(await msg.reply_text("<b>錯誤：回覆群組中的訊息來封鎖使用者。</b>"))
+    await msg_auto_clean(await msg.reply_text("<b>資訊錯誤：訊息已被刪除或是未回覆訊息導致無法取得資訊。</b>"))
+
+
+async def _ban_helper(cli: Bot, msg: types.Message, target: types.Chat | types.User):
+    message: str = f""
+    time_re: Pattern = re.compile(r"(^\d+)(d$|m$)")
+
+    if isinstance(target, types.User):
+        message += f"已封鎖使用者 {target.mention}\n"
+
+    elif isinstance(target, types.Chat):
+        message += f"已封鎖頻道 <code>{escape(target.title)}({target.id})</code>\n"
+
+    else:
+        raise TypeError("目標必須是 types.User 或 types.Chat")
+
+    match len(msg.command):
+        case 1:
+            message += "<b>直到：</b><code>永久</code>\n"
+            await cli.ban_chat_member(msg.chat.id, target.id)
+
+        case 2 | 3 as size:
+            test: list[tuple[str, str]] | None = re.findall(time_re, msg.command[1])
+
+            if test:
+                time, unit = test[0]
+                until_date: datetime = calculate_time(int(time), unit)
+                message += f"<b>直到：</b><code>{until_date.strftime('%Y-%m-%d %H:%M:%S')}</code>\n"
+
+                if size == 3:
+                    message += f"<b>原因：</b>{''.join(msg.command[2:])}"
+
+                await cli.ban_chat_member(msg.chat.id, target.id, until_date)
+
+            else:
+                message += (
+                    f"<b>直到：</b><code>永久</code>\n"
+                    f"<b>原因：</b>{''.join(msg.command[1:])}"
+                )
+                await cli.ban_chat_member(msg.chat.id, target.id)
+
+        case _:
+            message += (
+                f"<b>直到：</b><code>永久</code>\n<b>原因：</b>{''.join(msg.command[1:])}"
+            )
+            await cli.ban_chat_member(msg.chat.id, target.id)
+
+    await msg.reply_text(message)
