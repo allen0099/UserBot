@@ -29,8 +29,8 @@ async def kick(cli: Bot, msg: types.Message) -> None:
         )  # From channel or user
 
         if isinstance(target, types.User):
-            chat_user: types.ChatMember = await cli.get_chat_member(
-                msg.chat.id, target.id
+            chat_user: types.ChatMember = await cli.get_chat_member_from_message(
+                msg, target.id
             )
 
             if chat_user.status not in [
