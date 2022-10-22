@@ -16,5 +16,7 @@ class GetChatMemberFromMessage:
 
         except UserNotParticipant:
             await msg_auto_clean(
-                await message.reply_text(f"<b>錯誤：使用者已經不在 {escape(message.chat.title)} 中！</b>")
+                await message.reply_text(
+                    f"<b>錯誤：使用者已經不在 {escape(message.chat.title)} 中！</b>"
+                )
             )
