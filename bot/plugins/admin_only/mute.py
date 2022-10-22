@@ -1,16 +1,17 @@
 import logging
-from datetime import datetime, timedelta
+import re
+from datetime import datetime
+from re import Pattern
 
 from pyrogram import Client, filters, types
 from pyrogram.enums import ChatMemberStatus
 
 from bot import Bot
 from bot.filters import admin_required
-from bot.functions import get_mute_permission, msg_auto_clean
+from bot.functions import calculate_time, get_mute_permission, msg_auto_clean
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
 from core.log import event_logger
-from core.settings import TIMEZONE
 
 log: logging.Logger = event_logger(__name__)
 
@@ -40,26 +41,7 @@ async def mute(cli: Bot, msg: types.Message):
                 ChatMemberStatus.ADMINISTRATOR,
             ]:
                 permission: types.ChatPermissions = get_mute_permission()
-
-                try:
-                    until_time: datetime = get_until(msg.command[1].lower())
-                except (ValueError, IndexError):
-                    await msg_auto_clean(
-                        await msg.reply_text(
-                            "你的時間錯誤，時間格式為：\n"
-                            "<code>1d</code> - 1 天\n"
-                            "<code>1m</code> - 1 分鐘\n"
-                            "一次只能選擇一種！"
-                        )
-                    )
-                    return
-
-                await cli.restrict_chat_member(
-                    msg.chat.id, target.id, permission, until_time
-                )
-                await msg.reply_text(
-                    f"已給 {target.mention} 上了口球，直到 {until_time.strftime('%Y-%m-%d %H:%M:%S')}"
-                )
+                await _mute_helper(cli, msg, target, permission)
                 return
 
             await msg_auto_clean(await msg.reply_text(f"<b>錯誤：你無法對管理員下手！</b>"))
@@ -73,19 +55,49 @@ async def mute(cli: Bot, msg: types.Message):
     await msg_auto_clean(await msg.reply_text("<b>錯誤：你必須回覆一個使用者以給予口球。</b>"))
 
 
-def get_until(until: str) -> datetime:
-    _: datetime = datetime.now(TIMEZONE)
+async def _mute_helper(
+    cli: Bot, msg: types.Message, target: types.User, permission: types.ChatPermissions
+):
+    message: str = f""
+    time_re: Pattern = re.compile(r"(^\d+)(d$|m$)")
 
-    if until.endswith("d"):
-        days: int = int(until.split("d")[0])
-        if days < 365:
-            _ += timedelta(days=days)
+    if isinstance(target, types.User):
+        message += f"已給予 {target.mention} 上了口球\n"
 
-    if until.endswith("m"):
-        minutes: int = int(until.split("m")[0])
-        if minutes < 60 * 24 * 365:
-            _ += timedelta(minutes=minutes)
+    else:
+        raise TypeError("目標必須是 types.User")
 
-    if _ - datetime.now(TIMEZONE) <= timedelta(seconds=58):
-        raise ValueError("時間太短！")
-    return _
+    match len(msg.command):
+        case 1:
+            message += "<b>直到：</b><code>永久</code>\n"
+            await cli.restrict_chat_member(msg.chat.id, target.id, permission)
+
+        case 2 | 3 as size:
+            test: list[tuple[str, str]] | None = re.findall(time_re, msg.command[1])
+
+            if test:
+                time, unit = test[0]
+                until_date: datetime = calculate_time(int(time), unit)
+                message += f"<b>直到：</b><code>{until_date.strftime('%Y-%m-%d %H:%M:%S')}</code>\n"
+
+                if size == 3:
+                    message += f"<b>原因：</b>{' '.join(msg.command[2:])}"
+
+                await cli.restrict_chat_member(
+                    msg.chat.id, target.id, permission, until_date
+                )
+
+            else:
+                message += (
+                    f"<b>直到：</b><code>永久</code>\n"
+                    f"<b>原因：</b>{' '.join(msg.command[1:])}"
+                )
+                await cli.restrict_chat_member(msg.chat.id, target.id, permission)
+
+        case _:
+            message += (
+                f"<b>直到：</b><code>永久</code>\n<b>原因：</b>{' '.join(msg.command[1:])}"
+            )
+            await cli.restrict_chat_member(msg.chat.id, target.id, permission)
+
+    await msg.reply_text(message)
