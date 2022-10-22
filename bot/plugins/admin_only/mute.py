@@ -8,7 +8,12 @@ from pyrogram.enums import ChatMemberStatus
 
 from bot import Bot
 from bot.filters import admin_required
-from bot.functions import calculate_time, get_mute_permission, msg_auto_clean
+from bot.functions import (
+    get_mute_permission,
+    get_until_time_message,
+    graceful_calculate_time,
+    msg_auto_clean,
+)
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
 from core.log import event_logger
@@ -77,12 +82,15 @@ async def _mute_helper(
 
             if test:
                 time, unit = test[0]
-                until_date: datetime = calculate_time(int(time), unit)
-                message += f"<b>直到：</b><code>{until_date.strftime('%Y-%m-%d %H:%M:%S')}</code>\n"
 
-                if size == 3:
-                    message += f"<b>原因：</b>{' '.join(msg.command[2:])}"
+                until_date: datetime | None = await graceful_calculate_time(
+                    msg, time, unit
+                )
 
+                if not until_date:
+                    return
+
+                message += get_until_time_message(msg, until_date, size)
                 await cli.restrict_chat_member(
                     msg.chat.id, target.id, permission, until_date
                 )

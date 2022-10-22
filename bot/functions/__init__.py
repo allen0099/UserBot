@@ -109,6 +109,34 @@ def calculate_time(time: int, unit: str) -> datetime:
     return calculated_time
 
 
+async def graceful_calculate_time(
+    msg: types.Message, time: str, unit: str
+) -> datetime | None:
+    try:
+        return calculate_time(int(time), unit)
+
+    except ValueError:
+        await msg_auto_clean(
+            await msg.reply_text(
+                f"<b>錯誤：你輸入了一個無效的時間單位：{time}{unit}</b>\n"
+                f"總時長必須小於 365 天\n"
+                f"時間單位必須是 <code>d</code> 或 <code>m</code>"
+            )
+        )
+        return
+
+
+def get_until_time_message(msg: types.Message, until_date: datetime, size: int) -> str:
+    message: str = (
+        f"<b>直到：</b><code>{until_date.strftime('%Y-%m-%d %H:%M:%S')}</code>\n"
+    )
+
+    if size == 3:
+        message += f"<b>原因：</b>{' '.join(msg.command[2:])}"
+
+    return message
+
+
 async def msg_auto_clean(msg: types.Message, time: int = 10):
     await asyncio.sleep(time)
     await msg.delete()
