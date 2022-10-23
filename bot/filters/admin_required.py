@@ -12,6 +12,10 @@ async def __filter_function(flt: Filter, cli: Bot, msg: Message) -> bool:
     admins: list[types.ChatMember] = await cli.get_chat_admins(msg.chat.id)
 
     if msg.sender_chat:
+
+        if msg.sender_chat.id == msg.chat.id:
+            return True
+
         return False
 
     if msg.from_user.id not in [_.user.id for _ in admins]:
