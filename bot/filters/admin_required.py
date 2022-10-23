@@ -18,10 +18,6 @@ async def __filter_function(flt: Filter, cli: Bot, msg: Message) -> bool:
 
         return False
 
-    if msg.from_user.id not in [_.user.id for _ in admins]:
-        await msg.reply_text(PERMISSION_DENIED)
-        return False
-
     me: types.ChatMember = await cli.get_chat_member(msg.chat.id, cli.me.id)
 
     if me.status not in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
@@ -30,6 +26,10 @@ async def __filter_function(flt: Filter, cli: Bot, msg: Message) -> bool:
     privileges: types.ChatPrivileges = me.privileges
 
     if not privileges.can_restrict_members or not privileges.can_delete_messages:
+        await msg.reply_text(PERMISSION_DENIED)
+        return False
+
+    if msg.from_user.id not in [_.user.id for _ in admins]:
         await msg.reply_text(PERMISSION_DENIED)
         return False
 
