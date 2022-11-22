@@ -29,7 +29,11 @@ class CustomResolvePeer:
             return await self.storage.get_peer_by_id(peer_id)
         except KeyError:
             # key not found
-            return await _check(self, peer_id)
+            try:
+                return await _check(self, peer_id)
+
+            except KeyError:
+                raise errors.UsernameNotOccupied
 
 
 async def _check(
