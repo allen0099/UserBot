@@ -10,4 +10,4 @@ KillSignal=SIGTERM
 TimeoutStopSec=5min
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
