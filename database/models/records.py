@@ -8,7 +8,7 @@ from database import db
 log: logging.Logger = main_logger(__name__)
 
 
-class Record(db.BASE):
+class Records(db.BASE):
     """觸發紀錄"""
 
     __tablename__: str = "records"

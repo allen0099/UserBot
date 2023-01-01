@@ -152,10 +152,11 @@ def load_models(path: str = "models"):
         module = import_module(module_path)
 
         for name in vars(module).keys():
+            # noinspection TryExceptPass
             try:
                 if isinstance(getattr(module, name), DeclarativeMeta):
                     table_name: str = getattr(module, name).__tablename__
-                    log.info(f"Registering table '{table_name}'")
+                    log.debug(f"Registering table '{table_name}'")
                     loaded_models.append(getattr(module, name))
 
             except Exception:

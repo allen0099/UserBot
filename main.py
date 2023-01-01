@@ -21,10 +21,12 @@ sa_pool_log: logging.Logger = SQLAlchemyPoolLogger().logger
 
 if __name__ == "__main__":
     log.info("Checking database status!")
+
     if need_upgrade():
         log.info(f"Current version: {get_current()}")
         log.info(f"Heads: {get_head()}")
         log.info("Upgrading database!")
+
         if not alembic_upgrade():
             raise RuntimeError("Failed to upgrade database!")
 
