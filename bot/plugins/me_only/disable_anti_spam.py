@@ -31,13 +31,21 @@ async def disable_anti_spam(cli: Bot, msg: types.Message) -> None:
     """
     await msg.edit_text("找尋有開啟 AntiSpam 的群組中...")
 
+    total: int = await cli.get_dialogs_count()
+    current: int = 0
     disabled_dialogs: list[types.Dialog] = []
+
     async for dialog in cli.get_dialogs():
+        current += 1
+
+        if current % 20 == 0:
+            await msg.edit_text(f"找尋有開啟 AntiSpam 的群組中... ({current}/{total})")
+
         if dialog.chat.type == enums.ChatType.SUPERGROUP:
             channel: raw.types.ChannelFull = await cli.get_full_channel(dialog.chat.id)
 
             if channel.antispam:
-                await cli._set_anti_spam(msg.chat.id, False)
+                await cli._set_anti_spam(dialog.chat.id, False)
                 disabled_dialogs.append(dialog)
 
     await msg.edit_text(

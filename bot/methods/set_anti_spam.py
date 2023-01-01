@@ -36,7 +36,7 @@ class SetAntiSpam:
                 return
 
             except errors.exceptions.bad_request_400.ChatNotModified as e:
-                log.critical(f"{e.MESSAGE}, enabled={enabled}")
+                log.critical(f"{e.MESSAGE}, chat={chat_id}, enabled={enabled}")
                 return
 
         raise TypeError("Invalid chat type")
