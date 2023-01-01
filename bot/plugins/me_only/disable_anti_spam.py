@@ -29,7 +29,7 @@ async def disable_anti_spam(cli: Bot, msg: types.Message) -> None:
     Returns:
 
     """
-    await msg.edit_text("Searching for AntiSpam...")
+    await msg.edit_text("找尋有開啟 AntiSpam 的群組中...")
 
     disabled_dialogs: list[types.Dialog] = []
     async for dialog in cli.get_dialogs():

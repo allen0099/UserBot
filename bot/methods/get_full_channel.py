@@ -1,4 +1,7 @@
+import asyncio
+
 from pyrogram import raw
+from pyrogram.errors import FloodWait
 
 import bot
 
@@ -18,10 +21,14 @@ class GetFullChannel:
                 raw.types.InputChannel,
             ),
         ):
-            r: raw.types.messages.ChatFull = await self.invoke(
-                raw.functions.channels.GetFullChannel(channel=peer)
-            )
+            try:
+                r: raw.types.messages.ChatFull = await self.invoke(
+                    raw.functions.channels.GetFullChannel(channel=peer)
+                )
 
-            return r.full_chat
+                return r.full_chat
+
+            except FloodWait as error:
+                await asyncio.sleep(error.value)
 
         raise TypeError("Not a channel")
