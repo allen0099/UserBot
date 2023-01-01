@@ -45,8 +45,8 @@ async def disable_anti_spam(cli: Bot, msg: types.Message) -> None:
             channel: raw.types.ChannelFull = await cli.get_full_channel(dialog.chat.id)
 
             if channel.antispam:
-                await cli._set_anti_spam(dialog.chat.id, False)
-                disabled_dialogs.append(dialog)
+                if await cli._set_anti_spam(dialog.chat.id, False):
+                    disabled_dialogs.append(dialog)
 
     await msg.edit_text(
         f"找到了 {len(disabled_dialogs)} 個群組，已經關閉 AntiSpam 功能。\n"

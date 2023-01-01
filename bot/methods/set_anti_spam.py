@@ -1,6 +1,7 @@
 import logging
 
-from pyrogram import errors, raw
+from pyrogram import raw
+from pyrogram.errors import ChatAdminRequired, ChatNotModified
 from pyrogram.raw import types
 
 import bot
@@ -14,7 +15,7 @@ class SetAntiSpam:
         self: "bot.Bot",
         chat_id: int | str,
         enabled: bool,
-    ) -> None:
+    ) -> bool:
         channel = await self.custom_resolve_peer(chat_id)
 
         if isinstance(
@@ -33,10 +34,10 @@ class SetAntiSpam:
                     )
                 )
 
-                return
+                return True
 
-            except errors.exceptions.bad_request_400.ChatNotModified as e:
+            except (ChatNotModified, ChatAdminRequired) as e:
                 log.critical(f"{e.MESSAGE}, chat={chat_id}, enabled={enabled}")
-                return
+                return False
 
         raise TypeError("Invalid chat type")
