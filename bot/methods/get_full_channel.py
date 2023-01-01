@@ -31,4 +31,6 @@ class GetFullChannel:
             except FloodWait as error:
                 await asyncio.sleep(error.value)
 
-        raise TypeError("Not a channel")
+                await self.get_full_channel(chat_id)
+
+        raise TypeError(f"Not a channel, chat_id: {chat_id}")

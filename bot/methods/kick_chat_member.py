@@ -20,4 +20,6 @@ class KickChatMember:
         except FloodWait as error:
             await asyncio.sleep(error.value)
 
+            await self.kick_chat_member(chat_id, user_id)
+
         return True
