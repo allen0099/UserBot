@@ -33,4 +33,4 @@ class GetFullChannel:
 
                 await self.get_full_channel(chat_id)
 
-        raise TypeError(f"Not a channel, chat_id: {chat_id}")
+        raise TypeError(f"Not a channel, chat_id: {chat_id}, peertype: {type(peer)}")
