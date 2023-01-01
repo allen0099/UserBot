@@ -17,6 +17,7 @@ class MeOnlyCommandList(Enum):
     # Me only commands
     ADMIN = ("admin", "提及群組內的管理員")
     COUNT = ("count", "取得訊息類型統計")
+    DISABLE_ANTISPAM = ("disable_antispam", "關閉所有群組的 AntiSpam 功能")
     EVAL = ("eval", "執行 Python 程式碼")
     GET = ("get", "取得訊息簡短內容")
     HELP = ("help", "取得指令列表")

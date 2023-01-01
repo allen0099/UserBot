@@ -1,5 +1,4 @@
 import re
-import warnings
 
 from pyrogram import errors, raw, utils
 
@@ -20,8 +19,6 @@ class CustomResolvePeer:
         Returns:
 
         """
-        warnings.warn("This function is not fully tested!")
-
         if not self.is_connected:
             raise ConnectionError("Client has not been started yet")
 
