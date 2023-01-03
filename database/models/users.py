@@ -37,3 +37,22 @@ class Users(db.BASE):
         server_default=now(),
         onupdate=datetime.now(),
     )
+
+    def __init__(self, id: int, level: PermissionLevel = PermissionLevel.OTHER) -> None:
+        self.id = id
+        self.level = level
+
+    @staticmethod
+    def get(_id: int) -> "Users":
+        """取得使用者"""
+        user: Users = db.session.query(Users).filter_by(id=_id).first()
+
+        if user:
+            return user
+
+        return Users(_id)
+
+    def add(self) -> None:
+        """新增使用者到資料庫"""
+        db.session.add(self)
+        db.session.commit()

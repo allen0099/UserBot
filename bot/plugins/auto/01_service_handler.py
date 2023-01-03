@@ -7,12 +7,14 @@ from pyrogram.enums import MessageServiceType
 from pyrogram.types import Message
 
 from bot import Bot
+from bot.enums import PermissionLevel
 from bot.functions import get_chat_link
 from bot.methods.send_log_message import LogTopics
 from bot.validation import UserValidator
 from core.decorator import event_log
 from core.log import event_logger, main_logger
 from database.models.privilege import Privilege
+from database.models.users import Users
 
 log: logging.Logger = main_logger(__name__)
 logger: logging.Logger = event_logger(__name__)
@@ -43,6 +45,7 @@ async def service_handler(cli: Bot, msg: Message) -> None:
                 for user in msg.new_chat_members:
                     uv: UserValidator = UserValidator(user)
                     uv.validate()
+                    u: Users = Users.get(msg.from_user.id)
 
                     if uv.errors:
                         await cli.send_log_message(
@@ -54,6 +57,7 @@ async def service_handler(cli: Bot, msg: Message) -> None:
                             f"Message Link: {msg.link}",
                             LogTopics.banned,
                         )
+                        u.level = PermissionLevel.BLACK
                         # TODO: act something ban user (implement in next version)
                         continue
 
@@ -64,6 +68,7 @@ async def service_handler(cli: Bot, msg: Message) -> None:
                         f"Message Link: {msg.link}",
                         LogTopics.new_user,
                     )
+                    u.add()
 
         case MessageServiceType.LEFT_CHAT_MEMBERS if msg.left_chat_member.is_self:
             logger.info(

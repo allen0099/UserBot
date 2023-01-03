@@ -4,12 +4,14 @@ from pyrogram import Client, filters, types
 from pyrogram.enums import ChatType
 
 from bot import Bot
+from bot.enums import PermissionLevel
 from bot.functions import get_chat_link
 from bot.methods.send_log_message import LogTopics
 from bot.validation import UserValidator
 from core.decorator import event_log
 from core.log import event_logger, main_logger
 from database.models.privilege import Privilege
+from database.models.users import Users
 
 log: logging.Logger = main_logger(__name__)
 logger: logging.Logger = event_logger(__name__)
@@ -24,6 +26,7 @@ async def message_handler(cli: Bot, msg: types.Message) -> None:
     if msg.chat.id in Privilege.admin_group_list() and msg.from_user is not None:
         uv: UserValidator = UserValidator(msg.from_user)
         uv.validate()
+        u: Users = Users.get(msg.from_user.id)
 
         if uv.errors:
             await cli.send_log_message(
@@ -35,4 +38,8 @@ async def message_handler(cli: Bot, msg: types.Message) -> None:
                 f"Message Link: {msg.link}",
                 LogTopics.banned,
             )
+            u.level = PermissionLevel.BLACK
+
             # TODO: act something ban user (implement in next version)
+
+        u.add()
