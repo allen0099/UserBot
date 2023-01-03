@@ -3,7 +3,7 @@ import logging
 from pyrogram import types
 from pyrogram.enums import MessageMediaType
 
-from bot.validation import BaseRule
+from bot.validation import MessageRule
 from core import main_logger
 from core.log import event_logger
 
@@ -11,14 +11,14 @@ log: logging.Logger = main_logger(__name__)
 logger: logging.Logger = event_logger(__name__)
 
 
-class EditedRule(BaseRule):
+class EditedRule(MessageRule):
     """是否為編輯過的訊息。"""
 
     name: str = "編輯訊息"
 
     def update_error_message(self) -> None:
-        self.error_message: str = "使用者於 {time} 編輯訊息。".format(
-            time=self.msg.edit_date.strftime("%Y-%m-%d %H:%M:%S")
+        self.error_message: str = (
+            f"使用者於 {self.msg.edit_date.strftime('%Y-%m-%d %H:%M:%S')} 編輯訊息。"
         )
 
     def is_violate_rule(self) -> bool:
@@ -27,7 +27,7 @@ class EditedRule(BaseRule):
         return False
 
 
-class ForwardRule(BaseRule):
+class ForwardRule(MessageRule):
     """是否為轉發訊息。"""
 
     name: str = "黑名單轉發"
@@ -36,7 +36,7 @@ class ForwardRule(BaseRule):
         forward_target: types.User | types.Chat | None = (
             self.msg.forward_from or self.msg.forward_from_chat
         )
-        self.error_message: str = "使用者轉發黑名單訊息：{id}。".format(id=forward_target.id)
+        self.error_message: str = f"使用者轉發黑名單訊息：{forward_target.id}。"
 
     def is_violate_rule(self) -> bool:
         if self.msg.forward_date:
@@ -45,7 +45,7 @@ class ForwardRule(BaseRule):
         return False
 
 
-class URLRule(BaseRule):
+class URLRule(MessageRule):
     """是否為含有網址的訊息。"""
 
     name = "黑名單網址"
@@ -73,15 +73,13 @@ class URLRule(BaseRule):
         pass
 
 
-class StickerRule(BaseRule):
+class StickerRule(MessageRule):
     """是否為貼圖。"""
 
     name: str = "貼圖"
 
     def update_error_message(self) -> None:
-        self.error_message: str = "發送貼圖 name={name}。".format(
-            name=self.msg.sticker.set_name
-        )
+        self.error_message: str = f"發送貼圖 name={self.msg.sticker.set_name}。"
 
     def is_violate_rule(self) -> bool:
         if self.msg.sticker:
@@ -89,15 +87,13 @@ class StickerRule(BaseRule):
         return False
 
 
-class ViaBotRule(BaseRule):
+class ViaBotRule(MessageRule):
     """是否透過機器人發送訊息。"""
 
     name: str = "Inline Bot"
 
     def update_error_message(self) -> None:
-        self.error_message: str = "使用者透過機器人 id={id} 發送訊息。".format(
-            id=self.msg.via_bot.id
-        )
+        self.error_message: str = f"使用者透過機器人 id={self.msg.via_bot.id} 發送訊息。"
 
     def is_violate_rule(self) -> bool:
         if self.msg.via_bot:
@@ -106,13 +102,13 @@ class ViaBotRule(BaseRule):
         return False
 
 
-class MediaRule(BaseRule):
+class MediaRule(MessageRule):
     """是否為媒體訊息。"""
 
     name: str = "媒體訊息"
 
     def update_error_message(self) -> None:
-        self.error_message: str = "發送 {type} 訊息。".format(type=self.msg.media)
+        self.error_message: str = f"發送 {self.msg.media} 訊息。"
 
     def is_violate_rule(self) -> bool:
         if self.msg.media and self.msg.media in [
@@ -124,15 +120,13 @@ class MediaRule(BaseRule):
         return False
 
 
-class MediaGroupRule(BaseRule):
+class MediaGroupRule(MessageRule):
     """是否為媒體群組。"""
 
     name: str = "媒體群組"
 
     def update_error_message(self) -> None:
-        self.error_message: str = "發送媒體群組 {group_id}。".format(
-            group_id=self.msg.media_group_id
-        )
+        self.error_message: str = f"發送媒體群組 {self.msg.media_group_id}。"
 
     def is_violate_rule(self) -> bool:
         if self.msg.media_group_id:
@@ -149,13 +143,13 @@ class MediaGroupRule(BaseRule):
         return False
 
 
-class EntityRule(BaseRule):
+class EntityRule(MessageRule):
     """是否為含有實體的訊息。"""
 
     name: str = "實體訊息"
 
     def update_error_message(self) -> None:
-        self.error_message = "發送含有實體的訊息 {entities}。".format(entities=self.msg.entities)
+        self.error_message = f"發送含有實體的訊息 {self.msg.entities}。"
 
     def is_violate_rule(self) -> bool:
         if self.msg.entities:
@@ -166,7 +160,7 @@ class EntityRule(BaseRule):
         return False
 
 
-class LinkedChatRule(BaseRule):
+class LinkedChatRule(MessageRule):
     """是否為連結群組。"""
 
     name: str = "連結群組"

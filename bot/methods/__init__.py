@@ -6,6 +6,7 @@ from .get_chat_member_from_message import GetChatMemberFromMessage
 from .get_full_channel import GetFullChannel
 from .get_sticker_set import GetStickerSet
 from .kick_chat_member import KickChatMember
+from .send_log_message import SendLogMessage
 from .set_anti_spam import SetAntiSpam
 
 
@@ -18,6 +19,7 @@ class CustomMethods(
     GetFullChannel,
     GetStickerSet,
     KickChatMember,
+    SendLogMessage,
     SetAntiSpam,
 ):
     pass
