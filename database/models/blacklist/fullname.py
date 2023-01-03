@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, func
 from sqlalchemy.sql.functions import now
 
 from core.log import main_logger
@@ -23,6 +23,6 @@ class FullNameBlacklist(db.BASE):
     created_by: int = Column(BigInteger, nullable=False)
     """建立規則的使用者"""
     created_at: datetime = Column(
-        DateTime, nullable=False, default=datetime.now(), server_default=now()
+        DateTime, nullable=False, default=func.now(), server_default=now()
     )
     """建立規則的時間"""

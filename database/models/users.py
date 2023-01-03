@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, Enum
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, Enum, func
 from sqlalchemy.sql.functions import now
 
 from bot.enums import PermissionLevel
@@ -28,14 +28,14 @@ class Users(db.BASE):
     """如果使用者被鎖定，只有擁有者可以修改權限等級"""
 
     created_at: datetime = Column(
-        DateTime, nullable=False, default=datetime.now(), server_default=now()
+        DateTime, nullable=False, default=func.now(), server_default=now()
     )
     update_at: datetime = Column(
         DateTime,
         nullable=False,
-        default=datetime.now(),
+        default=func.now(),
         server_default=now(),
-        onupdate=datetime.now(),
+        onupdate=func.now(),
     )
 
     def __init__(self, id: int, level: PermissionLevel = PermissionLevel.OTHER) -> None:

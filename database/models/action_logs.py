@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, String
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, String, func
 from sqlalchemy.sql.functions import now
 
 from core.log import main_logger
@@ -30,12 +30,12 @@ class ActionLogs(db.BASE):
     """管理員是否允許調閱封鎖原因及原始訊息內容"""
 
     created_at: datetime = Column(
-        DateTime, nullable=False, default=datetime.now(), server_default=now()
+        DateTime, nullable=False, default=func.now(), server_default=now()
     )
     update_at: datetime = Column(
         DateTime,
         nullable=False,
-        default=datetime.now(),
+        default=func.now(),
         server_default=now(),
-        onupdate=datetime.now(),
+        onupdate=func.now(),
     )

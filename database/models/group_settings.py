@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Column, DateTime
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, func
 from sqlalchemy.sql.functions import now
 
 from core.log import main_logger
@@ -23,12 +23,12 @@ class GroupSettings(db.BASE):
     """檢查使用者新入群的前幾條訊息是否符合驗證規則"""
 
     created_at: datetime = Column(
-        DateTime, nullable=False, default=datetime.now(), server_default=now()
+        DateTime, nullable=False, default=func.now(), server_default=now()
     )
     update_at: datetime = Column(
         DateTime,
         nullable=False,
-        default=datetime.now(),
+        default=func.now(),
         server_default=now(),
-        onupdate=datetime.now(),
+        onupdate=func.now(),
     )

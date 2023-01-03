@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from pyrogram import enums, types
-from sqlalchemy import BigInteger, Boolean, Column, DateTime
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, func
 from sqlalchemy.sql.functions import now
 
 from core.log import main_logger
@@ -29,14 +29,14 @@ class Privilege(db.BASE):
     is_anonymous: bool = Column(Boolean, default=False)
 
     created_at: datetime = Column(
-        DateTime, nullable=False, default=datetime.now(), server_default=now()
+        DateTime, nullable=False, default=func.now(), server_default=now()
     )
     updated_at: datetime = Column(
         DateTime,
         nullable=False,
-        default=datetime.now(),
+        default=func.now(),
         server_default=now(),
-        onupdate=datetime.now(),
+        onupdate=func.now(),
     )
 
     def __init__(
