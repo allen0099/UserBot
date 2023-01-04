@@ -118,6 +118,6 @@ class Privilege(db.BASE):
             privileges.is_anonymous = False
 
         db.session.add(privileges)
-        db.session.commit()
+        db.commit()
 
         return Privilege.get(msg.chat.id)

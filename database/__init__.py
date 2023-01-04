@@ -9,13 +9,14 @@ from alembic.script import ScriptDirectory
 from sqlalchemy import Column, String
 from sqlalchemy import MetaData
 from sqlalchemy import create_engine
+from sqlalchemy.exc import PendingRollbackError
 from sqlalchemy.future import Engine
 from sqlalchemy.orm import Session, scoped_session
 from sqlalchemy.orm import registry
 from sqlalchemy.orm import sessionmaker
 
 from core import settings
-from core.log import main_logger
+from core.log import event_logger, main_logger
 
 try:
     from sqlalchemy.orm import declarative_base
@@ -33,6 +34,7 @@ except ImportError:
     from threading import get_ident as _ident_func
 
 log: logging.Logger = main_logger(__name__)
+logger: logging.Logger = event_logger(__name__)
 
 base_folder: Path = Path(__file__).parent.parent
 config_file: Path = base_folder / "alembic.ini"
@@ -134,8 +136,17 @@ class Database:
     def drop_all(self) -> None:
         self.metadata.drop_all(self.ENGINE)
 
+    def commit(self) -> None:
+        try:
+            self.session.commit()
 
-db = Database()
+        except PendingRollbackError as e:
+            logger.exception(f"[Database] Commit failed due to {e}, rollback.")
+            self.session.rollback()
+            self.session.commit()
+
+
+db: Database = Database()
 
 
 class AlembicVersion(db.BASE):

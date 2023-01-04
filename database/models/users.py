@@ -55,4 +55,4 @@ class Users(db.BASE):
     def add(self) -> None:
         """新增使用者到資料庫"""
         db.session.add(self)
-        db.session.commit()
+        db.commit()
