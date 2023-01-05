@@ -25,8 +25,9 @@ async def privilege_handler(cli: Bot, msg: types.Message) -> None:
     if not group:
         await cli.send_log_message(
             f"#privilege\n"
-            f"Privilege not found!\n"
-            f"Adding privilege for {get_chat_link(msg.chat)}",
+            f"Privilege not found! Adding...\n"
+            f"Group: {get_chat_link(msg.chat)}\n"
+            f"Group ID: <code>{msg.chat.id}</code>",
             LogTopics.auto,
         )
 
@@ -36,6 +37,8 @@ async def privilege_handler(cli: Bot, msg: types.Message) -> None:
         except errors.UserNotParticipant:
             await cli.send_log_message(
                 f"#privilege #error\n"
-                f"User not in {get_chat_link(msg.chat)}, skipping...",
+                f"I am not joined the group, skipping...\n"
+                f"Group: {get_chat_link(msg.chat)}\n"
+                f"Group ID: <code>{msg.chat.id}</code>",
                 LogTopics.auto,
             )

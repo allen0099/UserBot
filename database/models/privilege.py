@@ -4,6 +4,7 @@ from typing import Optional
 
 from pyrogram import enums, types
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.functions import now
 
 from core.log import main_logger
@@ -118,6 +119,12 @@ class Privilege(db.BASE):
             privileges.is_anonymous = False
 
         db.session.add(privileges)
-        db.commit()
+
+        try:
+            db.commit()
+
+        except IntegrityError as e:
+            log.warning(f"Adding duplicated data: {e}\nRolling back session...")
+            db.session.rollback()
 
         return Privilege.get(msg.chat.id)
