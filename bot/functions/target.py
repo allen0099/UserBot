@@ -1,7 +1,6 @@
 from pyrogram import Client, errors, types
 
 from bot.errors import BotError
-from database.models.users import Users
 
 
 def is_protected(target: types.User | types.Chat) -> bool:
@@ -13,6 +12,8 @@ def is_protected(target: types.User | types.Chat) -> bool:
 
     if getattr(target, "is_self", False):
         return True
+
+    from database.models.users import Users
 
     u: Users = Users.get(target.id)
 
