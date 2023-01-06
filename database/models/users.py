@@ -56,3 +56,20 @@ class Users(db.BASE):
         """新增使用者到資料庫"""
         db.session.add(self)
         db.commit()
+
+    @staticmethod
+    def get_executors() -> list["Users"]:
+        return db.session.query(Users).filter_by(level=PermissionLevel.EXECUTOR).all()
+
+    def is_other(self):
+        return self.level == PermissionLevel.OTHER
+
+    def is_black(self):
+        return self.level == PermissionLevel.BLACK
+
+    def is_white(self):
+        return self.level in [
+            PermissionLevel.OWNER,
+            PermissionLevel.EXECUTOR,
+            PermissionLevel.WHITE,
+        ]

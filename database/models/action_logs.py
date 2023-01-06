@@ -39,3 +39,32 @@ class ActionLogs(db.BASE):
         server_default=now(),
         onupdate=func.now(),
     )
+
+    def __init__(
+        self, target_id: int, group_id: int, reason: str, source: str, message: str
+    ) -> None:
+        self.target_id = target_id
+        self.group_id = group_id
+        self.reason = reason
+        self.source = source
+        self.message = message
+
+    @staticmethod
+    def create(
+        target_id: int, group_id: int, reason: str, source: str, message: str
+    ) -> None:
+        _data: ActionLogs = ActionLogs(target_id, group_id, reason, source, message)
+        db.session.add(_data)
+        db.commit()
+
+    @staticmethod
+    def create_user_gban_log(target_id: int, group_id: int, executor_id: int) -> None:
+        ActionLogs.create(
+            target_id, group_id, "Global banned", f"{executor_id}", "Manually banned"
+        )
+
+    @staticmethod
+    def create_chat_gban_log(target_id: int, executor_id: int) -> None:
+        ActionLogs.create(
+            target_id, 0, "Global banned", f"{executor_id}", "Manually banned"
+        )

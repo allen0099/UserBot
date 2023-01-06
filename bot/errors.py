@@ -10,3 +10,8 @@ class RuleViolated(Exception):
 
         self.name = name
         self.detail = detail
+
+
+class BotError(Exception):
+    def __init__(self, message: str):
+        self.message = message

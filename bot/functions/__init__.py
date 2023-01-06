@@ -12,6 +12,7 @@ from bot.functions.links import (
     get_message_link,
     get_sticker_set_link,
 )
+from bot.functions.target import get_command_target, get_target, is_protected
 from core.settings import TIMEZONE
 
 
