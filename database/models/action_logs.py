@@ -9,6 +9,8 @@ from database import db
 
 log: logging.Logger = main_logger(__name__)
 
+GBAN_STR: str = "Global banned"
+
 
 class ActionLogs(db.BASE):
     """紀錄被自動封鎖的原因跟其他資訊"""
@@ -60,11 +62,24 @@ class ActionLogs(db.BASE):
     @staticmethod
     def create_user_gban_log(target_id: int, group_id: int, executor_id: int) -> None:
         ActionLogs.create(
-            target_id, group_id, "Global banned", f"{executor_id}", "Manually banned"
+            target_id, group_id, GBAN_STR, f"{executor_id}", "Manually banned"
         )
 
     @staticmethod
     def create_chat_gban_log(target_id: int, executor_id: int) -> None:
-        ActionLogs.create(
-            target_id, 0, "Global banned", f"{executor_id}", "Manually banned"
+        ActionLogs.create(target_id, 0, GBAN_STR, f"{executor_id}", "Manually banned")
+
+    @staticmethod
+    def get_gban_logs(target_id: int) -> list["ActionLogs"]:
+        return (
+            db.session.query(ActionLogs)
+            .filter_by(target_id=target_id, reason=GBAN_STR)
+            .all()
         )
+
+    @staticmethod
+    def destroy(target_id: int) -> None:
+        db.session.query(ActionLogs).filter_by(
+            target_id=target_id, reason=GBAN_STR
+        ).delete()
+        db.commit()

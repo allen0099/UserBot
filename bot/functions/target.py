@@ -29,6 +29,9 @@ async def get_command_target(
     target: types.User | types.Chat | None = None
     t: int | str = msg.command[1]
 
+    if t.startswith("https://t.me/"):
+        t = t[13:]
+
     try:
         target = await cli.get_users(t)
 

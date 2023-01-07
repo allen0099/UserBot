@@ -19,6 +19,8 @@ class LogTopics(int, Enum):
     action: int = 16
     banned: int = 24
 
+    error: int = 512
+
 
 class SendLogMessage:
     async def send_log_message(

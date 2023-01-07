@@ -42,12 +42,15 @@ class Users(db.BASE):
         self.id = id
         self.level = level
 
+        self.mock = True
+
     @staticmethod
     def get(_id: int) -> "Users":
         """取得使用者"""
         user: Users = db.session.query(Users).filter_by(id=_id).first()
 
         if user:
+            user.mock = False
             return user
 
         return Users(_id)
