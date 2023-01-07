@@ -154,6 +154,9 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
         )
         return
 
+    u.level = PermissionLevel.OTHER
+    u.add()
+
     if isinstance(target, types.User):
         unban_message: str = f"已將 {target_info} 從下列群組中解除封鎖：\n"
         action_logs: list["ActionLogs"] = ActionLogs.get_gban_logs(target.id)
