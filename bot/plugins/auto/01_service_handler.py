@@ -20,12 +20,15 @@ log: logging.Logger = main_logger(__name__)
 logger: logging.Logger = event_logger(__name__)
 
 
-@Client.on_message(filters.service, group=-100)
+@Client.on_message(filters.group & ~filters.media_group, group=-100)
 @event_log()
 async def service_handler(cli: Bot, msg: Message) -> None:
     """
     Ban user if user is in blacklist when user try to join the group.
     """
+    if not msg.service:
+        return
+
     if msg.chat.type != ChatType.SUPERGROUP:
         return
 
@@ -78,3 +81,5 @@ async def service_handler(cli: Bot, msg: Message) -> None:
 
         case _:
             logger.debug(f"{msg.service} is not handled, skipping...")
+
+    msg.stop_propagation()
