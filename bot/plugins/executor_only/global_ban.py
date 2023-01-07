@@ -48,7 +48,7 @@ async def global_ban(cli: Bot, msg: Message) -> None:
     if is_protected(target):
         await cli.send_log_message(
             f"❌ #gban\n{exec_info}\n目標：{target_info}\n原因：目標受到保護，操作失敗。",
-            LogTopics.auto,
+            LogTopics.global_ban,
         )
         await msg_auto_clean(
             await cli.send_message(
@@ -84,7 +84,7 @@ async def global_ban(cli: Bot, msg: Message) -> None:
 
         await cli.send_log_message(
             f"✅ #gban\n{exec_info}\n{ban_message}\n{short_info}",
-            LogTopics.auto,
+            LogTopics.global_ban,
         )
 
         await msg_auto_clean(
@@ -102,7 +102,7 @@ async def global_ban(cli: Bot, msg: Message) -> None:
 
         await cli.send_log_message(
             f"✅ #gban #chat\n{exec_info}\n{short_info}",
-            LogTopics.auto,
+            LogTopics.global_ban,
         )
 
         await msg_auto_clean(
@@ -143,7 +143,7 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
     if u.mock:
         await cli.send_log_message(
             f"❌ #gban #unblock\n{exec_info}\n目標：{target_info}\n原因：使用者不在資料庫中，操作失敗。",
-            LogTopics.auto,
+            LogTopics.global_ban,
         )
         await msg_auto_clean(
             await cli.send_message(
@@ -179,7 +179,7 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
 
         await cli.send_log_message(
             f"✅ #gban #unblock\n{exec_info}\n{unban_message}\n{short_info}",
-            LogTopics.auto,
+            LogTopics.global_ban,
         )
 
         ActionLogs.destroy(target.id)
@@ -198,7 +198,7 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
 
         await cli.send_log_message(
             f"✅ #gban #unblock\n{exec_info}\n{short_info}",
-            LogTopics.auto,
+            LogTopics.global_ban,
         )
 
         ActionLogs.destroy(target.id)
