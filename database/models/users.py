@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, Boolean, Column, DateTime, Enum, func
 from sqlalchemy.sql.functions import now
 
 from bot.enums import PermissionLevel
+from bot.errors import BotError
 from core.log import main_logger
 from database import db
 
@@ -57,6 +58,15 @@ class Users(db.BASE):
 
     def add(self) -> None:
         """新增使用者到資料庫"""
+        db.session.add(self)
+        db.commit()
+
+    def update(self, level: PermissionLevel = PermissionLevel.OTHER) -> None:
+        """更新使用者"""
+        if self.locked:
+            raise BotError("使用者被鎖定，無法修改權限等級")
+
+        self.level = level
         db.session.add(self)
         db.commit()
 

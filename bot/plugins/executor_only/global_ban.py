@@ -59,8 +59,7 @@ async def global_ban(cli: Bot, msg: Message) -> None:
         return
 
     u: Users = Users.get(target.id)
-    u.level = PermissionLevel.BLACK
-    u.add()
+    u.update(PermissionLevel.BLACK)
 
     if isinstance(target, types.User):
         counter: int = 0
@@ -154,8 +153,7 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
         )
         return
 
-    u.level = PermissionLevel.OTHER
-    u.add()
+    u.update()
 
     if isinstance(target, types.User):
         unban_message: str = f"已將 {target_info} 從下列群組中解除封鎖：\n"

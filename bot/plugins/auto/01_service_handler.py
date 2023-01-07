@@ -60,8 +60,7 @@ async def service_handler(cli: Bot, msg: Message) -> None:
                             f"Message Link: {msg.link}",
                             LogTopics.banned,
                         )
-                        u.level = PermissionLevel.BLACK
-                        u.add()
+                        u.update(PermissionLevel.BLACK)
                         # TODO: act something ban user (implement in next version)
                         continue
 
