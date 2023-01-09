@@ -1,25 +1,9 @@
-import logging
 import os
-from enum import Enum
 
 import bot
-from core import main_logger
+from bot.enums import LogTopics
 
-log: logging.Logger = main_logger(__name__)
 LOG_CHANNEL: str = os.getenv("LOG_CHANNEL")
-
-
-class LogTopics(int, Enum):
-    """回復訊息主題的 message ID，會因為紀錄頻道而改變"""
-
-    default: int = 1
-    new_user: int = 2
-    global_ban: int = 6
-    auto: int = 14
-    action: int = 16
-    banned: int = 24
-
-    error: int = 512
 
 
 class SendLogMessage:

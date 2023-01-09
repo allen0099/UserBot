@@ -4,9 +4,6 @@ from pyrogram import Client, filters, types
 from pyrogram.enums import ChatType
 
 from bot import Bot
-from bot.enums import PermissionLevel
-from bot.functions import get_chat_link
-from bot.methods.send_log_message import LogTopics
 from bot.validation import UserValidator
 from core.decorator import event_log
 from core.log import event_logger, main_logger
@@ -29,17 +26,8 @@ async def message_handler(cli: Bot, msg: types.Message) -> None:
         u: Users = Users.get(msg.from_user.id)
 
         if uv.errors:
-            await cli.send_log_message(
-                f"#banned "
-                f"#{' #'.join(uv.errors)}\n"
-                f"User: {msg.from_user.mention}\n"
-                f"User ID: <code>{msg.from_user.id}</code>\n"
-                f"Group: {get_chat_link(msg.chat)}\n"
-                f"Message Link: {msg.link}",
-                LogTopics.banned,
+            await cli.set_user_black(
+                msg.from_user, msg, uv.errors, uv.error_messages, ["message"]
             )
-            u.level = PermissionLevel.BLACK
-
-            # TODO: act something ban user (implement in next version)
 
         u.add()

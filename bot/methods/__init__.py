@@ -8,6 +8,7 @@ from .get_sticker_set import GetStickerSet
 from .kick_chat_member import KickChatMember
 from .send_log_message import SendLogMessage
 from .set_anti_spam import SetAntiSpam
+from .set_user_black import SetUserBlack
 
 
 class CustomMethods(
@@ -21,5 +22,6 @@ class CustomMethods(
     KickChatMember,
     SendLogMessage,
     SetAntiSpam,
+    SetUserBlack,
 ):
     pass

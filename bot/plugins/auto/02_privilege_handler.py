@@ -4,8 +4,8 @@ from pyrogram import Client, errors, filters, types
 from pyrogram.enums import ChatType
 
 from bot import Bot
+from bot.enums import LogTopics
 from bot.functions import get_chat_link
-from bot.methods.send_log_message import LogTopics
 from core.decorator import event_log
 from core.log import event_logger, main_logger
 from database.models.privilege import Privilege
@@ -26,8 +26,7 @@ async def privilege_handler(cli: Bot, msg: types.Message) -> None:
         await cli.send_log_message(
             f"#privilege\n"
             f"Privilege not found! Adding...\n"
-            f"Group: {get_chat_link(msg.chat)}\n"
-            f"Group ID: <code>{msg.chat.id}</code>",
+            f"Group: {get_chat_link(msg.chat)}<code>{msg.chat.id}</code>",
             LogTopics.auto,
         )
 
@@ -38,7 +37,6 @@ async def privilege_handler(cli: Bot, msg: types.Message) -> None:
             await cli.send_log_message(
                 f"#privilege #error\n"
                 f"I am not joined the group, skipping...\n"
-                f"Group: {get_chat_link(msg.chat)}\n"
-                f"Group ID: <code>{msg.chat.id}</code>",
+                f"Group: {get_chat_link(msg.chat)}<code>{msg.chat.id}</code>",
                 LogTopics.auto,
             )

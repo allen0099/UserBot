@@ -2,13 +2,14 @@ import logging
 import time
 
 from pyrogram import Client, filters, types
+from pyrogram.errors import PeerIdInvalid
 from pyrogram.types import Message
 
 from bot import Bot
+from bot.enums import LogTopics
 from bot.enums import PermissionLevel
 from bot.filters import executor_required
 from bot.functions import get_chat_link, get_target, is_protected, msg_auto_clean
-from bot.methods.send_log_message import LogTopics
 from bot.plugins import COMMAND_PREFIXES
 from core.decorator import event_log
 from core.log import event_logger, main_logger
@@ -63,7 +64,26 @@ async def global_ban(cli: Bot, msg: Message) -> None:
 
     if isinstance(target, types.User):
         counter: int = 0
-        common_chats: list[types.Chat] = await target.get_common_chats()
+        try:
+            common_chats: list[types.Chat] = await target.get_common_chats()
+
+        except PeerIdInvalid as e:
+            await cli.send_log_message(
+                f"❌ #gban\n"
+                f"{exec_info}\n"
+                f"目標：{target_info}\n"
+                f"原因：無法取得共同群組。\n"
+                f"錯誤訊息：<code>{e.MESSAGE}</code>",
+                LogTopics.error,
+            )
+            await msg_auto_clean(
+                await cli.send_message(
+                    msg.chat.id,
+                    f"操作失敗",
+                )
+            )
+            return
+
         groups: list[int] = Privilege.admin_group_list()
         ban_message: str = f"已將 {target_info} 從下列群組中封鎖：\n"
 

@@ -1,6 +1,19 @@
 from enum import Enum, auto
 
 
+class LogTopics(int, Enum):
+    """回復訊息主題的 message ID，會因為紀錄頻道而改變"""
+
+    default: int = 1
+    new_user: int = 2
+    global_ban: int = 6
+    auto: int = 14
+    action: int = 16
+    banned: int = 24
+
+    error: int = 512
+
+
 class PermissionLevel(Enum):
     OWNER = auto()
     EXECUTOR = auto()
