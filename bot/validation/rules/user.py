@@ -67,6 +67,7 @@ class ThirdPartyRule(UserRule):
     def __init__(self):
         super().__init__()
         self.reason: str = ""
+        self.additional: str = ""
 
     def update_error_message(self) -> None:
         match self.reason.lower():
@@ -77,7 +78,9 @@ class ThirdPartyRule(UserRule):
 
             case "husky":
                 self.error_message = (
-                    f"使用者被 Husky 系統封鎖。\nhttps://husky.moe/check?id={self.user.id}"
+                    f"使用者被 Husky 系統封鎖。\n"
+                    f"https://husky.moe/check?id={self.user.id}\n"
+                    f"附加資訊：{self.additional}"
                 )
 
             case _:
@@ -104,6 +107,7 @@ class ThirdPartyRule(UserRule):
             response: dict[str, ...] = r.json()
 
             if response.get("is_banned", False):
+                self.additional = response.get("tag", "")
                 return True
 
         else:
