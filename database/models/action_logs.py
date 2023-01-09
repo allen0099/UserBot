@@ -71,15 +71,9 @@ class ActionLogs(db.BASE):
 
     @staticmethod
     def get_banned_logs(target_id: int) -> list["ActionLogs"]:
-        return (
-            db.session.query(ActionLogs)
-            .filter_by(target_id=target_id)
-            .all()
-        )
+        return db.session.query(ActionLogs).filter_by(target_id=target_id).all()
 
     @staticmethod
     def destroy_all_logs(target_id: int) -> None:
-        db.session.query(ActionLogs).filter_by(
-            target_id=target_id
-        ).delete()
+        db.session.query(ActionLogs).filter_by(target_id=target_id).delete()
         db.commit()
