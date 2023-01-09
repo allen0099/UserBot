@@ -177,7 +177,7 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
 
     if isinstance(target, types.User):
         unban_message: str = f"已將 {target_info} 從下列群組中解除封鎖：\n"
-        action_logs: list["ActionLogs"] = ActionLogs.get_gban_logs(target.id)
+        action_logs: list["ActionLogs"] = ActionLogs.get_banned_logs(target.id)
         counter: int = 0
 
         for _log in action_logs:
@@ -202,7 +202,7 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
             LogTopics.global_ban,
         )
 
-        ActionLogs.destroy(target.id)
+        ActionLogs.destroy_all_logs(target.id)
 
         await msg_auto_clean(
             await cli.send_message(
@@ -221,7 +221,7 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
             LogTopics.global_ban,
         )
 
-        ActionLogs.destroy(target.id)
+        ActionLogs.destroy_all_logs(target.id)
 
         await msg_auto_clean(
             await cli.send_message(

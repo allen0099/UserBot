@@ -70,16 +70,16 @@ class ActionLogs(db.BASE):
         ActionLogs.create(target_id, 0, GBAN_STR, f"{executor_id}", "Manually banned")
 
     @staticmethod
-    def get_gban_logs(target_id: int) -> list["ActionLogs"]:
+    def get_banned_logs(target_id: int) -> list["ActionLogs"]:
         return (
             db.session.query(ActionLogs)
-            .filter_by(target_id=target_id, reason=GBAN_STR)
+            .filter_by(target_id=target_id)
             .all()
         )
 
     @staticmethod
-    def destroy(target_id: int) -> None:
+    def destroy_all_logs(target_id: int) -> None:
         db.session.query(ActionLogs).filter_by(
-            target_id=target_id, reason=GBAN_STR
+            target_id=target_id
         ).delete()
         db.commit()

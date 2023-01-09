@@ -25,7 +25,7 @@ class SetUserBlack:
         u: Users = Users.get(msg.from_user.id)
 
         if additional_tags:
-            header: str = f"#banned #{' #'.join(additional_tags)}#{' #'.join(errors)}\n"
+            header: str = f"#banned #{' #'.join(additional_tags)} #{' #'.join(errors)}\n"
 
         else:
             header: str = f"#banned #{' #'.join(errors)}\n"
