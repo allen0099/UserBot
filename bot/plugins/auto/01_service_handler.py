@@ -62,6 +62,10 @@ async def service_handler(cli: Bot, msg: Message) -> None:
                         )
                         u.update(PermissionLevel.BLACK)
                         # TODO: act something ban user (implement in next version)
+
+                        await cli.ban_chat_member(msg.chat.id, user.id)
+                        await cli.delete_user_history(msg.chat.id, user.id)
+
                         continue
 
                     await cli.send_log_message(
