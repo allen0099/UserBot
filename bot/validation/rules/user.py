@@ -64,10 +64,24 @@ class ThirdPartyRule(UserRule):
 
     name = "第三方串接"
 
+    def __init__(self):
+        super().__init__()
+        self.reason: str = ""
+
     def update_error_message(self) -> None:
-        self.error_message = (
-            f"使用者被 Combot CAS 系統封鎖。\nhttps://cas.chat/query?u={self.user.id}"
-        )
+        match self.reason.lower():
+            case "cas":
+                self.error_message = (
+                    f"使用者被 Combot CAS 系統封鎖。\nhttps://cas.chat/query?u={self.user.id}"
+                )
+
+            case "husky":
+                self.error_message = (
+                    f"使用者被 Husky 系統封鎖。\nhttps://husky.moe/check?id={self.user.id}"
+                )
+
+            case _:
+                self.error_message = f"使用者被第三方系統封鎖。\n"
 
     def combot_cas_banned(self) -> bool:
         r: Response = requests.get(f"https://api.cas.chat/check?user_id={self.user.id}")
@@ -83,8 +97,27 @@ class ThirdPartyRule(UserRule):
 
         return False
 
-    def is_violate_rule(self) -> bool:
-        if not self.combot_cas_banned():
-            return False
+    def husky_banned(self) -> bool:
+        r: Response = requests.get(f"https://husky.moe/check?id={self.user.id}")
 
-        return True
+        if r.ok:
+            response: dict[str, ...] = r.json()
+
+            if response.get("is_banned", False):
+                return True
+
+        else:
+            log.error(f"Husky API error: {r.status_code} {r.reason}")
+
+        return False
+
+    def is_violate_rule(self) -> bool:
+        if self.combot_cas_banned():
+            self.reason = "cas"
+            return True
+
+        if self.husky_banned():
+            self.reason = "husky"
+            return True
+
+        return False
