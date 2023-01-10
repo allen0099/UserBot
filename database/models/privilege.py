@@ -108,17 +108,14 @@ class Privilege(db.BASE):
             privileges.can_pin_messages = me.privileges.can_pin_messages
             privileges.is_anonymous = me.privileges.is_anonymous
         else:
-            privileges.can_manage_chat = True
-            privileges.can_delete_messages = False
-            privileges.can_manage_video_chats = False
-            privileges.can_restrict_members = False
-            privileges.can_promote_members = False
-            privileges.can_change_info = False
-            privileges.can_invite_users = False
-            privileges.can_pin_messages = False
-            privileges.is_anonymous = False
+            privileges.clear()
 
-        db.session.add(privileges)
+        privileges.write()
+
+        return Privilege.get(msg.chat.id)
+
+    def write(self):
+        db.session.add(self)
 
         try:
             db.commit()
@@ -127,4 +124,13 @@ class Privilege(db.BASE):
             log.warning(f"Adding duplicated data: {e}\nRolling back session...")
             db.session.rollback()
 
-        return Privilege.get(msg.chat.id)
+    def clear(self):
+        self.can_manage_chat = True
+        self.can_delete_messages = False
+        self.can_manage_video_chats = False
+        self.can_restrict_members = False
+        self.can_promote_members = False
+        self.can_change_info = False
+        self.can_invite_users = False
+        self.can_pin_messages = False
+        self.is_anonymous = False

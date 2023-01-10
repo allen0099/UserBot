@@ -57,8 +57,13 @@ class Users(db.BASE):
 
         return Users(_id)
 
-    def add(self) -> None:
+    def add(self, raise_error: bool = False) -> None:
         """新增使用者到資料庫"""
+        if not self.mock:
+            if raise_error:
+                raise BotError("使用者已存在")
+            return
+
         try:
             db.session.add(self)
 

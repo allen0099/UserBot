@@ -27,6 +27,7 @@ class MeOnlyCommandList(Enum):
     PING = ("ping", "PONG")
     REQUEST = ("req", "取得使用者 / 群組 / 頻道的詳細資訊")
     ROLL = ("roll", "隨機骰或隨機選擇")
+    UPDATE = ("update", "更新群組中的權限")
 
     ZH_CN = ("zh", "轉簡體中文")
 
