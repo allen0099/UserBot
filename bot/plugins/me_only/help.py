@@ -16,6 +16,7 @@ logger: logging.Logger = event_logger(__name__)
 class MeOnlyCommandList(Enum):
     # Me only commands
     ADMIN = ("admin", "提及群組內的管理員")
+    ADD_EXECUTOR = ("add_executor", "新增執行者")
     COUNT = ("count", "取得訊息類型統計")
     DISABLE_ANTISPAM = ("disable_antispam", "關閉所有群組的 AntiSpam 功能")
     EVAL = ("eval", "執行 Python 程式碼")
