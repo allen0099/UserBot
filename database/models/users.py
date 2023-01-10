@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Enum, func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.functions import now
 
 from bot.enums import PermissionLevel
@@ -58,7 +59,13 @@ class Users(db.BASE):
 
     def add(self) -> None:
         """新增使用者到資料庫"""
-        db.session.add(self)
+        try:
+            db.session.add(self)
+
+        except IntegrityError as e:
+            db.session.rollback()
+            log.error(e.detail)
+
         db.commit()
 
     def update(self, level: PermissionLevel = PermissionLevel.OTHER) -> None:
