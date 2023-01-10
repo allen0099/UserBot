@@ -11,9 +11,9 @@ psutil==5.9.4
 psycopg2==2.9.5
 pyaes==1.6.1
 pyreadline3==3.4.1
-Pyrogram==2.0.93
+Pyrogram==2.0.96
 PySocks==1.7.1
 requests==2.28.1
-SQLAlchemy==1.4.45
+SQLAlchemy==1.4.46
 TgCrypto==1.2.5
 urllib3==1.26.13
