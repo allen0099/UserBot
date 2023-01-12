@@ -50,9 +50,7 @@ async def add_executor(cli: Bot, msg: Message) -> None:
     db_user.locked = True
     db_user.add()
 
-    await msg_auto_clean(
-        await cli.send_log_message(
-            f"✅ #add_executor\n新增執行者：{user.mention} (<code>{user.id}</code>)\n",
-            LogTopics.action,
-        )
+    await cli.send_log_message(
+        f"✅ #add_executor\n新增執行者：{user.mention} (<code>{user.id}</code>)\n",
+        LogTopics.action,
     )
