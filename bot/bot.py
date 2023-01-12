@@ -1,8 +1,7 @@
 import logging
 import os
 import sys
-from builtins import function
-from typing import Union
+from typing import Any, Union
 
 import psutil
 import pyrogram
@@ -20,7 +19,7 @@ log: logging.Logger = main_logger(__name__)
 class Bot(Client, CustomMethods):
     _instance: Union[None, "Bot"] = None
     dealing_message: types.Message | None = None
-    current_handler: function | None = None
+    current_handler: Any = None
 
     def __new__(cls, *args, **kwargs):
         """Singleton pattern
