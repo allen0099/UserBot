@@ -8,6 +8,7 @@ from pyrogram.types import Message
 from bot import Bot
 from bot.enums import LogTopics
 from bot.enums import PermissionLevel
+from bot.errors import BotError
 from bot.filters import executor_required
 from bot.functions import get_chat_link, get_target, is_protected, msg_auto_clean
 from bot.plugins import COMMAND_PREFIXES
@@ -33,12 +34,21 @@ async def global_ban(cli: Bot, msg: Message) -> None:
     await msg.delete()
 
     start_time: float = time.perf_counter()
-    target: types.User | types.Chat = await get_target(cli, msg)
     exec_info: str = (
         f"執行者：{msg.from_user.mention} (<code>{msg.from_user.id}</code>)\n"
         f"執行位置：{get_chat_link(msg.chat)} (<code>{msg.chat.id}</code>)\n"
         f"執行：<b><u>全域封鎖</u></b>"
     )
+
+    try:
+        target: types.User | types.Chat = await get_target(cli, msg)
+
+    except BotError as e:
+        await cli.send_log_message(
+            f"❌ #gban\n{exec_info}\n{e.message}", LogTopics.error
+        )
+        await msg_auto_clean(await cli.send_message(msg.chat.id, f"{e.message}"))
+        return
 
     if isinstance(target, types.User):
         target_info: str = f"{target.mention} (<code>{target.id}</code>)"
@@ -145,12 +155,21 @@ async def undo_global_ban(cli: Bot, msg: Message) -> None:
     await msg.delete()
 
     start_time: float = time.perf_counter()
-    target: types.User | types.Chat = await get_target(cli, msg)
     exec_info: str = (
         f"執行者：{msg.from_user.mention} (<code>{msg.from_user.id}</code>)\n"
         f"執行位置：{get_chat_link(msg.chat)} (<code>{msg.chat.id}</code>)\n"
         f"執行：<b><u>全域解除封鎖</u></b>"
     )
+
+    try:
+        target: types.User | types.Chat = await get_target(cli, msg)
+
+    except BotError as e:
+        await cli.send_log_message(
+            f"❌ #gban #unblock\n{exec_info}\n{e.message}", LogTopics.error
+        )
+        await msg_auto_clean(await cli.send_message(msg.chat.id, f"{e.message}"))
+        return
 
     if isinstance(target, types.User):
         target_info: str = f"{target.mention} (<code>{target.id}</code>)"
