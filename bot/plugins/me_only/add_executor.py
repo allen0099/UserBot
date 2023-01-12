@@ -37,7 +37,7 @@ async def add_executor(cli: Bot, msg: Message) -> None:
 
     db_user: Users = Users.get(user.id)
 
-    if not db_user.mock and db_user.permission_level == PermissionLevel.EXECUTOR:
+    if db_user.level == PermissionLevel.EXECUTOR:
         await msg_auto_clean(
             await cli.send_message(
                 msg.chat.id,
