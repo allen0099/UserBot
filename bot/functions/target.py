@@ -48,21 +48,43 @@ async def get_command_target(
     return target
 
 
-async def get_target(cli: Client, msg: types.Message) -> types.User | types.Chat:
+async def get_forward_target(msg: types.Message) -> types.User | types.Chat | None:
+    """
+    Get target from forward.
+
+    Args:
+        msg:
+
+    Returns:
+
+    """
     target: types.User | types.Chat | None = None
 
     if msg.reply_to_message:
-        # 代表有回復的對象，表示要對回復的對象進行全域封鎖
-        if msg.reply_to_message.forward_from:
-            # 有 forward 先抓 forward
+        if msg.reply_to_message.forward_from or msg.reply_to_message.forward_from_chat:
             target = (
                 msg.reply_to_message.forward_from
                 or msg.reply_to_message.forward_from_chat
             )
 
-        if not target:
-            # 抓不到 forward 就抓 reply
-            target = msg.reply_to_message.from_user or msg.reply_to_message.sender_chat
+    return target
+
+
+async def get_target(cli: Client, msg: types.Message) -> types.User | types.Chat:
+    """
+    Get target from reply or command.
+
+    Args:
+        cli:
+        msg:
+
+    Returns:
+
+    """
+    target: types.User | types.Chat | None = None
+
+    if msg.reply_to_message:
+        target = msg.reply_to_message.from_user or msg.reply_to_message.sender_chat
 
     if len(msg.command) > 1:
         target = await get_command_target(cli, msg)
