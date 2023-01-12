@@ -31,6 +31,12 @@ def event_log() -> Callable:
 
         @wraps(func)
         async def wrapper(bot: Bot, msg: types.Message, *args, **kwargs) -> Callable:
+            if bot.current_handler == func and bot.dealing_message == msg:
+                return lambda x: log.debug("Message is dealing")
+
+            bot.dealing_message = msg
+            bot.current_handler = func
+
             executor: Union[types.Chat, types.User] = (
                 msg.from_user or msg.sender_chat
             )  # From channel or user
