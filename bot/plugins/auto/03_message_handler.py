@@ -30,4 +30,5 @@ async def message_handler(cli: Bot, msg: types.Message) -> None:
                 msg.from_user, msg, uv.errors, uv.error_messages, ["message"]
             )
 
-        u.add()
+        else:
+            u.add()

@@ -87,7 +87,13 @@ class ThirdPartyRule(UserRule):
                 self.error_message = f"使用者被第三方系統封鎖。\n"
 
     def combot_cas_banned(self) -> bool:
-        r: Response = requests.get(f"https://api.cas.chat/check?user_id={self.user.id}")
+        try:
+            r: Response = requests.get(f"https://api.cas.chat/check?user_id={self.user.id}")
+
+        except requests.exceptions.ConnectionError as e:
+            log.error(f"Combot CAS API error: ConnectionError, {e}")
+            return False
+
 
         if r.ok:
             response: dict[str, ...] = r.json()
@@ -101,7 +107,12 @@ class ThirdPartyRule(UserRule):
         return False
 
     def husky_banned(self) -> bool:
-        r: Response = requests.get(f"https://husky.moe/check?id={self.user.id}")
+        try:
+            r: Response = requests.get(f"https://husky.moe/check?id={self.user.id}")
+
+        except requests.exceptions.ConnectionError as e:
+            log.error(f"Husky API error: ConnectionError, {e}")
+            return False
 
         if r.ok:
             response: dict[str, ...] = r.json()
