@@ -123,7 +123,7 @@ async def delete_name_rule(cli: Bot, msg: Message) -> None:
     exec_info: str = (
         f"執行者：{msg.from_user.mention} (<code>{msg.from_user.id}</code>)\n"
         f"執行位置：{get_chat_link(msg.chat)} (<code>{msg.chat.id}</code>)\n"
-        f"執行：<b><u>全域解除封鎖</u></b>"
+        f"執行：<b><u>刪除規則</u></b>"
     )
 
     if len(msg.command) != 2:
@@ -187,7 +187,7 @@ async def check_name_rule(cli: Bot, msg: Message) -> None:
     exec_info: str = (
         f"執行者：{msg.from_user.mention} (<code>{msg.from_user.id}</code>)\n"
         f"執行位置：{get_chat_link(msg.chat)} (<code>{msg.chat.id}</code>)\n"
-        f"執行：<b><u>全域解除封鎖</u></b>"
+        f"執行：<b><u>檢查使用者名稱</u></b>"
     )
 
     try:
@@ -221,7 +221,7 @@ async def check_name_rule(cli: Bot, msg: Message) -> None:
         f"❌ #check_name_rule\n"
         f"{exec_info}\n"
         f"名字符合封鎖條件\n"
-        f"<code>{uv.error_messages}</code>\n",
+        f"<code>{uv.error_messages.get('使用者名稱')}</code>\n",
         LogTopics.action,
     )
     await msg_auto_clean(await cli.send_message(msg.chat.id, f"操作成功"))
