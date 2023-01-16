@@ -212,7 +212,10 @@ async def check_name_rule(cli: Bot, msg: Message) -> None:
 
     if not uv.errors:
         await cli.send_log_message(
-            f"✅ #check_name_rule\n{exec_info}\n名字未符合封鎖條件", LogTopics.action
+            f"✅ #check_name_rule\n"
+            f"{exec_info}\n"
+            f"{target.mention} (<code>{target.id}</code>) 名字未符合封鎖條件",
+            LogTopics.action,
         )
         await msg_auto_clean(await cli.send_message(msg.chat.id, f"操作成功"))
         return
@@ -220,7 +223,7 @@ async def check_name_rule(cli: Bot, msg: Message) -> None:
     await cli.send_log_message(
         f"❌ #check_name_rule\n"
         f"{exec_info}\n"
-        f"名字符合封鎖條件\n"
+        f"<code>{target.id}</code> 符合封鎖條件\n"
         f"<code>{uv.error_messages.get('使用者名稱')}</code>\n",
         LogTopics.action,
     )
