@@ -1,6 +1,5 @@
 import logging
 import re
-from html import escape
 from re import Pattern
 
 import requests
@@ -40,23 +39,33 @@ class NameRule(UserRule):
 
     name = "使用者名稱"
 
-    def get_pattern(self) -> Pattern:
-        word: list[FullNameBlacklist] = (
+    def __init__(self):
+        super().__init__()
+        self.matched_rule: FullNameBlacklist | None = None
+        self.matched_times: int = 0
+
+    def update_error_message(self) -> None:
+        self.error_message = (
+            f"<code>{self.user.id}</code> "
+            f"觸發規則 <code>{self.matched_rule.word}</code>，共 {self.matched_times} 次。\n"
+            f"規則允許上限：<code>{self.matched_rule.count}</code> 次。"
+        )
+
+    def is_violate_rule(self) -> bool:
+        full_name: str = f"{self.user.first_name or ''} {self.user.last_name or ''}"
+
+        words: list[FullNameBlacklist] = (
             db.session.query(FullNameBlacklist).filter_by(disabled=False).all()
         )
 
-        if not word:
-            # return a pattern that will never match
-            return re.compile(r"^\b\B$")
+        for word in words:
+            test: list[str] = re.findall(word.word, full_name)
+            if test and len(test) > word.count:
+                self.matched_rule = word
+                self.matched_times = len(test)
+                return True
 
-        pattern: str = "^.*(?:" + "|".join([f"{w.word}" for w in word]) + ").*$"
-
-        return re.compile(pattern)
-
-    def is_violate_rule(self) -> bool:
-        full_name: str = f"{self.user.first_name} {self.user.last_name or ''}"
-
-        return self.get_pattern().match(escape(full_name).strip()) is None
+        return False
 
 
 class ThirdPartyRule(UserRule):
@@ -88,12 +97,13 @@ class ThirdPartyRule(UserRule):
 
     def combot_cas_banned(self) -> bool:
         try:
-            r: Response = requests.get(f"https://api.cas.chat/check?user_id={self.user.id}")
+            r: Response = requests.get(
+                f"https://api.cas.chat/check?user_id={self.user.id}"
+            )
 
         except requests.exceptions.ConnectionError as e:
             log.error(f"Combot CAS API error: ConnectionError, {e}")
             return False
-
 
         if r.ok:
             response: dict[str, ...] = r.json()

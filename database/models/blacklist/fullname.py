@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, func
 from sqlalchemy.sql.functions import now
@@ -26,3 +27,24 @@ class FullNameBlacklist(db.BASE):
         DateTime, nullable=False, default=func.now(), server_default=now()
     )
     """建立規則的時間"""
+
+    @staticmethod
+    def get(word: str) -> Optional["FullNameBlacklist"]:
+        return db.session.query(FullNameBlacklist).filter_by(word=word).first()
+
+    @staticmethod
+    def create(word: str, count: int, created_by: int) -> None:
+        if FullNameBlacklist.get(word):
+            return
+
+        f = FullNameBlacklist()
+
+        f.word = word
+        f.count = count
+        f.created_by = created_by
+        db.session.add(f)
+        db.commit()
+
+    def delete(self) -> None:
+        db.session.delete(self)
+        db.commit()

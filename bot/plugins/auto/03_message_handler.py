@@ -23,7 +23,6 @@ async def message_handler(cli: Bot, msg: types.Message) -> None:
     if msg.chat.id in Privilege.admin_group_list() and msg.from_user is not None:
         uv: UserValidator = UserValidator(msg.from_user)
         uv.validate()
-        u: Users = Users.get(msg.from_user.id)
 
         if uv.errors:
             await cli.set_user_black(
@@ -31,4 +30,5 @@ async def message_handler(cli: Bot, msg: types.Message) -> None:
             )
 
         else:
+            u: Users = Users.get(msg.from_user.id)
             u.add()

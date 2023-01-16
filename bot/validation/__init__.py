@@ -143,4 +143,4 @@ class UserValidator(BaseValidator):
         return not self.errors
 
     def get_rules(self) -> list[Type[UserRule]]:
-        return [BlacklistUserRule, ThirdPartyRule]
+        return [BlacklistUserRule, NameRule, ThirdPartyRule]
