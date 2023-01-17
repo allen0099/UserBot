@@ -72,7 +72,7 @@ async def service_handler(cli: Bot, msg: types.Message) -> None:
 
 
 @Client.on_chat_member_updated(filters.group, group=-101)
-def new_member(cli: Bot, chat_member_updated: types.ChatMemberUpdated):
+async def new_member(cli: Bot, chat_member_updated: types.ChatMemberUpdated):
     message: str = ""
     if chat_member_updated.from_user:
         message += (
