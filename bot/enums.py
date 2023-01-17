@@ -10,6 +10,7 @@ class LogTopics(int, Enum):
     auto: int = 14
     action: int = 16
     banned: int = 24
+    debug: int = 751
 
     error: int = 512
 
