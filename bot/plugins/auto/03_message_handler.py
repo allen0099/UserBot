@@ -4,6 +4,8 @@ from pyrogram import Client, filters, types
 from pyrogram.enums import ChatType
 
 from bot import Bot
+from bot.enums import LogTopics
+from bot.errors import BotError
 from bot.validation import UserValidator
 from core.decorator import event_log
 from core.log import event_logger, main_logger
@@ -25,9 +27,19 @@ async def message_handler(cli: Bot, msg: types.Message) -> None:
         uv.validate()
 
         if uv.errors:
-            await cli.set_user_black(
-                msg.from_user, msg, uv.errors, uv.error_messages, ["message"]
-            )
+            try:
+                await cli.set_user_black(
+                    msg.from_user, msg, uv.errors, uv.error_messages, ["message"]
+                )
+
+            except BotError as e:
+                await cli.send_log_message(
+                    f"Error: {e}\n"
+                    f"User: {msg.from_user.mention}\n"
+                    f"User ID: <code>{msg.from_user.id}</code>\n"
+                    f"Message Link: {msg.link}",
+                    LogTopics.error
+                )
 
         else:
             u: Users = Users.get(msg.from_user.id)
